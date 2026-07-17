@@ -13,6 +13,8 @@
                     \_/    \_/    \__,_| \__,_| \__,_| |_|  |_| \__,_| (_)
                 """);
             Console.WriteLine();
+            Console.WriteLine(" by seray & Ognov Games");
+            Console.WriteLine();
         }
     }
 }

@@ -5,10 +5,51 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>WaaaHa__patcher.API</RootNamespace>
+    <AssemblyName>WaaaHa!-patcher</AssemblyName>
+    <ApplicationIcon>wwwroot\Orks build.ico</ApplicationIcon>
+    <SignAssembly>False</SignAssembly>
+    <Authors>seray, Ognov Games</Authors>
+    <PackageProjectUrl>https://github.com/seray-orig/WaaaHa-patcher</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/seray-orig/WaaaHa-patcher</RepositoryUrl>
+    <RepositoryType>github</RepositoryType>
+    <NeutralLanguage>ru</NeutralLanguage>
+	  <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+	  <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="Controllers\Hotkeys\" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm run build --prefix ../WaaaHa!-patcher.React" />
+  </Target>
+
+    <ItemGroup>
+        <Content Remove="wwwroot\**" />
+		<EmbeddedResource Include="wwwroot\**\*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="dotnet-tools.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="dotnet-tools.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.10" />
+    </ItemGroup>
 
 </Project>
