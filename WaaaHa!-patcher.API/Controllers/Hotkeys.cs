@@ -59,24 +59,24 @@ namespace WaaaHa__patcher.API.Controllers
                     
                     var variables = _luaReader.GetVariables(content);
 
-                    var schemeName = Convert.ToString(variables[HotkeyScheme.strName]) ?? "unknown";
-                    if(!float.TryParse(variables[HotkeyScheme.strVersion].ToString(), out float version)) version = 15.2f;
-                    var bindings = variables.Where(kvp => kvp.Value is Dictionary<string, object>)
-                    .ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => ((Dictionary<string, object>)kvp.Value)
-                            .ToDictionary(
-                                inner => inner.Key,
-                                inner => inner.Value?.ToString() ?? ""
-                            )
-                    );
-                    
-                    schemes.Add(new HotkeyScheme(schemeName, version, bindings));
+                    var schemeName = variables[HotkeyScheme.strName]?.ToString() ?? "unknown";
+
+                    // Версия теперь приходит как строка (например, "15.2")
+                    string versionStr = variables[HotkeyScheme.strVersion]?.ToString() ?? "15.2";
+
+                    var allBindings = variables
+    .Where(kvp => kvp.Value is Dictionary<string, string>)
+    .ToDictionary(
+        kvp => kvp.Key,
+        kvp => (Dictionary<string, string>)kvp.Value
+    );
+
+                    schemes.Add(new HotkeyScheme(schemeName, versionStr, allBindings));
                 };
 
                 _profiles.Add(new Profile(profileName, schemes));
             }
-
+            Console.WriteLine(_profiles[0].Hotkeys[0].Bindings.Keys.FirstOrDefault());
             return Ok();
         }
     }

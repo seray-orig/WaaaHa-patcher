@@ -1,6 +1,6 @@
 ﻿namespace WaaaHa__patcher.API.Models
 {
-    public class HotkeyScheme(string name, float version, Dictionary<string, Dictionary<string, string>> bindings)
+    public class HotkeyScheme(string name, string version, Dictionary<string, Dictionary<string, string>> bindings)
     {
         public static string strName = "bindings_locstring";
         public static string strVersion = "bindings_version";
@@ -36,7 +36,7 @@
             }
         } = name;
 
-        public float Version { get; set; } = version;
+        public string Version { get; set; } = version;
 
         public Dictionary<string, Dictionary<string, string>> Bindings { get; init; } = bindings;
     }
