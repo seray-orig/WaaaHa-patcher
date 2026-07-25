@@ -25,18 +25,15 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Hotkeys\" />
-  </ItemGroup>
-
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="npm run build --prefix ../WaaaHa!-patcher.React" />
-  </Target>
 
-    <ItemGroup>
-        <Content Remove="wwwroot\**" />
-		<EmbeddedResource Include="wwwroot\**\*" />
-    </ItemGroup>
+	  <ItemGroup>
+	      <Content Remove="wwwroot\**" />
+		  <EmbeddedResource Remove="wwwroot\**\*" />
+	      <EmbeddedResource Include="wwwroot\**\*" />
+	  </ItemGroup>
+  </Target>
 
     <ItemGroup>
       <Content Remove="dotnet-tools.json" />
@@ -50,6 +47,10 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.10" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Services\Interfaces\" />
     </ItemGroup>
 
 </Project>
