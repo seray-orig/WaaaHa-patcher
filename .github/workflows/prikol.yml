@@ -45,12 +45,6 @@ jobs:
       run: npm run build
       working-directory: ./WaaaHa!-patcher.React
 
-    - name: Перенос React в wwwroot
-      run: |
-        rm -rf './WaaaHa!-patcher.API/wwwroot'
-        mkdir -p './WaaaHa!-patcher.API/wwwroot'
-        cp -r './WaaaHa!-patcher.React/dist/'* './WaaaHa!-patcher.API/wwwroot'
-
     - name: Установка .NET
       uses: actions/setup-dotnet@v5
       with:
