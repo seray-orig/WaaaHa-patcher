@@ -1,20 +1,23 @@
 /**
  * Загрузка иконок команд с вики warhammer-guide.ru.
  *
- * На странице фракции лежат картинки всех её юнитов, техники и построек, но
- * названия произвольные: SMServitor.jpg, SMRhino.jpg. Скрипт сопоставляет их с
- * идентификаторами хоткеев и кладёт в public/hotkey-images под именем
- * идентификатора, которое ищет интерфейс.
+ * Иконка берётся со страницы самого юнита: там в блоке «Build Info» лежит квадратная
+ * картинка 64×64. Картинки со страницы фракции не годятся — это большие фотографии
+ * отрядов, а нужны иконки отдельных юнитов.
+ *
+ * Названия на вике произвольные (`Ss_force_commander_icon.jpg`), поэтому каждая страница
+ * сопоставлена со своим идентификатором хоткея в FACTION_UNITS.
  *
  * Запуск:
  *   node tools/fetch-wiki-icons.mjs --faction=marine
  *
- * Сопоставления живут в FACTION_ICONS. Новые картинки вики скрипт выводит
- * списком в конце, чтобы их можно было добавить руками.
+ * Подклассы вроде сержанта лежат на отдельных страницах и сопоставлены так же: в игре
+ * это самостоятельные хоткеи, выбираемые в оружейне. Новые страницы скрипт печатает
+ * списком в конце.
  */
 
 import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname, extname, join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const WIKI_ROOT = 'https://warhammer-guide.ru'
@@ -26,7 +29,7 @@ const OUTPUT_DIR = join(
   'hotkey-images',
 )
 
-/** Страницы фракций на вики. */
+/** Страница фракции нужна только для отчёта, иконки берутся со страниц юнитов. */
 const FACTION_PAGES = {
   marine: 'Space_Marines',
   chaos: 'Chaos',
@@ -40,115 +43,117 @@ const FACTION_PAGES = {
 }
 
 /**
- * Сопоставление «файл на вики» → «идентификатор хоткея».
- * Заполнено для космодесанта, остальные фракции добавляются по мере надобности.
+ * Идентификатор хоткея → страница юнита на вики.
+ * Порядок внутри группы повторяет порядок юнитов в игре.
  */
-const FACTION_ICONS = {
+const FACTION_UNITS = {
   marine: {
-    SMServitor: 'marine_servitor',
-    SMScouts: 'marine_scout',
-    SMSpaceMarines: 'marine_space_marine',
-    SMAssualt: 'marine_assault_marine',
-    SMGreyKnight: 'marine_grey_knights',
-    SMTermi: 'marine_terminator',
-    SMAssaultTermi: 'marine_assault_terminator',
-    SMSkullprobes: 'marine_skull_probe',
-    SMApoth: 'marine_apothecary',
-    SMLib: 'marine_librarian',
-    'SS_Force_Commander': 'marine_force_commander',
-    SMChaplian: 'marine_chaplain',
+    // Пехота
+    Servitor: 'marine_servitor',
+    Scout_Marine_Squad: 'marine_scout',
+    Space_Marine_Squad: 'marine_space_marine',
+    Assault_Marine_Squad: 'marine_assault_marine',
+    Grey_Knights: 'marine_grey_knights',
+    Terminator_Squad: 'marine_terminator',
+    Assault_Terminator_Squad: 'marine_assault_terminator',
+    Skull_Probe: 'marine_skull_probe',
+    Apothecary: 'marine_apothecary',
+    Force_Commander: 'marine_force_commander',
+    Librarian: 'marine_librarian',
+    Chaplain: 'marine_chaplain',
 
-    SMRhino: 'marine_rhino',
-    SMLandspeeder: 'marine_land_speeder',
+    // Подклассы: в игре это отдельные юниты, покупаемые в оружейне
+    Marine_Sergeant: 'marine_sergeant',
+
+    // Техника
+    Rhino: 'marine_rhino',
+    Land_Speeder: 'marine_land_speeder',
     Land_Speeder_Tempest: 'marine_tempest',
-    SMDread: 'marine_dreadnought',
-    SMHellfire: 'marine_dreadnought_hellfire',
-    SMWhirlwind: 'marine_whirlwind',
-    SMPread: 'marine_predator',
-    SMLandRaider: 'marine_land_raider',
+    Dreadnought: 'marine_dreadnought',
+    Hellfire_Dreadnought: 'marine_dreadnought_hellfire',
+    Predator: 'marine_predator',
+    Whirlwind: 'marine_whirlwind',
+    Land_Raider: 'marine_land_raider',
 
-    SMHQ: 'marine_hq',
-    SMLP: 'marine_listening_post',
-    SMGenerator: 'marine_generator',
-    SMThermo: 'marine_thermo_generator',
-    SMBarracks: 'marine_chapel',
-    SMArmoury: 'marine_armoury',
-    SMMachineCult: 'marine_machine_cult',
-    SMScaredAtifact: 'marine_artefact',
-    SMObritalRelay: 'marine_orbital_relay',
-    SMTurrets: 'marine_bolter_turret',
-    SMMines: 'marine_mine_field',
+    // Строения
+    Stronghold: 'marine_hq',
+    Listening_Post_Space_Marines: 'marine_listening_post',
+    Plasma_Generator_Space_Marines: 'marine_generator',
+    Thermo_Plasma_Generator_Space_Marines: 'marine_thermo_generator',
+    'Chapel-Barracks': 'marine_chapel',
+    Armoury: 'marine_armoury',
+    Machine_Cult: 'marine_machine_cult',
+    Sacred_Artifact: 'marine_artefact',
+    Orbital_Relay: 'marine_orbital_relay',
+    Heavy_Bolter_Turret_Space_Marines: 'marine_bolter_turret',
+    Mine_Field_Space_Marines: 'marine_mine_field',
   },
 }
 
 /**
- * Картинка, которой открывается вкладка фракции. Для всех фракций взята
- * штаб-квартира: она есть у каждой расы и узнаваема.
+ * Командир расы: его иконкой открывается вкладка фракции. Это тот же человек, которым
+ * игрок командует всё войско, поэтому представитель выбран осмысленно, а не наугад.
  */
-const FACTION_BANNER = {
-  marine: 'SMHQ',
-  chaos: 'Chaos_stronghold',
-  eldar: 'Eldarhq',
-  ork: 'OrkHQ',
-  guard: 'IGhq',
-  tau: 'Cadre_Headquarters',
-  necron: 'Monolith_dormant',
-  dark_eldar: 'Kabal_Fortress',
-  sisters: 'Ecclesiarchal_Chapel',
+const FACTION_LEADER = {
+  marine: 'Force_Commander',
+  chaos: 'Daemon_Prince',
+  eldar: 'Farseer',
+  ork: 'Warboss',
+  guard: 'Command_Squad',
+  tau: 'Ethereal',
+  necron: 'Necron_Lord',
+  dark_eldar: 'Archon',
+  sisters: 'Canoness',
 }
 
-/** Служебные картинки вики, которые не имеют отношения к юнитам. */
-const IGNORED = /^(180px-|80px-|magnify-|brand\/)|^(Dawn_of_War_logo|favicon|Resource_)/i
+/** Иконка юнита — первая картинка 64×64 на его странице. */
+const UNIT_ICON = /<img[^>]*src="images\/([^"]+)"[^>]*width="64"/g
+
+/** Служебные картинки вики, которые к юнитам отношения не имеют. */
+const IGNORED = /^(180px-|80px-|magnify-|brand\/|Dark_crusade_appicon)|^(Dawn_of_War_logo|favicon|Resource_)/i
 
 async function fetchPage(page) {
   const response = await fetch(`${WIKI_ROOT}/wiki/${page}.html`)
 
   if (!response.ok) {
-    throw new Error(`Страница ${page} вернула ${response.status}`)
+    throw new Error(`${page}: HTTP ${response.status}`)
   }
 
   return response.text()
 }
 
-/** Имена файлов картинок страницы без префикса images/ и без мусора. */
-function listImages(html) {
-  const found = html.matchAll(/<img[^>]*src="([^"]+)"/g)
+/** Имя иконки юнита на его странице. */
+async function findUnitIcon(page) {
+  const html = await fetchPage(page)
+  const icons = [...new Set([...html.matchAll(UNIT_ICON)].map((match) => match[1]))]
 
-  return new Set(
-    [...found]
-      .map((match) => match[1].replace(/^.*images\//, ''))
-      .filter((name) => !IGNORED.test(name) && /\.(jpg|jpeg|png|gif)$/i.test(name)),
-  )
+  return icons.find((name) => !IGNORED.test(name)) ?? null
 }
 
-/**
- * Скачивает картинку и сохраняет её под идентификатором хоткея.
- * Расширение берём из ответа, а не из имени: вики отдаёт то, чему сам файл является.
- */
 async function download(wikiName, bindingId) {
   const response = await fetch(`${WIKI_ROOT}/wiki/images/${wikiName}`)
 
   if (!response.ok) {
-    return { ok: false, status: response.status }
+    return { ok: false, reason: `HTTP ${response.status}` }
   }
 
   const type = response.headers.get('content-type') ?? ''
 
-  // Без проверки Content-Type сайт отдаёт HTML-заглушку, и «картинка» не откроется.
+  // Без проверки сайт отдаёт HTML-заглушку, и «картинка» не откроется.
   if (!type.startsWith('image/')) {
-    return { ok: false, status: response.status, reason: `не изображение, а ${type}` }
+    return { ok: false, reason: `не изображение, а ${type}` }
   }
 
   const extension = type.includes('png') ? 'png' : 'jpg'
   const bytes = Buffer.from(await response.arrayBuffer())
 
   if (bytes.length === 0) {
-    return { ok: false, status: response.status }
+    return { ok: false, reason: 'пустой ответ' }
   }
 
   await writeFile(join(OUTPUT_DIR, `${bindingId}.${extension}`), bytes)
 
-  return { ok: true, extension, bytes: bytes.length }
+  return { ok: true }
 }
 
 async function main() {
@@ -162,64 +167,76 @@ async function main() {
   await mkdir(OUTPUT_DIR, { recursive: true })
 
   for (const faction of factions) {
-    const page = FACTION_PAGES[faction]
+    const units = FACTION_UNITS[faction] ?? {}
 
-    if (!page) {
-      console.error(`Неизвестная фракция: ${faction}`)
-      continue
-    }
+    console.log(`\n=== ${faction} (${FACTION_PAGES[faction] ?? '—'}) ===`)
 
-    const available = listImages(await fetchPage(page))
-    const mapping = FACTION_ICONS[faction] ?? {}
-
-    console.log(`\n=== ${faction} (${page}) ===`)
-    console.log(`Картинок на странице: ${available.size}`)
-
-    const claimed = new Set()
     let downloaded = 0
+    const failed = []
+    const seen = new Map()
 
-    for (const [wikiName, bindingId] of Object.entries(mapping)) {
-      const match = [...available].find(
-        (name) => name.slice(0, name.length - extname(name).length).toLowerCase() === wikiName.toLowerCase(),
-      )
+    for (const [page, bindingId] of Object.entries(units)) {
+      let icon
 
-      if (!match) {
-        console.error(`  НЕТ НА САЙТЕ: ${wikiName} → ${bindingId}`)
+      try {
+        icon = await findUnitIcon(page)
+      } catch (reason) {
+        failed.push(`${page} → ${bindingId}: ${reason.message}`)
         continue
       }
 
-      claimed.add(match)
+      if (!icon) {
+        failed.push(`${page} → ${bindingId}: иконка 64×64 не найдена`)
+        continue
+      }
 
-      const result = await download(match, bindingId)
+      seen.set(icon, bindingId)
+
+      const result = await download(icon, bindingId)
 
       if (result.ok) {
         downloaded += 1
       } else {
-        console.error(`  ОШИБКА ${match} → ${bindingId}: ${result.reason ?? `HTTP ${result.status}`}`)
+        failed.push(`${icon} → ${bindingId}: ${result.reason}`)
       }
     }
 
-    const banner = FACTION_BANNER[faction]
-    const bannerName = banner && `${banner.toLowerCase()}.jpg`
-    const bannerMatch = bannerName && [...available].find((name) => name.toLowerCase() === bannerName)
+    const leader = FACTION_LEADER[faction]
 
-    if (bannerMatch) {
-      const result = await download(bannerMatch, `faction_${faction}`)
+    if (leader) {
+      const icon = await findUnitIcon(leader)
+      const result = icon ? await download(icon, `faction_${faction}`) : null
 
-      if (result.ok) {
+      if (result?.ok) {
         downloaded += 1
-        claimed.add(bannerMatch)
+      } else if (icon) {
+        failed.push(`${leader} → faction_${faction}: ${result.reason}`)
       } else {
-        console.error(`  ОШИБКА ${bannerMatch} → faction_${faction}: ${result.reason ?? `HTTP ${result.status}`}`)
+        failed.push(`${leader}: иконка командира не найдена`)
       }
     }
-
-    const unused = [...available].filter((name) => !claimed.has(name))
 
     console.log(`Скачано: ${downloaded}`)
 
-    if (unused.length > 0) {
-      console.log(`Не сопоставлено (${unused.length}): ${unused.join(', ')}`)
+    if (failed.length > 0) {
+      console.log(`Не удалось (${failed.length}):`)
+      failed.forEach((line) => console.log(`  ${line}`))
+    }
+
+    // Несколько юнитов часто делят одну иконку на вики — это нормально, но
+    // полезно знать при проверке результата.
+    const counts = new Map()
+
+    for (const [icon, bindingId] of seen) {
+      counts.set(icon, [...(counts.get(icon) ?? []), bindingId])
+    }
+
+    const shared = [...counts].filter(([, ids]) => ids.length > 1)
+
+    if (shared.length > 0) {
+      console.log(
+        `Общие иконки: ${shared.map(([icon, ids]) => `${icon} → ${ids.join(', ')}`).join('; ')}`,
+      )
     }
   }
 }

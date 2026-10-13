@@ -81,7 +81,7 @@ export const ru = {
   'group.common': 'Общее',
   'group.camera': 'Камера',
   'group.addon': 'Дополнения',
-  'group.marine': 'Имперские гвардейцы',
+  'group.marine': 'Космодесант',
   'group.chaos': 'Хаос',
   'group.ork': 'Орки',
   'group.eldar': 'Элдары',
