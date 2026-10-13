@@ -1,16 +1,52 @@
-# React + Vite
+Веб-интерфейс редактора хоткеев: React + Vite + TypeScript.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Запуск в разработке
 
-Currently, two official plugins are available:
+Интерфейс собирается в папку `../WaaaHa!-patcher.API/wwwroot`, откуда его
+раздаёт сервер приложения. Поэтому обычный цикл такой:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+1. Запустить сервер на известном порту и поднять Vite с проксированием на него:
 
-## React Compiler
+   ```
+   set WAAAHA_URLS=http://127.0.0.1:5080
+   dotnet run --project ../WaaaHa!-patcher.API
+   npm run dev
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   Адрес задаётся переменной `WAAAHA_URLS`: по умолчанию приложение занимает
+   свободный порт, о котором фронтенд не знает. Менять его можно и в
+   `vite.config.js` через `VITE_API_TARGET`.
 
-## Expanding the ESLint configuration
+## Команды
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `npm run dev` — сервер разработки Vite.
+- `npm run build` — проверка типов и сборка в `wwwroot` сервера.
+- `npm run lint` — ESLint.
+- `npm run typecheck` — только проверка типов.
+
+## Структура
+
+| Путь | Назначение |
+| --- | --- |
+| `src/api` | Типизированный клиент локального API |
+| `src/components` | Плитка хоткея, модальные окна, общие элементы |
+| `src/hooks` | Захват клавиш и подтверждение действий |
+| `src/hotkeys` | Преобразование событий клавиатуры в формат игры |
+| `src/i18n` | Словари русского, английского и корейского |
+| `src/pages` | Выбор профиля, список наборов, редактор |
+| `public/hotkey-images` | Иконки команд, см. README в папке |
+
+## Локализация
+
+Русский — основной язык, английский и корейский добавлены рядом. Словари лежат
+в `src/i18n/dictionaries.ts`; новую строку нужно завести сразу во всех трёх,
+иначе интерфейс покажет её английский вариант.
+
+Выбор языка сохраняется в `localStorage` под ключом `waaaha.locale`. Если ничего
+не задано, берётся язык браузера.
+
+## Картинки
+
+Иконки лежат в `public/hotkey-images` и называются по идентификатору команды:
+`marine_servitor.png`, `chaos_lord.png`. Если картинки нет — показывается
+клетчатая заглушка с названием. Подробности в `public/hotkey-images/README.md`.
