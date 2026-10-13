@@ -71,5 +71,24 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
             return document;
         }
+
+        /// <summary>
+        /// Создаёт новый набор, который начинается с настроек основы. Так игрок сразу
+        /// видит рабочий набор и меняет только то, что хочет.
+        /// </summary>
+        public static LuaBindingsDocument CopyOf(LuaBindingsDocument template, string displayName)
+        {
+            var document = FromTemplate(template, displayName);
+            var original = template.MainTable;
+            var target = document.MainTable;
+
+            if (original is null || target is null)
+                return document;
+
+            foreach (var binding in target.Bindings)
+                binding.Value = original.Find(binding.Id)?.Value ?? string.Empty;
+
+            return document;
+        }
     }
 }

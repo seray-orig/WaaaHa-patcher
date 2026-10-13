@@ -20,17 +20,20 @@ namespace WaaaHa__patcher.API.Application
         private readonly IProfileRepository _profiles;
         private readonly IHotkeySetRepository _sets;
         private readonly IHotkeyGroupResolver _groups;
+        private readonly IHotkeyCategoryResolver _categories;
         private readonly IBindingValueValidator _validator;
 
         public HotkeySetService(
             IProfileRepository profiles,
             IHotkeySetRepository sets,
             IHotkeyGroupResolver groups,
+            IHotkeyCategoryResolver categories,
             IBindingValueValidator validator)
         {
             _profiles = profiles;
             _sets = sets;
             _groups = groups;
+            _categories = categories;
             _validator = validator;
         }
 
@@ -81,7 +84,7 @@ namespace WaaaHa__patcher.API.Application
                     HotkeyErrorCode.BaseNotFound,
                     $"Файл «{request.BaseFileName}» не содержит таблицы bindings.");
 
-            var document = LuaBindingsDocument.FromTemplate(baseSet.Document, displayName);
+            var document = LuaBindingsDocument.CopyOf(baseSet.Document, displayName);
 
             _sets.Write(profileName, fileName, document);
 
@@ -212,6 +215,7 @@ namespace WaaaHa__patcher.API.Application
             var sections = new List<HotkeySection>();
             var entries = new List<HotkeyEntry>();
             var title = string.Empty;
+            var category = HotkeyCategory.System;
 
             void Flush()
             {
@@ -232,12 +236,21 @@ namespace WaaaHa__patcher.API.Application
                                 binding.Id,
                                 binding.Value,
                                 _groups.Resolve(binding.Id),
+                                ResolveCategory(binding.Id, category),
                                 $"/hotkey-images/{binding.Id.ToLowerInvariant()}.png"));
                             break;
 
                         case LuaRawLine raw when IsSectionTitle(raw.Text):
                             Flush();
                             title = ExtractTitle(raw.Text);
+
+                            // Подразделы вроде «HQ» или «BARRACKS» ничего не сообщают
+                            // о содержимом, поэтому наследуют раздел родителя.
+                            var resolved = _categories.Resolve(title);
+
+                            if (resolved != HotkeyCategory.System)
+                                category = resolved;
+
                             break;
                     }
                 }
@@ -246,6 +259,23 @@ namespace WaaaHa__patcher.API.Application
             Flush();
 
             return sections;
+        }
+
+        /// <summary>
+        /// Раздел приходит из заголовка секции. Техника отдельно не выделяется: в файле
+        /// её нет, она отличима только по составу войск, и это знание живёт в интерфейсе.
+        /// </summary>
+        private string ResolveCategory(string bindingId, HotkeyCategory fallback)
+        {
+            var group = _groups.Resolve(bindingId);
+
+            if (group == HotkeyGroupResolver.Common || group == HotkeyGroupResolver.Camera)
+                return nameof(HotkeyCategory.System);
+
+            if (group == HotkeyGroupResolver.Addon)
+                return nameof(HotkeyCategory.Addon);
+
+            return fallback.ToString();
         }
 
         /// <summary>

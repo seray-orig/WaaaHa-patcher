@@ -1,3 +1,5 @@
+using System;
+
 namespace WaaaHa__patcher.API.Application
 {
     /// <summary>
@@ -16,30 +18,40 @@ namespace WaaaHa__patcher.API.Application
         public const string Camera = "camera";
         public const string Addon = "addon";
 
-        /// <summary>Префиксы, за которыми стоит конкретная фракция или союз игроков.</summary>
+        /// <summary>
+        /// Префиксы, за которыми стоит конкретная фракция или союз игроков.
+        /// Порядок важен: <c>dark_eldar</c> проверяется раньше <c>dark</c>, иначе способности
+        /// Тёмных эльдаров попали бы в общую группу вместе с остальными.
+        /// </summary>
         private static readonly string[] FactionPrefixes =
         [
-            "marine", "chaos", "ork", "eldar", "tau", "necron", "guard", "dark_eldar", "sisters"
+            "dark_eldar", "marine", "chaos", "ork", "eldar", "tau", "necron", "guard", "sisters"
         ];
+
+        /// <summary>Разделитель фракции и остатка идентификатора.</summary>
+        private const char Separator = '_';
 
         public string Resolve(string bindingId)
         {
             if (string.IsNullOrWhiteSpace(bindingId))
                 return Common;
 
-            var separator = bindingId.IndexOf('_');
-            var prefix = separator < 0 ? bindingId : bindingId[..separator];
-
-            if (prefix.Equals("camera", System.StringComparison.OrdinalIgnoreCase))
-                return Camera;
-
             foreach (var faction in FactionPrefixes)
             {
-                if (prefix.Equals(faction, System.StringComparison.OrdinalIgnoreCase))
+                if (!bindingId.StartsWith(faction, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // Совпадение должно быть целым префиксом: «eldar» не должен ловить «dark_eldar».
+                var rest = bindingId[faction.Length..];
+
+                if (rest.Length == 0 || rest[0] == Separator)
                     return faction;
             }
 
-            if (prefix.Equals(Addon, System.StringComparison.OrdinalIgnoreCase))
+            if (bindingId.StartsWith(Camera + Separator, StringComparison.OrdinalIgnoreCase))
+                return Camera;
+
+            if (bindingId.StartsWith(Addon + Separator, StringComparison.OrdinalIgnoreCase))
                 return Addon;
 
             return Common;

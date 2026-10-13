@@ -46,6 +46,7 @@ namespace WaaaHa__patcher.API.Utilities
             builder.Services.AddSingleton<IHotkeySetRepository, HotkeySetRepository>();
 
             builder.Services.AddSingleton<IHotkeyGroupResolver, HotkeyGroupResolver>();
+            builder.Services.AddSingleton<IHotkeyCategoryResolver, HotkeyCategoryResolver>();
             builder.Services.AddSingleton<IHotkeySetService, HotkeySetService>();
         }
     }

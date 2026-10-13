@@ -19,9 +19,15 @@ namespace WaaaHa__patcher.API.Contracts
     /// </summary>
     /// <param name="Id">Идентификатор команды в игре, например <c>marine_servitor</c>.</param>
     /// <param name="Value">Значение в формате Lua: <c>Control+Shift+A</c> или пустая строка.</param>
-    /// <param name="Group">Логическая группа по префиксу идентификатора: <c>marine</c>, <c>chaos</c> и так далее.</param>
+    /// <param name="Group">Фракция по префиксу идентификатора: <c>marine</c>, <c>dark_eldar</c> и так далее.</param>
+    /// <param name="Category">Раздел внутри фракции: пехота, техника, здания, способности и прочее.</param>
     /// <param name="IconUrl">Путь к картинке-иконке. Может указывать на несуществующий файл — интерфейс подставит заглушку.</param>
-    public sealed record HotkeyEntry(string Id, string Value, string Group, string IconUrl);
+    public sealed record HotkeyEntry(
+        string Id,
+        string Value,
+        string Group,
+        string Category,
+        string IconUrl);
 
     /// <summary>
     /// Секция набора, восстановленная по комментариям исходного файла.

@@ -17,13 +17,39 @@ namespace WaaaHa__patcher.API.UnitTests
 
             bindings =
             {
+            	-- SYSTEM COMMANDS
+            	objectivesmenu		= "Control+O",
+
             	-- TASKBAR COMMANDS
             	stop 				= "S",
             	move 				= "M",
 
+            	-- BUILDINGS FOR MARINES
+            	marine_hq					= "H",
+
             	-- TROOPERS FOR MARINES
             	marine_servitor				= "B",
             	marine_chaplain			= "Z",
+
+            	-- TROOPERS FOR ELDAR
+            	eldar_farseer				= "Y",
+
+            	-- BUILDINGS FOR ELDAR
+            	eldar_webway_gate			= "W",
+
+            	-- TROOPERS FOR DARK ELDAR
+            	dark_eldar_archon			= "C",
+
+            	-- RESEARCH FOR MARINES
+            	-- HQ
+            	marine_hq_addon_1			= "U",
+            	marine_frag_grenade_research	= "G",
+
+            	-- ABILITIES FOR MARINES
+            	marine_battlecry			= "B",
+
+            	-- ABILITIES FOR DARK ELDAR
+            	dark_eldar_upgrade_retinue	= "F",
             }
 
             camera_bindings =
@@ -92,30 +118,69 @@ namespace WaaaHa__patcher.API.UnitTests
         }
 
         [Fact]
-        public void СозданиеНабораКопируетСтруктуруНоСбрасываетЗначения()
+        public void СозданиеНабораКопируетСтруктуруИНастройкиОсновы()
         {
             var details = _service.Create("Profile1", new CreateHotkeySetRequest("my set", "Мой набор", "KEYDEFAULTS_MODERN.LUA"));
 
             Assert.Equal("MY_SET.LUA", details.FileName);
             Assert.Equal("Мой набор", details.DisplayName);
             Assert.False(details.IsBuiltIn);
+
+            // Новый набор не должен быть пустым: игрок стартует с рабочими хоткеями основы.
+            var values = details.Sections
+                .SelectMany(section => section.Entries)
+                .ToDictionary(entry => entry.Id, entry => entry.Value);
+
+            Assert.Equal("S", values["stop"]);
+            Assert.Equal("B", values["marine_servitor"]);
+            Assert.Equal("Control+O", values["objectivesmenu"]);
+
             var sectionTitles = details.Sections.Select(section => section.Title).ToList();
             Assert.Contains("TASKBAR COMMANDS", sectionTitles);
             Assert.Contains("TROOPERS FOR MARINES", sectionTitles);
 
-            // Основные хоткеи обнуляются: игрок расставляет их заново.
-            Assert.All(
-                details.Sections.SelectMany(section => section.Entries).Where(entry => entry.Group != "camera"),
-                entry => Assert.Equal(string.Empty, entry.Value));
-
             var file = File.ReadAllText(Path.Combine(ProfileDirectory, "MY_SET.LUA"));
             Assert.Contains("bindings_locstring = \"Мой набор\"", file);
             Assert.Contains("bindings_version = 15.2", file);
-            Assert.Contains("marine_servitor", file);
-            Assert.Contains("= \"\",", file);
+            Assert.Contains("marine_servitor = \"B\",", file);
 
             // Управление камерой обнулять нельзя: редактируется оно тоже, но из основы.
             Assert.Contains("camera_panleft = \"Left,Shift+A\",", file);
+        }
+
+        [Fact]
+        public void РазделыКлассифицируютсяПоЗаголовкам()
+        {
+            var details = _service.Get("Profile1", "KEYDEFAULTS_MODERN.LUA");
+
+            string CategoryOf(string id) => details.Sections
+                .SelectMany(section => section.Entries)
+                .Single(entry => entry.Id == id)
+                .Category;
+
+            Assert.Equal("Infantry", CategoryOf("marine_servitor"));
+            Assert.Equal("Building", CategoryOf("marine_hq"));
+            Assert.Equal("Research", CategoryOf("marine_frag_grenade_research"));
+            Assert.Equal("Ability", CategoryOf("marine_battlecry"));
+            Assert.Equal("System", CategoryOf("stop"));
+            Assert.Equal("System", CategoryOf("camera_panleft"));
+        }
+
+        [Fact]
+        public void СпособностиТёмныхЭльдаровНеПутаютсяСЭльдарами()
+        {
+            var details = _service.Get("Profile1", "KEYDEFAULTS_MODERN.LUA");
+
+            string GroupOf(string id) => details.Sections
+                .SelectMany(section => section.Entries)
+                .Single(entry => entry.Id == id)
+                .Group;
+
+            Assert.Equal("dark_eldar", GroupOf("dark_eldar_archon"));
+            Assert.Equal("dark_eldar", GroupOf("dark_eldar_upgrade_retinue"));
+            Assert.Equal("eldar", GroupOf("eldar_farseer"));
+            Assert.Equal("eldar", GroupOf("eldar_webway_gate"));
+            Assert.Equal("marine", GroupOf("marine_servitor"));
         }
 
         [Fact]
@@ -137,7 +202,9 @@ namespace WaaaHa__patcher.API.UnitTests
 
             Assert.Equal("Control+Q", values["marine_servitor"]);
             Assert.Equal(string.Empty, values["stop"]);
-            Assert.Equal(string.Empty, values["marine_chaplain"]);
+
+            // Непереданный хоткей сохраняет настройку основы.
+            Assert.Equal("Z", values["marine_chaplain"]);
         }
 
         [Fact]
@@ -317,6 +384,7 @@ namespace WaaaHa__patcher.API.UnitTests
                 profiles,
                 new HotkeySetRepository(profiles, new LuaBindingsParser(), new LuaBindingsWriter()),
                 new HotkeyGroupResolver(),
+                new HotkeyCategoryResolver(),
                 new BindingValueValidator(new KeyRegistry()));
         }
 
