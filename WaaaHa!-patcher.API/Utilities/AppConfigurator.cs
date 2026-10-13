@@ -7,6 +7,8 @@ namespace WaaaHa__patcher.API.Utilities
     {
         public static void ConfigureThis(WebApplication app)
         {
+            app.UseCors("local-web");
+
             app.MapControllers();
 
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly(), "WaaaHa__patcher.API.wwwroot");

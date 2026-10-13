@@ -24,7 +24,7 @@ namespace WaaaHa__patcher.API.Utilities
             {
                 if (OperatingSystem.IsWindows())
                 {
-                    Process.Start(new ProcessStartInfo(url+"/api/hotkeys/UpdateProfiles") { UseShellExecute = true });
+                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                 }
                 else if (OperatingSystem.IsLinux())
                 {

@@ -1,0 +1,21 @@
+using System.Collections.Generic;
+using WaaaHa__patcher.API.Contracts;
+
+namespace WaaaHa__patcher.API.Application
+{
+    /// <summary>
+    /// Сценарии работы с наборами хоткеев. Контроллеры остаются тонкими.
+    /// </summary>
+    public interface IHotkeySetService
+    {
+        IReadOnlyList<HotkeySetSummary> List(string profileName);
+
+        HotkeySetDetails Get(string profileName, string fileName);
+
+        HotkeySetDetails Create(string profileName, CreateHotkeySetRequest request);
+
+        HotkeySetDetails Save(string profileName, string fileName, SaveHotkeySetRequest request);
+
+        void Delete(string profileName, string fileName);
+    }
+}

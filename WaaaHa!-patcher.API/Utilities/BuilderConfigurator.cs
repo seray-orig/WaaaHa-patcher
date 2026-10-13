@@ -1,4 +1,6 @@
-﻿using WaaaHa__patcher.API.Services;
+﻿using WaaaHa__patcher.API.Application;
+using WaaaHa__patcher.API.Domain.Hotkeys;
+using WaaaHa__patcher.API.Domain.Profiles;
 
 namespace WaaaHa__patcher.API.Utilities
 {
@@ -11,12 +13,37 @@ namespace WaaaHa__patcher.API.Utilities
             builder.Logging.SetMinimumLevel(LogLevel.Information);
             builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
+            // Порт выбирает операционная система: так приложение не мешает другим локальным серверам.
             builder.WebHost.UseUrls("http://127.0.0.1:0");
 
-            builder.Services.AddControllers();
+            builder.Services
+                .AddControllers(options => options.Filters.Add<HotkeyExceptionFilter>())
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+                });
 
-            builder.Services.AddSingleton<FileSystemManager>();
-            builder.Services.AddSingleton<LuaPseudoReader>();
+            builder.Services.AddCors(options => options.AddPolicy("local-web", policy => policy
+                .SetIsOriginAllowed(_ => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()));
+
+            RegisterDomain(builder);
+        }
+
+        private static void RegisterDomain(WebApplicationBuilder builder)
+        {
+            builder.Services.AddSingleton<IKeyRegistry, KeyRegistry>();
+            builder.Services.AddSingleton<IBindingValueValidator, BindingValueValidator>();
+            builder.Services.AddSingleton<ILuaBindingsParser, LuaBindingsParser>();
+            builder.Services.AddSingleton<ILuaBindingsWriter, LuaBindingsWriter>();
+
+            builder.Services.AddSingleton<IGamePathsProvider, GamePathsProvider>();
+            builder.Services.AddSingleton<IProfileRepository, ProfileRepository>();
+            builder.Services.AddSingleton<IHotkeySetRepository, HotkeySetRepository>();
+
+            builder.Services.AddSingleton<IHotkeyGroupResolver, HotkeyGroupResolver>();
+            builder.Services.AddSingleton<IHotkeySetService, HotkeySetService>();
         }
     }
 }
