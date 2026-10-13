@@ -22,6 +22,9 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
         [GeneratedRegex(@"^\s*\}\s*$")]
         private static partial Regex TableCloseRegex();
 
+        [GeneratedRegex(@"^\s*\{\s*$")]
+        private static partial Regex OpeningBraceRegex();
+
         [GeneratedRegex(@"^\s*(?<id>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?<value>.*?)\s*$")]
         private static partial Regex AssignmentRegex();
 
@@ -30,42 +33,59 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
         public LuaBindingsDocument Parse(IEnumerable<string> lines)
         {
             var document = new LuaBindingsDocument();
-            LuaTable? current = null;
+            var source = lines as IReadOnlyList<string> ?? [.. lines];
+            var open = new Stack<LuaTable>();
+            var pendingOpen = false;
 
-            foreach (var rawLine in lines)
+            for (var index = 0; index < source.Count; index++)
             {
-                var line = rawLine.TrimEnd('\r');
+                var line = source[index].TrimEnd('\r');
 
-                if (current is null)
+                if (pendingOpen)
                 {
-                    if (TableOpenRegex().IsMatch(line))
-                    {
-                        var name = AssignmentRegex().Match(line).Groups["id"].Value;
-                        current = new LuaTable(name);
-                        document.Tables.Add(current);
-                    }
-                    else
-                    {
-                        ReadHeaderLine(document, line);
-                    }
+                    pendingOpen = false;
 
+                    // Игра пишет объявление таблицы в две строки:
+                    //   bindings =
+                    //   {
+                    // Физическая скобка относится к объявлению, а не к телу таблицы.
+                    if (OpeningBraceRegex().IsMatch(line))
+                        continue;
+                }
+
+                if (TableOpenRegex().IsMatch(line))
+                {
+                    var table = new LuaTable(AssignmentRegex().Match(line).Groups["id"].Value);
+
+                    document.Tables.Add(table);
+                    open.Push(table);
+                    pendingOpen = true;
                     continue;
                 }
 
                 if (TableCloseRegex().IsMatch(line))
                 {
-                    current = null;
+                    if (open.Count > 0)
+                        open.Pop();
+
+                    continue;
+                }
+
+                if (open.Count == 0)
+                {
+                    ReadHeaderLine(document, line);
                     continue;
                 }
 
                 var bindingMatch = BindingRegex().Match(line);
+
                 if (bindingMatch.Success)
                 {
-                    current.Items.Add(ReadBinding(bindingMatch, line));
+                    open.Peek().Items.Add(ReadBinding(bindingMatch, line));
                     continue;
                 }
 
-                current.Items.Add(new LuaRawLine(line));
+                open.Peek().Items.Add(new LuaRawLine(line));
             }
 
             return document;

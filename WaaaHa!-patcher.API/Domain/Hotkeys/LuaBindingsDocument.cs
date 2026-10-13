@@ -32,9 +32,15 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
         public LuaTable? CameraTable => Tables.Find(table => table.Name == CameraTableName);
 
         /// <summary>
-        /// Создаёт пустой документ на основе структуры исходного файла: сохраняет порядок
-        /// биндингов, комментарии-разделители и таблицу камеры, но обнуляет значения.
+        /// Создаёт новый набор на основе существующего файла: сохраняет порядок биндингов
+        /// и комментарии-разделители секций, но обнуляет значения.
         /// </summary>
+        /// <remarks>
+        /// Обнуляется только таблица <c>bindings</c>. Всё остальное (сейчас это
+        /// <c>camera_bindings</c> с её особым форматом последовательностей) переносится
+        /// как есть, иначе набор останется без управления камерой, а редактировать её
+        /// в интерфейсе нельзя.
+        /// </remarks>
         public static LuaBindingsDocument FromTemplate(LuaBindingsDocument template, string displayName)
         {
             var document = new LuaBindingsDocument
@@ -45,10 +51,20 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
             foreach (var table in template.Tables)
             {
+                var keepValues = !string.Equals(table.Name, MainTableName, StringComparison.Ordinal);
                 var copy = new LuaTable(table.Name);
 
                 foreach (var item in table.Items)
-                    copy.Items.Add(item is LuaBinding binding ? new LuaBinding(binding.Id, string.Empty) : item);
+                {
+                    copy.Items.Add(item is LuaBinding binding
+                        ? new LuaBinding(binding.Id, keepValues ? binding.Value : string.Empty)
+                            {
+                                Indent = binding.Indent,
+                                Suffix = binding.Suffix,
+                                TrailingComment = binding.TrailingComment
+                            }
+                        : item);
+                }
 
                 document.Tables.Add(copy);
             }

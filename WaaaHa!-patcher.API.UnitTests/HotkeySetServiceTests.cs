@@ -99,17 +99,23 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.Equal("MY_SET.LUA", details.FileName);
             Assert.Equal("Мой набор", details.DisplayName);
             Assert.False(details.IsBuiltIn);
-            Assert.All(details.Sections.SelectMany(s => s.Entries), entry => Assert.Equal(string.Empty, entry.Value));
-
             var sectionTitles = details.Sections.Select(section => section.Title).ToList();
             Assert.Contains("TASKBAR COMMANDS", sectionTitles);
             Assert.Contains("TROOPERS FOR MARINES", sectionTitles);
+
+            // Основные хоткеи обнуляются: игрок расставляет их заново.
+            Assert.All(
+                details.Sections.SelectMany(section => section.Entries).Where(entry => entry.Group != "camera"),
+                entry => Assert.Equal(string.Empty, entry.Value));
 
             var file = File.ReadAllText(Path.Combine(ProfileDirectory, "MY_SET.LUA"));
             Assert.Contains("bindings_locstring = \"Мой набор\"", file);
             Assert.Contains("bindings_version = 15.2", file);
             Assert.Contains("marine_servitor", file);
             Assert.Contains("= \"\",", file);
+
+            // Управление камерой обнулять нельзя: редактируется оно тоже, но из основы.
+            Assert.Contains("camera_panleft = \"Left,Shift+A\",", file);
         }
 
         [Fact]
@@ -150,6 +156,31 @@ namespace WaaaHa__patcher.API.UnitTests
                 .Value;
 
             Assert.Equal("Shift+Numpad3", value);
+        }
+
+        [Fact]
+        public void УправлениеКамеройПереноситсяСОсновыИРедактируется()
+        {
+            var created = _service.Create(
+                "Profile1",
+                new CreateHotkeySetRequest("MY_SET.LUA", "Мой набор", "KEYDEFAULTS_MODERN.LUA"));
+
+            var panLeft = created.Sections
+                .SelectMany(section => section.Entries)
+                .Single(entry => entry.Id == "camera_panleft");
+
+            Assert.Equal("Left,Shift+A", panLeft.Value);
+            Assert.Equal("camera", panLeft.Group);
+
+            _service.Save("Profile1", "MY_SET.LUA", new SaveHotkeySetRequest(
+                "Мой набор",
+                new Dictionary<string, string> { ["camera_panleft"] = "Right,Alt+D" }));
+
+            var saved = _service.Get("Profile1", "MY_SET.LUA");
+
+            Assert.Equal(
+                "Right,Alt+D",
+                saved.Sections.SelectMany(section => section.Entries).Single(entry => entry.Id == "camera_panleft").Value);
         }
 
         [Fact]

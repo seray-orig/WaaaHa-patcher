@@ -13,8 +13,11 @@ namespace WaaaHa__patcher.API.Utilities
             builder.Logging.SetMinimumLevel(LogLevel.Information);
             builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 
-            // Порт выбирает операционная система: так приложение не мешает другим локальным серверам.
-            builder.WebHost.UseUrls("http://127.0.0.1:0");
+            // Порт по умолчанию выбирает операционная система: так приложение не мешает
+            // другим локальным серверам. Для режима разработки адрес задаётся переменной
+            // окружения WAAAHA_URLS, иначе фронтенд не знает, куда проксировать запросы.
+            builder.WebHost.UseUrls(
+                Environment.GetEnvironmentVariable("WAAAHA_URLS") ?? "http://127.0.0.1:0");
 
             builder.Services
                 .AddControllers(options => options.Filters.Add<HotkeyExceptionFilter>())

@@ -92,6 +92,39 @@ namespace WaaaHa__patcher.API.UnitTests
         }
 
         [Fact]
+        public void ПослеПерезаписиУТаблицыНеПоявляетсяЛишняяСкобка()
+        {
+            var document = _parser.Parse(SplitLines());
+            var text = _writer.Write(LuaBindingsDocument.FromTemplate(document, "Мои хоткеи"));
+
+            var lines = text.Split('\n').Select(line => line.Trim());
+
+            // Игра пишет объявление таблицы в две строки, поэтому лишняя скобка в теле
+            // превратила бы bindings в таблицу-в-таблице и сломала бы файл.
+            Assert.Equal(2, lines.Count(line => line == "{"));
+            Assert.Equal(2, lines.Count(line => line == "}"));
+        }
+
+        [Fact]
+        public void ПовторнаяПерезаписьНеМеняетФайл()
+        {
+            var once = _writer.Write(LuaBindingsDocument.FromTemplate(_parser.Parse(SplitLines()), "Мои хоткеи"));
+            var twice = _writer.Write(LuaBindingsDocument.FromTemplate(_parser.Parse(once.Split('\n')), "Мои хоткеи"));
+
+            Assert.Equal(once, twice);
+        }
+
+        [Fact]
+        public void КопияОбнуляетТолькоОсновныеХоткеиИСохраняетКамеру()
+        {
+            var copy = LuaBindingsDocument.FromTemplate(_parser.Parse(SplitLines()), "Мои хоткеи");
+
+            Assert.All(copy.MainTable!.Bindings, binding => Assert.Equal(string.Empty, binding.Value));
+            Assert.Equal("Left,Shift+A", copy.CameraTable!.Find("camera_panleft")!.Value);
+            Assert.Equal("Alt", copy.CameraTable.Find("camera_rotate")!.Value);
+        }
+
+        [Fact]
         public void ШапкаНачинаетсяСВерсииИИмениНабора()
         {
             var text = _writer.Write(LuaBindingsDocument.FromTemplate(_parser.Parse(SplitLines()), "Мои хоткеи"));

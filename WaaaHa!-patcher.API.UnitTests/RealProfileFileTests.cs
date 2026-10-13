@@ -54,6 +54,9 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.NotNull(reparsed.CameraTable);
             Assert.Equal(beforeIds, reparsed.MainTable!.Bindings.Select(binding => binding.Id).ToList());
             Assert.All(reparsed.MainTable.Bindings, binding => Assert.Equal(string.Empty, binding.Value));
+
+            // Управление камерой в интерфейсе не редактируется, поэтому переносится с основы.
+            Assert.Equal("Left,Shift+A", reparsed.CameraTable!.Find("camera_panleft")!.Value);
         }
 
         [Fact]

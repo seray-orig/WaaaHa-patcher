@@ -38,10 +38,14 @@ namespace WaaaHa__patcher.API.Domain.Profiles
         public ProfileInfo? Get(string name)
             => GetAll().FirstOrDefault(profile => string.Equals(profile.Name, name, StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        /// Имя профиля берётся из ui_name.dat, иначе из name.dat. Если файл привязан к Steam,
+        /// name.dat содержит <c>steam_76561…</c>, а настоящее имя лежит в ui_name.dat.
+        /// </summary>
         private static ProfileInfo Read(DirectoryInfo directory)
         {
-            var internalName = ReadText(Path.Combine(directory.FullName, InternalNameFile));
-            var uiName = ReadText(Path.Combine(directory.FullName, DisplayNameFile));
+            var internalName = DatFile.ReadText(Path.Combine(directory.FullName, InternalNameFile));
+            var uiName = DatFile.ReadText(Path.Combine(directory.FullName, DisplayNameFile));
 
             var steamId = internalName.StartsWith(SteamPrefix, StringComparison.OrdinalIgnoreCase)
                 ? internalName
@@ -53,27 +57,6 @@ namespace WaaaHa__patcher.API.Domain.Profiles
                 displayName = directory.Name;
 
             return new ProfileInfo(directory.Name, directory.FullName, displayName, steamId);
-        }
-
-        /// <summary>
-        /// Читает файл .dat. В исходниках игры он записан без перевода строки, но бывают
-        /// варианты с BOM и \r\n — поэтому значение нормализуется.
-        /// </summary>
-        private static string ReadText(string path)
-        {
-            try
-            {
-                if (!File.Exists(path))
-                    return string.Empty;
-
-                var text = File.ReadAllText(path).Trim('\uFEFF', '\r', '\n', '\0', ' ', '\t');
-
-                return text;
-            }
-            catch
-            {
-                return string.Empty;
-            }
         }
 
         [GeneratedRegex(@"^Profile\d+$", RegexOptions.IgnoreCase)]

@@ -35,33 +35,60 @@ namespace WaaaHa__patcher.API.Utilities
                     Process.Start("open", url);
                 }
             }
-            catch { }
+            catch
+            {
+                // Браузер мог не запуститься — это не повод ронять приложение.
+            }
         }
 
         private static void PrintUrl(string url)
         {
-            Console.WriteLine();
-            Console.WriteLine();
-
             var previousColor1 = Console.ForegroundColor;
             var previousColor2 = Console.BackgroundColor;
 
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.BackgroundColor = ConsoleColor.DarkYellow;
+            try
+            {
+                var label = " OPEN IN BROWSER: ";
+                var line = $" {label}{url} ";
 
-            var mess = " OPEN IN BROWSER:";
-            Console.SetCursorPosition(Console.WindowWidth / 2 - (mess.Length + url.Length) / 2, Console.CursorTop);
-            Console.Write(mess);
+                // При перенаправленном выводе ширины окна нет, и обращаться к ней нельзя.
+                var width = TryGetWindowWidth();
+                var padding = width > line.Length ? (width - line.Length) / 2 : 0;
 
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.BackgroundColor = ConsoleColor.White;
+                Console.WriteLine();
+                Console.WriteLine(new string(' ', Math.Max(padding, 0)));
 
-            Console.WriteLine(" " + url + " ");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.BackgroundColor = ConsoleColor.DarkYellow;
+                Console.Write(label);
 
-            Console.ForegroundColor = previousColor1;
-            Console.BackgroundColor = previousColor2;
+                Console.ForegroundColor = ConsoleColor.Black;
+                Console.BackgroundColor = ConsoleColor.White;
+                Console.WriteLine($" {url} ");
 
-            Console.WriteLine();
+                Console.WriteLine();
+            }
+            catch
+            {
+                Console.WriteLine($" {url}");
+            }
+            finally
+            {
+                Console.ForegroundColor = previousColor1;
+                Console.BackgroundColor = previousColor2;
+            }
+        }
+
+        private static int TryGetWindowWidth()
+        {
+            try
+            {
+                return Console.WindowWidth;
+            }
+            catch (IOException)
+            {
+                return 0;
+            }
         }
     }
 }

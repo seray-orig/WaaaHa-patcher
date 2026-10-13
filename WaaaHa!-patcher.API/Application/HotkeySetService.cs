@@ -100,14 +100,15 @@ namespace WaaaHa__patcher.API.Application
                     $"Файл «{fileName}» — оригинальный файл игры. Создайте свой набор на его основе.");
 
             var displayName = NormalizeDisplayName(request.DisplayName);
-            var mainTable = set.Document.MainTable
-                            ?? throw new HotkeyException(
-                                HotkeyErrorCode.SetNotFound,
-                                $"Файл «{fileName}» не содержит таблицы bindings.");
+
+            if (set.Document.MainTable is null)
+                throw new HotkeyException(
+                    HotkeyErrorCode.SetNotFound,
+                    $"Файл «{fileName}» не содержит таблицы bindings.");
 
             foreach (var (id, rawValue) in request.Bindings)
             {
-                var binding = mainTable.Find(id)
+                var binding = FindBinding(set.Document, id)
                               ?? throw new HotkeyException(
                                   HotkeyErrorCode.UnknownBinding,
                                   $"Неизвестный хоткей «{id}».",
@@ -197,6 +198,15 @@ namespace WaaaHa__patcher.API.Application
                 set.IsBuiltIn,
                 BuildSections(set.Document));
 
+        /// <summary>
+        /// Хоткей ищется во всех таблицах: кроме основной есть camera_bindings,
+        /// где формат значения другой, но править её тоже нужно.
+        /// </summary>
+        private static LuaBinding? FindBinding(LuaBindingsDocument document, string id)
+            => document.Tables
+                .Select(table => table.Find(id))
+                .FirstOrDefault(binding => binding is not null);
+
         private IReadOnlyList<HotkeySection> BuildSections(LuaBindingsDocument document)
         {
             var sections = new List<HotkeySection>();
@@ -211,22 +221,25 @@ namespace WaaaHa__patcher.API.Application
                 entries.Clear();
             }
 
-            foreach (var item in document.MainTable?.Items ?? [])
+            foreach (var table in document.Tables)
             {
-                switch (item)
+                foreach (var item in table.Items)
                 {
-                    case LuaBinding binding:
-                        entries.Add(new HotkeyEntry(
-                            binding.Id,
-                            binding.Value,
-                            _groups.Resolve(binding.Id),
-                            $"/hotkey-images/{binding.Id.ToLowerInvariant()}.png"));
-                        break;
+                    switch (item)
+                    {
+                        case LuaBinding binding:
+                            entries.Add(new HotkeyEntry(
+                                binding.Id,
+                                binding.Value,
+                                _groups.Resolve(binding.Id),
+                                $"/hotkey-images/{binding.Id.ToLowerInvariant()}.png"));
+                            break;
 
-                    case LuaRawLine raw when IsSectionTitle(raw.Text):
-                        Flush();
-                        title = ExtractTitle(raw.Text);
-                        break;
+                        case LuaRawLine raw when IsSectionTitle(raw.Text):
+                            Flush();
+                            title = ExtractTitle(raw.Text);
+                            break;
+                    }
                 }
             }
 
