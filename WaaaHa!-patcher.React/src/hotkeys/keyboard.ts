@@ -267,7 +267,7 @@ export function shortKeyLabel(key: string): string {
  * Понятная подпись команды без префикса фракции: marine_servitor → «Servitor».
  * Префикс и так виден по разделу, а сокращения вроде «MS» ни о чём не говорят.
  */
-export function shortLabel(id: string, maxLength = 16): string {
+export function shortLabel(id: string, maxLength = 18): string {
   const words = id.split('_').filter(Boolean)
 
   if (words.length === 0) {

@@ -237,7 +237,7 @@ namespace WaaaHa__patcher.API.Application
                                 binding.Value,
                                 _groups.Resolve(binding.Id),
                                 ResolveCategory(binding.Id, category),
-                                $"/hotkey-images/{binding.Id.ToLowerInvariant()}.png"));
+                                IconUrl(binding.Id)));
                             break;
 
                         case LuaRawLine raw when IsSectionTitle(raw.Text):
@@ -260,6 +260,13 @@ namespace WaaaHa__patcher.API.Application
 
             return sections;
         }
+
+        /// <summary>
+        /// Базовый путь к картинке без расширения: какой формат положит игрок, решает
+        /// интерфейс, перебирая варианты.
+        /// </summary>
+        private static string IconUrl(string bindingId)
+            => $"/hotkey-images/{bindingId.ToLowerInvariant()}";
 
         /// <summary>
         /// Раздел приходит из заголовка секции. Техника отдельно не выделяется: в файле

@@ -20,7 +20,10 @@ export interface HotkeySetSummary {
 export interface HotkeyEntry {
   id: string
   value: string
+  /** Фракция по префиксу идентификатора: marine, dark_eldar и так далее. */
   group: string
+  /** Раздел внутри фракции: Infantry, Vehicle, Building и прочие. */
+  category: string
   iconUrl: string
 }
 
