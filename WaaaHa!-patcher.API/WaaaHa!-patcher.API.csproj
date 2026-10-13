@@ -14,7 +14,11 @@
     <RepositoryType>github</RepositoryType>
     <NeutralLanguage>ru</NeutralLanguage>
 	  <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
-	  <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+	  <PublishSingleFile>true</PublishSingleFile>
+    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

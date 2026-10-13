@@ -1,0 +1,108 @@
+name: Штучка дрючка закорючка
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+
+jobs:
+  asp-api_unit-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Клонируем репозиторий
+      uses: actions/checkout@v6
+
+    - name: Установка .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Виновник торжества
+      run: dotnet test 'WaaaHa!-patcher.API.UnitTests'
+
+  build:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: asp-api_unit-tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Клонируем репозиторий
+      uses: actions/checkout@v6
+
+    - name: Установка Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: '24.x'
+        cache: npm
+        cache-dependency-path: WaaaHa!-patcher.React/package-lock.json
+
+    - name: Установка зависимостей React
+      run: npm ci
+      working-directory: ./WaaaHa!-patcher.React
+
+    - name: Сборка React
+      run: npm run build
+      working-directory: ./WaaaHa!-patcher.React
+
+    - name: Перенос React в wwwroot
+      run: |
+        rm -rf './WaaaHa!-patcher.API/wwwroot'
+        mkdir -p './WaaaHa!-patcher.API/wwwroot'
+        cp -r './WaaaHa!-patcher.React/dist/'* './WaaaHa!-patcher.API/wwwroot'
+
+    - name: Установка .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Публикация API
+      run: |
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version=${GITHUB_REF#refs/tags/v}
+
+    - name: Упаковка API в архив
+      run: 7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64.zip' ./publish-x64/*
+
+    - name: Сохраняем артефакт x64
+      uses: actions/upload-artifact@v4
+      with:
+        name: WaaaHa!-Patcher_win-x64
+        path: WaaaHa!-Patcher_win-x64.zip
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+
+    steps:
+    - name: Клонируем репозиторий
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Забираем артефакты
+      uses: actions/download-artifact@v4
+      with:
+        name: WaaaHa!-Patcher_win-x64
+        merge-multiple: true
+
+    - name: Генерация SHA256
+      run: sha256sum 'WaaaHa!-Patcher_win-x64.zip' > checksums.txt
+
+    - name: Обновление тега latest
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -f latest
+        git push -f origin latest
+
+    - name: Создаём релиз на GitHub
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          WaaaHa!-Patcher_win-x64.zip
+          checksums.txt
+        generate_release_notes: true
+        make_latest: true
