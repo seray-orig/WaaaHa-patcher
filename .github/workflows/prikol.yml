@@ -29,8 +29,7 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    # Тесты на настоящем файле профиля игрока на CI запускать нельзя: файла там нет.
-    # На своей машине запускайте без фильтра — он увидит и их.
+    # На своей машине запускать без фильтра.
     - name: Виновник торжества
       run: dotnet test 'WaaaHa!-patcher.API.UnitTests' --filter 'Category!=RealProfile'
 
@@ -59,8 +58,6 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    # Фронтенд собирается шагом PreBuild самого проекта API, отдельный npm run build
-    # не нужен: он только собрал бы то же самое второй раз.
     - name: Публикация API
       run: |
         dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version=${GITHUB_REF#refs/tags/v}

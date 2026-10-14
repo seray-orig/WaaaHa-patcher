@@ -32,9 +32,16 @@ namespace WaaaHa__patcher.API.Domain.Profiles
 
             var descriptors = new List<HotkeySetDescriptor>();
 
-            foreach (var file in Directory.EnumerateFiles(profile.Directory, "*.lua"))
+            // Файлы игры называются KEYDEFAULTS*.LUA, то есть с большой буквы. Маска
+            // «*.lua» на Windows нечувствительна к регистру, а на Linux чувствительна,
+            // и наборы игры там просто не находились — список выходил пустым. Поэтому
+            // перебираем всё и расширение проверяем сами.
+            foreach (var file in Directory.EnumerateFiles(profile.Directory))
             {
                 var fileName = Path.GetFileName(file);
+
+                if (!IsValidFileName(fileName))
+                    continue;
 
                 if (IsBuiltIn(fileName))
                 {
