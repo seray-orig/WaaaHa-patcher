@@ -108,6 +108,10 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
       if (capturingId) {
         applyValue(capturingId, value)
       }
+
+      // Хоткей назначен — режим ожидания снимаем, иначе следующее нажатие перезаписало
+      // бы только что поставленную комбинацию.
+      setCapturingId(null)
     },
     onCancel: () => setCapturingId(null),
   })

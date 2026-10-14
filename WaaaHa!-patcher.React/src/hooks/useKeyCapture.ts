@@ -15,6 +15,10 @@ export interface KeyCaptureOptions {
  * обычный ввод в приложение подавляется, иначе Ctrl+C копировал бы текст, а не
  * ставил хоткей. Клавиши-модификаторы отдельно не назначаются — игрок должен отпустить
  * их и нажать обычную клавишу.
+ *
+ * Захват снимается после первого же решения: иначе следующее нажатие перезаписало бы
+ * только что назначенную комбинацию. Модификатор посчитанным нажатием не считается —
+ * игрок держит Ctrl и жмёт A, и это всё ещё одно назначение.
  */
 export function useKeyCapture(activeId: string | null, options: KeyCaptureOptions): void {
   const optionsRef = useRef(options)
@@ -30,9 +34,16 @@ export function useKeyCapture(activeId: string | null, options: KeyCaptureOption
       return
     }
 
+    // Отдельное состояние на захват: следующее назначение начинается с чистого листа.
+    let settled = false
+
     function handleKeyDown(event: KeyboardEvent) {
       event.preventDefault()
       event.stopPropagation()
+
+      if (settled) {
+        return
+      }
 
       const outcome = readChord(event)
 
@@ -40,17 +51,14 @@ export function useKeyCapture(activeId: string | null, options: KeyCaptureOption
         return
       }
 
+      settled = true
+
       if (outcome.type === 'cancel') {
         optionsRef.current.onCancel()
         return
       }
 
-      if (outcome.type === 'clear') {
-        optionsRef.current.onChord('')
-        return
-      }
-
-      optionsRef.current.onChord(composeChord(outcome.chord))
+      optionsRef.current.onChord(outcome.type === 'clear' ? '' : composeChord(outcome.chord))
     }
 
     function handleMouseDown(event: globalThis.MouseEvent) {
@@ -62,6 +70,12 @@ export function useKeyCapture(activeId: string | null, options: KeyCaptureOption
 
       event.preventDefault()
       event.stopPropagation()
+
+      if (settled) {
+        return
+      }
+
+      settled = true
 
       optionsRef.current.onChord(
         composeChord({
