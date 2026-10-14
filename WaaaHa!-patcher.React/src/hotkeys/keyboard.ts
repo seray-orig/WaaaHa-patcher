@@ -118,9 +118,20 @@ export type CaptureOutcome =
  * это всё ещё одно нажатие. Нажатый в одиночку модификатор станет хоткеем сам,
  * когда его отпустят.
  */
+/**
+ * Верхний ряд цифр в хоткеи не назначается: в самой игре 1–5 заняты группами
+ * выделения, 6–9 — слотами, и толпать их смысла нет. На цифровой клавиатуре
+ * можно, там игра ничего не занимает.
+ */
+const BLOCKED_DIGITS = /^Digit[0-9]$/
+
 export function readKey(event: KeyboardEvent, allowed: ReadonlySet<string>): string | null {
   if (event.code === 'Delete') {
     return ''
+  }
+
+  if (BLOCKED_DIGITS.test(event.code)) {
+    return null
   }
 
   const key = keyFromCode(event.code)

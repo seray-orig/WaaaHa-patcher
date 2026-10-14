@@ -457,7 +457,7 @@ function StandardLayout({
         </div>
       </div>
 
-      <div className="standard__right">
+      <div className="standard__middle">
         <SlotPanel
           title={t('editor.commandPanel')}
           slots={pad(commandSlots(faction, selected, indexed), PANEL_SLOTS)}
@@ -472,18 +472,20 @@ function StandardLayout({
           {...gridProps}
         />
 
-        {/* Улучшения стоят в ряд с панелями команд, а не отдельно: в игре это одна
-            нижняя полоса, и тянуться до неё через весь экран не нужно. */}
+        {selected && <p className="slot-hint">{t('editor.manualHint')}</p>}
+      </div>
+
+      {/* Улучшения стоят третьим столбцом справа от панелей команд, а не под ними:
+          в игре это отдельная полоса у правого края, и так панели не разъезжаются. */}
+      <div className="standard__right">
         {selected && (
           <SlotPanel
             title={t('editor.improvements')}
             slots={pad(improvementSlots(indexed, faction, selected), IMPROVEMENT_SLOTS)}
-            columns={4}
+            columns={2}
             {...gridProps}
           />
         )}
-
-        {selected && <p className="slot-hint">{t('editor.manualHint')}</p>}
       </div>
     </div>
   )

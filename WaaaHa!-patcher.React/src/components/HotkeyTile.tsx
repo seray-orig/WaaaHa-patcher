@@ -62,15 +62,13 @@ export function HotkeyTile({
       disabled={isReadOnly}
       title={`${caption} (${entry.id})\n${label || t('common.notAssigned')}`}
     >
-      {cleared ? (
-        <span className="hotkey-tile__fallback">{caption}</span>
-      ) : (
-        <HotkeyIcon
-          baseUrl={entry.iconUrl}
-          className="hotkey-tile__icon"
-          fallback={<span className="hotkey-tile__fallback">{caption}</span>}
-        />
-      )}
+      {/* Иконка не зависит от наличия хоткея: сняли клавишу — команда никуда не
+          делась, и картинка должна остаться на месте. */}
+      <HotkeyIcon
+        baseUrl={entry.iconUrl}
+        className="hotkey-tile__icon"
+        fallback={<span className="hotkey-tile__fallback">{caption}</span>}
+      />
 
       <span className={cleared ? 'hotkey-tile__key hotkey-tile__key--cleared' : 'hotkey-tile__key'}>
         {cleared ? '—' : label}
