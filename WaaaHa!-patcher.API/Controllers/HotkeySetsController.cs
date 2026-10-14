@@ -36,6 +36,13 @@ namespace WaaaHa__patcher.API.Controllers
 
         /// <summary>Удалить свой набор.</summary>
         [HttpDelete("{fileName}")]
-        public void Delete(string profile, string fileName) => _sets.Delete(profile, fileName);
+        public IActionResult Delete(string profile, string fileName)
+        {
+            _sets.Delete(profile, fileName);
+
+            // 204, а не пустой 200: методу удаления нечего возвращать, и клиенту не
+            // нужно гадать, разбирать ли пустое тело как JSON.
+            return NoContent();
+        }
     }
 }

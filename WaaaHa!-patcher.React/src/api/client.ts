@@ -50,7 +50,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T
   }
 
-  return (await response.json()) as T
+  // Пустое тело — не ошибка. Раньше здесь стоял response.json(), и он бросал
+  // исключение на любой успешный ответ без содержимого: оно не было HotkeyApiError,
+  // страницы глотали его молча, и список наборов после удаления оставался старым.
+  const body = await response.text()
+
+  return (body === '' ? undefined : JSON.parse(body)) as T
 }
 
 const encode = encodeURIComponent
