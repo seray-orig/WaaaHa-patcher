@@ -66,6 +66,14 @@ export function indexHotkeys(details: HotkeySetDetails): IndexedHotkeys {
     const systemEntries: HotkeyEntry[] = []
 
     for (const entry of section.entries) {
+      // Один и тот же хоткей файла встречается в двух разделах сразу: например,
+      // tau_missile_barrage значится и исследованием, и умением. Показывать его
+      // дважды нельзя, иначе в списке появятся две одинаковые плитки — а ещё это
+      // ломает ключи React, и при переключении фильтров старые плитки застревают.
+      if (byId.has(entry.id)) {
+        continue
+      }
+
       byId.set(entry.id, entry)
       all.push(entry)
 

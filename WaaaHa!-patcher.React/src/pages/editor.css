@@ -1,14 +1,46 @@
+/* Основной экран отдаёт плиткам всё место: боковая панель выдвижная и убирается
+   целиком, когда она не нужна. Иначе на фильтрах вроде «Все» кнопкам не хватает. */
 .editor {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 16px;
   align-items: start;
+}
+
+.editor--drawer-closed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.editor--drawer-closed .editor__drawer {
+  display: none;
 }
 
 @media (max-width: 1100px) {
   .editor {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .editor__drawer {
+    display: none;
+  }
+}
+
+.drawer-toggle {
+  width: 28px;
+  padding: 4px 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.editor__drawer {
+  position: sticky;
+  top: 92px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+}
+
+.editor__drawer-top {
+  border-bottom: 1px solid var(--border);
 }
 
 .editor__toolbar {
