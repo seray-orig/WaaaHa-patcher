@@ -11,7 +11,13 @@ namespace WaaaHa__patcher.API.Utilities
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
             builder.Logging.SetMinimumLevel(LogLevel.Information);
-            builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
+
+            // Логи хоста приглушены. «Hosting environment» и «Content root path» для
+            // настольной программы ничего не значат, а адрес запуска приложение и так
+            // печатает само — своей полосой по центру окна. Заодно снимается причина
+            // битой строки: эти сообщения писались из своего потока и вклинивались
+            // посреди надписи, пока та печаталась по кускам.
+            builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
 
             // Порт по умолчанию выбирает операционная система: так приложение не мешает
             // другим локальным серверам. Для режима разработки адрес задаётся переменной

@@ -1,9 +1,13 @@
 ﻿using System.Diagnostics;
+using System.IO;
 
 namespace WaaaHa__patcher.API.Utilities
 {
     public static class Autoexec
     {
+        /// <summary>Ширина, из которой считается центрирование, когда окна консоли нет.</summary>
+        private const int FallbackConsoleWidth = 120;
+
         public static void Register(WebApplication app)
         {
             app.Lifetime.ApplicationStarted.Register(() =>
@@ -29,17 +33,13 @@ namespace WaaaHa__patcher.API.Utilities
 
         private static void PrintUrl(string url)
         {
-            var previousColor1 = Console.ForegroundColor;
-            var previousColor2 = Console.BackgroundColor;
-
             var label = " OPEN IN BROWSER: ";
             var line = $" {label}{url} ";
 
-            // Похер. Берём половину ширины окна по умолчанию.
-            var padding = 120 > line.Length ? (120 - line.Length) / 2 : 0;
+            var previousForeground = Console.ForegroundColor;
+            var previousBackground = Console.BackgroundColor;
 
-            Console.WriteLine();
-            Console.Write(new string(' ', Math.Max(padding, 0)));
+            Console.Write($"\n{new string(' ', Centering(line.Length))}");
 
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.BackgroundColor = ConsoleColor.DarkYellow;
@@ -49,10 +49,36 @@ namespace WaaaHa__patcher.API.Utilities
             Console.BackgroundColor = ConsoleColor.White;
             Console.Write($" {url} ");
 
-            Console.WriteLine();
+            Console.ForegroundColor = previousForeground;
+            Console.BackgroundColor = previousBackground;
 
-            Console.ForegroundColor = previousColor1;
-            Console.BackgroundColor = previousColor2;
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Отступ, которым строка центрируется по ширине окна.
+        ///
+        /// Ширину берём у консоли, а не из константы: в узком окне надпись иначе
+        /// переносится и рассыпается на две строки.
+        /// </summary>
+        private static int Centering(int lineLength)
+        {
+            var width = 0;
+
+            try
+            {
+                // Выводу, ушедшему в файл или в конвейер, окно недоступно вовсе.
+                width = Console.WindowWidth;
+            }
+            catch (IOException)
+            {
+                width = 0;
+            }
+
+            if (width <= 0)
+                width = FallbackConsoleWidth;
+
+            return width > lineLength ? (width - lineLength) / 2 : 0;
         }
     }
 }
