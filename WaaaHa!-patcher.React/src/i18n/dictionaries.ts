@@ -5,6 +5,7 @@
 export const ru = {
   'app.title': 'WaaaHa! Patcher',
   'app.subtitle': 'Горячие клавиши Dawn of War: Definitive Edition',
+  'app.authors': 'by seray & Ognov Games',
 
   'common.save': 'Сохранить',
   'common.cancel': 'Отмена',
@@ -149,6 +150,7 @@ export type Dictionary = Record<TranslationKey, string>
 export const en: Dictionary = {
   'app.title': 'WaaaHa! Patcher',
   'app.subtitle': 'Hotkeys for Dawn of War: Definitive Edition',
+  'app.authors': 'by seray & Ognov Games',
 
   'common.save': 'Save',
   'common.cancel': 'Cancel',
@@ -289,6 +291,7 @@ export const en: Dictionary = {
 export const ko: Dictionary = {
   'app.title': 'WaaaHa! Patcher',
   'app.subtitle': '다언 오 워: 디피니티브 에디션 단축키',
+  'app.authors': 'by seray & Ognov Games',
 
   'common.save': '저장',
   'common.cancel': '취소',

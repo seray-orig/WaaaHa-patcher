@@ -46,10 +46,14 @@ export function ProfilesPage({ game, onSelect }: ProfilesPageProps) {
   return (
     <div className="page">
       <header className="topbar">
+        <img className="brand__icon" src="/WaaHa.ico" alt="" />
+
         <div className="topbar__title">
           <h1>{t('app.title')}</h1>
           <span>{t('app.subtitle')}</span>
+          <span className="brand__authors">{t('app.authors')}</span>
         </div>
+
         <div className="topbar__spacer" />
         <LanguageSwitcher />
       </header>

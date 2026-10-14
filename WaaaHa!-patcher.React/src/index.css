@@ -197,6 +197,24 @@ select.input {
   flex: 1;
 }
 
+/* Иконка приложения на главном экране: та же, что стоит у файла exe, только крупно. */
+.brand__icon {
+  width: 76px;
+  height: 76px;
+  flex: none;
+  object-fit: contain;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+}
+
+.brand__authors {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
 .content {
   flex: 1;
   padding: 24px;
