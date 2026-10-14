@@ -24,7 +24,8 @@ export const ru = {
   'common.all': 'Все',
 
   'profiles.title': 'Выберите профиль',
-  'profiles.subtitle': 'У профиля может быть несколько. Редактируются хоткеи выбранного.',
+  'profiles.subtitle':
+    'Профилей может быть несколько, редактируются хоткеи только выбранного. Узнайте свой профиль в игре на главном экране.',
   'profiles.empty': 'Профили не найдены',
   'profiles.steam': 'Steam',
   'profiles.folder': 'Папка профилей',
@@ -167,7 +168,8 @@ export const en: Dictionary = {
   'common.all': 'All',
 
   'profiles.title': 'Choose a profile',
-  'profiles.subtitle': 'A player can have several profiles. Only the chosen one is edited.',
+  'profiles.subtitle':
+    'A player can have several profiles, only the chosen one is edited. Your profile is shown on the main menu in game.',
   'profiles.empty': 'No profiles found',
   'profiles.steam': 'Steam',
   'profiles.folder': 'Profiles folder',
@@ -306,7 +308,8 @@ export const ko: Dictionary = {
   'common.all': '전체',
 
   'profiles.title': '프로필 선택',
-  'profiles.subtitle': '프로필이 여러 개일 수 있습니다. 선택한 프로필만 편집됩니다.',
+  'profiles.subtitle':
+    '프로필이 여러 개일 수 있으며, 선택한 프로필만 편집됩니다. 게임의 메인 메뉴에서 내 프로필을 확인할 수 있습니다.',
   'profiles.empty': '프로필을 찾을 수 없습니다',
   'profiles.steam': 'Steam',
   'profiles.folder': '프로필 폴더',
