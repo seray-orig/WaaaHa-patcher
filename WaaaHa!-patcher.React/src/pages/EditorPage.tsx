@@ -476,16 +476,19 @@ function StandardLayout({
       </div>
 
       {/* Улучшения стоят третьим столбцом справа от панелей команд, а не под ними:
-          в игре это отдельная полоса у правого края, и так панели не разъезжаются. */}
+          в игре это отдельная полоса у правого края, и так панели не разъезжаются.
+          Панель видна всегда, как и остальные: пока юнит не выбран, места просто
+          пустые — иначе колонка появлялась бы и прыгала, а игрок её ищет глазами. */}
       <div className="standard__right">
-        {selected && (
-          <SlotPanel
-            title={t('editor.improvements')}
-            slots={pad(improvementSlots(indexed, faction, selected), IMPROVEMENT_SLOTS)}
-            columns={2}
-            {...gridProps}
-          />
-        )}
+        <SlotPanel
+          title={t('editor.improvements')}
+          slots={pad(
+            selected ? improvementSlots(indexed, faction, selected) : [],
+            IMPROVEMENT_SLOTS,
+          )}
+          columns={2}
+          {...gridProps}
+        />
       </div>
     </div>
   )
