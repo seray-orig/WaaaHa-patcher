@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>WaaaHa__patcher.API</RootNamespace>
     <AssemblyName>WaaaHa!-patcher</AssemblyName>
-    <ApplicationIcon>wwwroot\Orks build.ico</ApplicationIcon>
+    <ApplicationIcon>wwwroot\WaaHa.ico</ApplicationIcon>
     <SignAssembly>False</SignAssembly>
     <Authors>seray, Ognov Games</Authors>
     <PackageProjectUrl>https://github.com/seray-orig/WaaaHa-patcher</PackageProjectUrl>
