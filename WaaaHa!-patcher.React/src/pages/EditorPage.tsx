@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { HotkeyApiError, hotkeySetsApi } from '../api/client'
-import type { HotkeyEntry, HotkeySetDetails, ProfileInfo } from '../api/types'
+import { HotkeyApiError, gameApi, hotkeySetsApi } from '../api/client'
+import type { HotkeyEntry, HotkeySetDetails, KeyCatalog, ProfileInfo } from '../api/types'
 import { ErrorBanner, LanguageSwitcher, LoadingScreen } from '../components/Common'
 import { FactionBar } from '../components/FactionBar'
 import { HotkeyTile } from '../components/HotkeyTile'
@@ -13,6 +13,7 @@ import {
   type IndexedHotkeys,
 } from '../gameData/hotkeyIndex'
 import { isBuilder, type FactionKey } from '../gameData/factions'
+import { UNIT_LAYOUTS, type UnitLayout } from '../gameData/layouts'
 import {
   BUILDING_COMMANDS,
   BUILDING_EXIT_MODES,
@@ -67,10 +68,31 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterKey>('standard')
   const [drawerOpen, setDrawerOpen] = useState(true)
+  const [keys, setKeys] = useState<KeyCatalog | null>(null)
   const [draftName, setDraftName] = useState('')
   const [original, setOriginal] = useState<Record<string, string>>({})
 
   const readOnly = details?.isBuiltIn ?? true
+
+  // Список разрешённых клавиш берём у сервера: он собран ровно по строке
+  // «Valid keys» из KEYDEFAULTS*.LUA, и дублировать его вручную — значит однажды
+  // разойтись с игрой.
+  useEffect(() => {
+    let cancelled = false
+
+    gameApi
+      .getKeys()
+      .then((catalog) => {
+        if (!cancelled) {
+          setKeys(catalog)
+        }
+      })
+      .catch(() => {})
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -114,6 +136,7 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   )
 
   useKeyCapture(capturingId, {
+    keys: keys ?? { keys: [] },
     onChord: (value) => {
       if (capturingId) {
         applyValue(capturingId, value)
@@ -186,7 +209,6 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   }
 
   const filters = buildFilters(faction, indexed)
-  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
   const gridProps = { capturingId, readOnly, original, onCapture: setCapturingId }
 
   return (
@@ -308,17 +330,6 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
           </section>
 
           <aside className="panel editor__drawer">
-            {filter === 'standard' && faction && selected && (
-              <div className="panel__body editor__drawer-top">
-                <SlotPanel
-                  title={t('editor.improvements')}
-                  slots={improvementSlots(indexed, faction, selected)}
-                  columns={2}
-                  {...gridProps}
-                />
-              </div>
-            )}
-
             <div className="panel__head">
               <h2>{t('editor.setName')}</h2>
             </div>
@@ -460,6 +471,19 @@ function StandardLayout({
           columns={4}
           {...gridProps}
         />
+
+        {/* Улучшения стоят в ряд с панелями команд, а не отдельно: в игре это одна
+            нижняя полоса, и тянуться до неё через весь экран не нужно. */}
+        {selected && (
+          <SlotPanel
+            title={t('editor.improvements')}
+            slots={pad(improvementSlots(indexed, faction, selected), IMPROVEMENT_SLOTS)}
+            columns={4}
+            {...gridProps}
+          />
+        )}
+
+        {selected && <p className="slot-hint">{t('editor.manualHint')}</p>}
       </div>
     </div>
   )
@@ -567,6 +591,25 @@ function SlotPanel({
 }
 
 /**
+ * Панели выбранного юнита.
+ *
+ * Что игрок расписал руками в layouts.ts, берётся как есть, вместе с позициями:
+ * универсального правила нет, глайдер настраивается у той машинерии, которую игрок
+ * выбрал, а угадать это из файла биндингов нельзя. Чего в layouts.ts нет, собирается
+ * здесь по общим правилам.
+ */
+function panelFor(
+  selected: HotkeyEntry | undefined,
+  indexed: IndexedHotkeys,
+  section: keyof UnitLayout,
+  fallback: () => (HotkeyEntry | null)[],
+): (HotkeyEntry | null)[] {
+  const manual = selected ? UNIT_LAYOUTS[selected.id]?.[section] : undefined
+
+  return manual ? resolve(manual, indexed) : fallback()
+}
+
+/**
  * Основная панель выбранного юнита.
  *
  * У здания общих команд нет: на стоящей постройке нельзя ни двинуться, ни ударить.
@@ -578,15 +621,17 @@ function commandSlots(
   selected: HotkeyEntry | undefined,
   indexed: IndexedHotkeys,
 ): (HotkeyEntry | null)[] {
-  if (!selected) {
-    return resolve(SHARED_COMMANDS, indexed)
-  }
+  return panelFor(selected, indexed, 'command', () => {
+    if (!selected) {
+      return resolve(SHARED_COMMANDS, indexed)
+    }
 
-  const building = selected.category === 'Building' || isBuilder(faction, selected.id)
+    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
 
-  return building
-    ? resolve([...BUILDING_COMMANDS, ...abilitiesOf(selected.id)], indexed)
-    : resolve([...SHARED_COMMANDS, ...abilitiesOf(selected.id)], indexed)
+    return building
+      ? resolve([...BUILDING_COMMANDS, ...abilitiesOf(selected.id)], indexed)
+      : resolve([...SHARED_COMMANDS, ...abilitiesOf(selected.id)], indexed)
+  })
 }
 
 /**
@@ -600,52 +645,58 @@ function secondSlots(
   selected: HotkeyEntry | undefined,
   indexed: IndexedHotkeys,
 ): (HotkeyEntry | null)[] {
-  if (!selected) {
-    return []
-  }
+  return panelFor(selected, indexed, 'second', () => {
+    if (!selected) {
+      return []
+    }
 
-  const building = selected.category === 'Building' || isBuilder(faction, selected.id)
+    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
 
-  if (building) {
-    const structures = indexed.byFaction.get(faction)?.get('Building') ?? []
+    if (building) {
+      return indexed.byFaction.get(faction)?.get('Building') ?? []
+    }
 
-    return structures.map((entry) => entry)
-  }
-
-  const rare = FACTION_COMMANDS.filter((id) => isFactionCommand(id, faction))
-
-  return resolve(rare, indexed)
+    return resolve(
+      FACTION_COMMANDS.filter((id) => isFactionCommand(id, faction)),
+      indexed,
+    )
+  })
 }
 
 /**
  * Улучшения: то, что выдаётся на месте, а не покупается в оружейне.
  *
  * У отряда это выдаваемое оружие, кнопка добавления сержанта и вызов подкрепления.
- * У здания — точка сбора и режимы выхода войск, в классической раскладке F1–F4.
+ * У здания — режимы выхода войск, в классической раскладке F1–F4.
  */
 function improvementSlots(
   indexed: IndexedHotkeys,
   faction: FactionKey,
   selected: HotkeyEntry,
 ): (HotkeyEntry | null)[] {
-  const building = selected.category === 'Building' || isBuilder(faction, selected.id)
+  return panelFor(selected, indexed, 'improvements', () => {
+    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
 
-  if (building) {
-    return pad(resolve([...BUILDING_EXIT_MODES], indexed), IMPROVEMENT_SLOTS)
-  }
+    if (building) {
+      return resolve(BUILDING_EXIT_MODES, indexed)
+    }
 
-  const sergeant = FACTION_SERGEANT[faction]
-  const ids = [
-    ...weaponsOf(selected.id),
-    ...(sergeant && SERGEANT_HOSTS[selected.id] ? [sergeant] : []),
-    'reinforce',
-  ]
+    const sergeant = FACTION_SERGEANT[faction]
+    const ids = [
+      ...weaponsOf(selected.id),
+      ...(sergeant && SERGEANT_HOSTS[selected.id] ? [sergeant] : []),
+      'reinforce',
+    ]
 
-  return pad(resolve(ids, indexed), IMPROVEMENT_SLOTS)
+    return resolve(ids, indexed)
+  })
 }
 
-function resolve(ids: readonly string[], indexed: IndexedHotkeys): (HotkeyEntry | null)[] {
-  return ids.map((id) => indexed.byId.get(id) ?? null)
+function resolve(
+  ids: readonly (string | null | undefined)[],
+  indexed: IndexedHotkeys,
+): (HotkeyEntry | null)[] {
+  return ids.map((id) => (id ? (indexed.byId.get(id) ?? null) : null))
 }
 
 function pad(slots: (HotkeyEntry | null)[], size: number): (HotkeyEntry | null)[] {

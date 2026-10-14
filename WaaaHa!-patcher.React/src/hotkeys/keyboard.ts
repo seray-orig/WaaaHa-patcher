@@ -109,28 +109,23 @@ export type CaptureOutcome =
 
 /**
  * Разбирает событие нажатия в комбинацию.
- * Модификаторы не считаются самостоятельными клавишами: игрок должен отпустить их
- * и нажать обычную клавишу, иначе «Ctrl» случайно превратится в хоткей.
+ *
+ * Клавиша принимается только если она есть в списке «Valid keys» из заголовка
+ * KEYDEFAULTS*.LUA: игре некуда записать то, чего она не знает, и такой набор
+ * просто перестал бы грузиться.
+ *
+ * Модификатор возвращается отдельно и без сочетания — игрок держит Ctrl и жа��ет A,
+ * это всё ещё одно нажатие. Нажатый в одиночку модификатор станет хоткеем сам,
+ * когда его отпустят.
  */
-export function readChord(event: KeyboardEvent): CaptureOutcome | null {
-  if (event.code === 'Escape') {
-    return { type: 'cancel' }
-  }
-
+export function readKey(event: KeyboardEvent, allowed: ReadonlySet<string>): string | null {
   if (event.code === 'Delete') {
-    return { type: 'clear' }
+    return ''
   }
 
   const key = keyFromCode(event.code)
 
-  if (key === '' || key === 'Control' || key === 'Shift' || key === 'Alt') {
-    return null
-  }
-
-  return {
-    type: 'assign',
-    chord: { key, ctrl: event.ctrlKey, shift: event.shiftKey, alt: event.altKey },
-  }
+  return key === '' || !allowed.has(key) ? null : key
 }
 
 /** Собирает комбинацию в строку файла: Control+Shift+A. */
