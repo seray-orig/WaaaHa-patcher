@@ -5,17 +5,22 @@ namespace WaaaHa__patcher.API.UnitTests
 {
     /// <summary>
     /// Интеграционные проверки на настоящем файле KEYDEFAULTS_MODERN.LUA из профиля игрока.
-    /// Если файла нет — тест выходит раньше, чтобы сборка не ломалась на других машинах.
+    ///
+    /// Файл лежит только на машине с установленной игрой, поэтому в CI эти тесты
+    /// исключаются флагом <c>--filter "Category!=RealProfile"</c>, а не падают.
+    /// Если файла нет и на машине разработчика — тест выходит раньше.
     /// </summary>
     public sealed class RealProfileFileTests
     {
-        private const string ModernBindingsRelativePath =
-            @"Relic Entertainment\Dawn of War\Profiles\Profile1\KEYDEFAULTS_MODERN.LUA";
+        private static readonly string[] ProfilePathSegments =
+            ["Relic Entertainment", "Dawn of War", "Profiles", "Profile1", "KEYDEFAULTS_MODERN.LUA"];
+
+        private const string RealProfileCategory = "RealProfile";
 
         private readonly LuaBindingsParser _parser = new();
         private readonly LuaBindingsWriter _writer = new();
 
-        [Fact]
+        [Fact, Trait("Category", RealProfileCategory)]
         public void РеальныйФайлРазбираетсяБезПотериХоткеев()
         {
             var path = FindRealFile();
@@ -35,7 +40,7 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.Equal("B", servitor!.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", RealProfileCategory)]
         public void ПослеПерезаписиФайлСноваРазбираетсяИНеТеряетТаблицуКамеры()
         {
             var path = FindRealFile();
@@ -59,7 +64,7 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.Equal("Left,Shift+A", reparsed.CameraTable!.Find("camera_panleft")!.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", RealProfileCategory)]
         public void ВсеХоткеиРеальногоФайлаПроходятВалидациюИгры()
         {
             var path = FindRealFile();
@@ -85,7 +90,7 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.True(invalid.Count == 0, string.Join(Environment.NewLine, invalid));
         }
 
-        [Fact]
+        [Fact, Trait("Category", RealProfileCategory)]
         public void ПерезаписанныйФайлПринимаетсяСамойИгрой()
         {
             var path = FindRealFile();
@@ -110,7 +115,7 @@ namespace WaaaHa__patcher.API.UnitTests
         private static string? FindRealFile()
         {
             var roaming = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var path = Path.Combine(roaming, ModernBindingsRelativePath);
+            var path = Path.Combine([roaming, .. ProfilePathSegments]);
 
             return File.Exists(path) ? path : null;
         }

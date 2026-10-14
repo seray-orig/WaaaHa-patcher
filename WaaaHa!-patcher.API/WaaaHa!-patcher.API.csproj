@@ -29,14 +29,25 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+  <!-- Фронтенд собирается, только если зависимости уже установлены. Иначе сборка и
+       тесты бэкенда падали бы из-за отсутствующего node_modules, хотя интерфейс им
+       не нужен. -->
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent"
+          Condition="Exists('$(MSBuildProjectDirectory)/../WaaaHa!-patcher.React/node_modules')">
     <Exec Command="npm run build --prefix ../WaaaHa!-patcher.React" />
 
 	  <ItemGroup>
-	      <Content Remove="wwwroot\**" />
-		  <EmbeddedResource Remove="wwwroot\**\*" />
-	      <EmbeddedResource Include="wwwroot\**\*" />
+	      <Content Remove="wwwroot/**" />
+		  <EmbeddedResource Remove="wwwroot/**" />
+	      <EmbeddedResource Include="wwwroot/**" />
 	  </ItemGroup>
+  </Target>
+
+  <!-- А вот тут зависимости обязательны: публикуемое приложение несёт в себе интерфейс,
+       и без него выйдет бинарник, который открывается пустым белым экраном. -->
+  <Target Name="FailWithoutFrontend" BeforeTargets="ComputeFilesToPublish"
+          Condition="!Exists('$(MSBuildProjectDirectory)/../WaaaHa!-patcher.React/node_modules')">
+    <Error Text="Сначала выполните 'npm ci --prefix WaaaHa!-patcher.React', иначе приложение опубликуется без интерфейса." />
   </Target>
 
     <ItemGroup>

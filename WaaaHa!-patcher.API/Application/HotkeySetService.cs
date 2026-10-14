@@ -331,7 +331,7 @@ namespace WaaaHa__patcher.API.Application
             if (!trimmed.EndsWith(".lua", StringComparison.OrdinalIgnoreCase))
                 trimmed += ".lua";
 
-            trimmed = Sanitize(trimmed).ToUpperInvariant();
+            trimmed = WindowsFileName.Sanitize(trimmed).ToUpperInvariant();
 
             if (trimmed.Length > MaxFileNameLength || trimmed == ".LUA" || !HotkeySetRepository.IsValidFileName(trimmed))
                 throw new HotkeyException(
@@ -339,20 +339,6 @@ namespace WaaaHa__patcher.API.Application
                     $"Имя «{fileName}» недопустимо. Используйте латиницу, цифры, «-» и «_».");
 
             return trimmed;
-        }
-
-        /// <summary>
-        /// Заменяет пробелы и символы, запрещённые в имени файла Windows. Имя набора игрок
-        /// придумывает отдельно, поэтому лишние символы молча уходят в подчёркивания.
-        /// </summary>
-        private static string Sanitize(string fileName)
-        {
-            var builder = new StringBuilder(fileName.Length);
-
-            foreach (var symbol in fileName)
-                builder.Append(symbol == ' ' || Path.GetInvalidFileNameChars().Contains(symbol) ? '_' : symbol);
-
-            return builder.ToString();
         }
 
         private static string NormalizeDisplayName(string? displayName)

@@ -39,9 +39,19 @@ npm run dev --prefix WaaaHa!-patcher.React
 dotnet test WaaaHa!-patcher.API.UnitTests
 ```
 
-Тесты работают с настоящим файлом `KEYDEFAULTS_MODERN.LUA` из профиля игрока,
-если он есть, и поднимают временный профиль в `%TEMP%` для проверки полного
-цикла «создать → сохранить → перечитать → удалить».
+Тесты поднимают временный профиль в системной папке временных файлов (`%TEMP%`
+на Windows, `/tmp` на Linux) и проверяют полный цикл «создать → сохранить →
+перечитать → удалить». Сборка проекта API дёргает `npm run build`, поэтому
+перед первым запуском нужны зависимости фронтенда: `npm ci --prefix
+WaaaHa!-patcher.React`.
+
+Четыре теста в `RealProfileFileTests` работают с настоящим файлом
+`KEYDEFAULTS_MODERN.LUA` из профиля игрока и запускаются только на машине с
+установленной игрой. В CI они исключены:
+
+```
+dotnet test WaaaHa!-patcher.API.UnitTests --filter 'Category!=RealProfile'
+```
 
 ## Где лежат данные
 

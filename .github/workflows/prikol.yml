@@ -8,22 +8,35 @@ on:
 jobs:
   asp-api_unit-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Клонируем репозиторий
       uses: actions/checkout@v6
+
+    - name: Установка Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: '24.x'
+        cache: npm
+        cache-dependency-path: WaaaHa!-patcher.React/package-lock.json
+
+    - name: Установка зависимостей React
+      run: npm ci
+      working-directory: ./WaaaHa!-patcher.React
 
     - name: Установка .NET
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
 
+    # Тесты на настоящем файле профиля игрока на CI запускать нельзя: файла там нет.
+    # На своей машине запускайте без фильтра — он увидит и их.
     - name: Виновник торжества
-      run: dotnet test 'WaaaHa!-patcher.API.UnitTests'
+      run: dotnet test 'WaaaHa!-patcher.API.UnitTests' --filter 'Category!=RealProfile'
 
   build:
     if: startsWith(github.ref, 'refs/tags/v')
-    #needs: asp-api_unit-tests
+    needs: asp-api_unit-tests
     runs-on: ubuntu-latest
 
     steps:
@@ -41,15 +54,13 @@ jobs:
       run: npm ci
       working-directory: ./WaaaHa!-patcher.React
 
-    - name: Сборка React
-      run: npm run build
-      working-directory: ./WaaaHa!-patcher.React
-
     - name: Установка .NET
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 10.0.x
 
+    # Фронтенд собирается шагом PreBuild самого проекта API, отдельный npm run build
+    # не нужен: он только собрал бы то же самое второй раз.
     - name: Публикация API
       run: |
         dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version=${GITHUB_REF#refs/tags/v}

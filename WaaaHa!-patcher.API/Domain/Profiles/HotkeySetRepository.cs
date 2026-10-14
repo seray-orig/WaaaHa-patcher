@@ -84,11 +84,7 @@ namespace WaaaHa__patcher.API.Domain.Profiles
 
         /// <summary>Проверяет форму имени файла, не обращаясь к диску.</summary>
         public static bool IsValidFileName(string fileName)
-            => !string.IsNullOrWhiteSpace(fileName)
-               && fileName.IndexOfAny(Path.GetInvalidFileNameChars()) < 0
-               && !fileName.Contains(Path.DirectorySeparatorChar)
-               && !fileName.Contains(Path.AltDirectorySeparatorChar)
-               && !fileName.Contains("..", StringComparison.Ordinal)
+            => WindowsFileName.IsValid(fileName)
                && Path.GetExtension(fileName).Equals(".lua", StringComparison.OrdinalIgnoreCase);
 
         private static bool IsBuiltIn(string fileName)

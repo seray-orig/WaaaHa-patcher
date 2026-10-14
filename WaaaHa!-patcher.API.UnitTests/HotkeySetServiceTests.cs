@@ -305,14 +305,18 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.Equal(HotkeyErrorCode.FileNameInvalid, exception.Code);
         }
 
-        [Fact]
-        public void НедопустимыеСимволыИмениЗаменяютсяПодчёркиванием()
+        [Theory]
+        [InlineData("my set|1", "MY_SET_1.LUA")]
+        [InlineData("a:b", "A_B.LUA")]
+        [InlineData("a*b?c", "A_B_C.LUA")]
+        [InlineData("do\"ne", "DO_NE.LUA")]
+        public void НедопустимыеСимволыИмениЗаменяютсяПодчёркиванием(string fileName, string expected)
         {
             var details = _service.Create(
                 "Profile1",
-                new CreateHotkeySetRequest("my set|1", "Набор", "KEYDEFAULTS_MODERN.LUA"));
+                new CreateHotkeySetRequest(fileName, "Набор", "KEYDEFAULTS_MODERN.LUA"));
 
-            Assert.Equal("MY_SET_1.LUA", details.FileName);
+            Assert.Equal(expected, details.FileName);
         }
 
         [Fact]
