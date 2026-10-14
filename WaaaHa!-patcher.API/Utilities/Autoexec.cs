@@ -22,23 +22,9 @@ namespace WaaaHa__patcher.API.Utilities
         {
             try
             {
-                if (OperatingSystem.IsWindows())
-                {
-                    Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-                }
-                else if (OperatingSystem.IsLinux())
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else if (OperatingSystem.IsMacOS())
-                {
-                    Process.Start("open", url);
-                }
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
-            catch
-            {
-                // Браузер мог не запуститься — это не повод ронять приложение.
-            }
+            catch {}
         }
 
         private static void PrintUrl(string url)
@@ -46,49 +32,27 @@ namespace WaaaHa__patcher.API.Utilities
             var previousColor1 = Console.ForegroundColor;
             var previousColor2 = Console.BackgroundColor;
 
-            try
-            {
-                var label = " OPEN IN BROWSER: ";
-                var line = $" {label}{url} ";
+            var label = " OPEN IN BROWSER: ";
+            var line = $" {label}{url} ";
 
-                // При перенаправленном выводе ширины окна нет, и обращаться к ней нельзя.
-                var width = TryGetWindowWidth();
-                var padding = width > line.Length ? (width - line.Length) / 2 : 0;
+            // Похер. Берём половину ширины окна по умолчанию.
+            var padding = 120 > line.Length ? (120 - line.Length) / 2 : 0;
 
-                Console.WriteLine();
-                Console.WriteLine(new string(' ', Math.Max(padding, 0)));
+            Console.WriteLine();
+            Console.Write(new string(' ', Math.Max(padding, 0)));
 
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.BackgroundColor = ConsoleColor.DarkYellow;
-                Console.Write(label);
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.BackgroundColor = ConsoleColor.DarkYellow;
+            Console.Write(label);
 
-                Console.ForegroundColor = ConsoleColor.Black;
-                Console.BackgroundColor = ConsoleColor.White;
-                Console.WriteLine($" {url} ");
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.Write($" {url} ");
 
-                Console.WriteLine();
-            }
-            catch
-            {
-                Console.WriteLine($" {url}");
-            }
-            finally
-            {
-                Console.ForegroundColor = previousColor1;
-                Console.BackgroundColor = previousColor2;
-            }
-        }
+            Console.WriteLine();
 
-        private static int TryGetWindowWidth()
-        {
-            try
-            {
-                return Console.WindowWidth;
-            }
-            catch (IOException)
-            {
-                return 0;
-            }
+            Console.ForegroundColor = previousColor1;
+            Console.BackgroundColor = previousColor2;
         }
     }
 }
