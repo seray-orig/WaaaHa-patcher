@@ -21,6 +21,17 @@ export function LanguageSwitcher() {
   )
 }
 
+/** Заглушка на время запроса к серверу. */
+export function LoadingScreen() {
+  const { t } = useLocale()
+
+  return (
+    <div className="page">
+      <div className="empty-state">{t('common.loading')}</div>
+    </div>
+  )
+}
+
 export function Modal({
   title,
   children,

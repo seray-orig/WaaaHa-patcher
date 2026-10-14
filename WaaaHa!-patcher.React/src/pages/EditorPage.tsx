@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { HotkeyApiError, hotkeySetsApi } from '../api/client'
 import type { HotkeyEntry, HotkeySetDetails, ProfileInfo } from '../api/types'
-import { ErrorBanner, LanguageSwitcher } from '../components/Common'
+import { ErrorBanner, LanguageSwitcher, LoadingScreen } from '../components/Common'
 import { FactionBar } from '../components/FactionBar'
 import { HotkeyIcon } from '../components/HotkeyIcon'
 import { HotkeyTile } from '../components/HotkeyTile'
@@ -155,11 +155,7 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   }
 
   if (loading || !indexed) {
-    return (
-      <div className="page">
-        <div className="empty-state">{t('common.loading')}</div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (

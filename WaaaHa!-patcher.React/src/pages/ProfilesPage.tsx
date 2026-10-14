@@ -1,51 +1,29 @@
-import { useCallback, useEffect, useState } from 'react'
-import { HotkeyApiError, gameApi, profileApi } from '../api/client'
-import type { GamePathsInfo, ProfileInfo } from '../api/types'
+import { useState } from 'react'
+import { HotkeyApiError, gameApi } from '../api/client'
 import { ErrorBanner, LanguageSwitcher, Modal } from '../components/Common'
+import type { GameData } from '../hooks/useGameData'
 import { useLocale } from '../i18n/localeContext'
 
 interface ProfilesPageProps {
-  onSelect: (profile: ProfileInfo) => void
+  /** Папка профилей и список профилей приходят из App: тем же набором пользуется редактор. */
+  game: GameData
+  onSelect: (profileName: string) => void
 }
 
-export function ProfilesPage({ onSelect }: ProfilesPageProps) {
+export function ProfilesPage({ game, onSelect }: ProfilesPageProps) {
   const { t } = useLocale()
-  const [paths, setPaths] = useState<GamePathsInfo | null>(null)
-  const [profiles, setProfiles] = useState<ProfileInfo[]>([])
   const [error, setError] = useState<HotkeyApiError | null>(null)
-  const [loading, setLoading] = useState(true)
   const [editingPath, setEditingPath] = useState(false)
   const [pathDraft, setPathDraft] = useState('')
-
-  const reload = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const loadedPaths = await gameApi.getPaths()
-      setPaths(loadedPaths)
-
-      if (loadedPaths.exists) {
-        setProfiles(await profileApi.getProfiles())
-      }
-    } catch (reason) {
-      setError(reason instanceof HotkeyApiError ? reason : null)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    void reload()
-  }, [reload])
+  const { paths, profiles, loading } = game
 
   async function applyPath() {
     setError(null)
 
     try {
-      setPaths(await gameApi.setPaths(pathDraft.trim()))
+      await gameApi.setPaths(pathDraft.trim())
       setEditingPath(false)
-      await reload()
+      await game.reload()
     } catch (reason) {
       if (reason instanceof HotkeyApiError) {
         setError(reason)
@@ -57,12 +35,13 @@ export function ProfilesPage({ onSelect }: ProfilesPageProps) {
     setError(null)
 
     try {
-      const defaults = await gameApi.getDefaultPaths()
-      setPathDraft(defaults)
+      setPathDraft(await gameApi.getDefaultPaths())
     } catch {
       setError(new HotkeyApiError('GameFolderNotFound', t('profiles.folderNotFound'), null, 404))
     }
   }
+
+  const shown = error ?? game.error
 
   return (
     <div className="page">
@@ -76,13 +55,13 @@ export function ProfilesPage({ onSelect }: ProfilesPageProps) {
       </header>
 
       <main className="content">
-        {error && <ErrorBanner code={error.code} title={error.message} detail={error.detail} />}
+        {shown && <ErrorBanner code={shown.code} title={shown.message} detail={shown.detail} />}
 
         <div className="panel">
           <div className="panel__head">
             <h2>{t('profiles.title')}</h2>
             <div className="topbar__spacer" />
-            <button className="btn btn--ghost" type="button" onClick={() => void reload()}>
+            <button className="btn btn--ghost" type="button" onClick={() => void game.reload()}>
               {t('common.retry')}
             </button>
           </div>
@@ -121,7 +100,7 @@ export function ProfilesPage({ onSelect }: ProfilesPageProps) {
                   key={profile.name}
                   type="button"
                   className="card"
-                  onClick={() => onSelect(profile)}
+                  onClick={() => onSelect(profile.name)}
                 >
                   <span className="card__title">{profile.displayName}</span>
                   <span className="card__meta">

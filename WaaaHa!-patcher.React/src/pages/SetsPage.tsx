@@ -8,17 +8,27 @@ import { useLocale } from '../i18n/localeContext'
 
 interface SetsPageProps {
   profile: ProfileInfo
+  /** Окно создания открыто? Признак живёт в адресе, а не в состоянии страницы. */
+  creating: boolean
   onBack: () => void
+  onCreate: () => void
+  onCancelCreate: () => void
   onOpen: (fileName: string) => void
 }
 
-export function SetsPage({ profile, onBack, onOpen }: SetsPageProps) {
+export function SetsPage({
+  profile,
+  creating,
+  onBack,
+  onCreate,
+  onCancelCreate,
+  onOpen,
+}: SetsPageProps) {
   const { t } = useLocale()
   const [sets, setSets] = useState<HotkeySetSummary[]>([])
   const [error, setError] = useState<HotkeyApiError | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [creating, setCreating] = useState(false)
   const confirm = useConfirm()
 
   const reload = useCallback(async () => {
@@ -74,7 +84,7 @@ export function SetsPage({ profile, onBack, onOpen }: SetsPageProps) {
         </div>
         <div className="topbar__spacer" />
         <LanguageSwitcher />
-        <button className="btn btn--primary" type="button" onClick={() => setCreating(true)}>
+        <button className="btn btn--primary" type="button" onClick={onCreate}>
           + {t('sets.new')}
         </button>
       </header>
@@ -91,7 +101,7 @@ export function SetsPage({ profile, onBack, onOpen }: SetsPageProps) {
           emptyText={t('sets.empty')}
           onOpen={(set) => onOpen(set.fileName)}
           onRemove={remove}
-          onCreate={() => setCreating(true)}
+          onCreate={onCreate}
         />
 
         <SetGroup
@@ -106,9 +116,8 @@ export function SetsPage({ profile, onBack, onOpen }: SetsPageProps) {
         <CreateSetModal
           profile={profile}
           baseOptions={builtIn.length > 0 ? builtIn : sets}
-          onClose={() => setCreating(false)}
+          onClose={onCancelCreate}
           onCreated={(fileName, displayName) => {
-            setCreating(false)
             setNotice(t('sets.created', { name: displayName }))
             void reload()
             onOpen(fileName)
