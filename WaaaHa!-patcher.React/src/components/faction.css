@@ -1,17 +1,17 @@
 .faction-bar {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
 
 .faction-button {
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: 120px;
+  height: 120px;
   padding: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius);
   background: linear-gradient(180deg, #262a32 0%, #171a20 100%);
   cursor: pointer;
   overflow: hidden;
@@ -48,8 +48,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
-  font-size: 10px;
+  padding: 6px;
+  font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
@@ -59,9 +59,9 @@
 .faction-button__name {
   position: absolute;
   inset: auto 0 0 0;
-  padding: 3px 4px;
+  padding: 5px 6px;
   background: linear-gradient(180deg, transparent 0%, rgba(8, 9, 11, 0.95) 45%);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   line-height: 1.25;
   text-align: center;
