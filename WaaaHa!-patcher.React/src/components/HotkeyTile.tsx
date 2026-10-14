@@ -10,26 +10,25 @@ interface HotkeyTileProps {
   isCapturing: boolean
   isChanged: boolean
   isReadOnly: boolean
-  /** Основное действие — назначить клавишу. */
+  /** Подсветка выбранного юнита — по ней панели справа знают, кого показывать. */
+  isActive?: boolean
   onCapture: () => void
-  /** Раскрыть клавиши юнита. Если не задано, плитка только назначает. */
-  onOpen?: () => void
 }
 
 /**
  * Плитка с картинкой команды и текущей комбинацией.
  *
- * Действия разделены: основная кнопка ставит клавишу, а стрелка в углу открывает
- * зависимые команды юнита. Иначе назначить клавишу юниту и раскрыть его было бы нельзя
- * одним кликом, а это две разные задачи.
+ * Стрелки в углу больше нет: она открывала зависимые клавиши юнита, но движение,
+ * остановка и атака одинаковы для всех, и открывать их пришлось бы у каждого.
+ * Теперь панели справа от выбранного юнита и так показывают всё, что у него есть.
  */
 export function HotkeyTile({
   entry,
   isCapturing,
   isChanged,
   isReadOnly,
+  isActive = false,
   onCapture,
-  onOpen,
 }: HotkeyTileProps) {
   const { t } = useLocale()
 
@@ -42,6 +41,7 @@ export function HotkeyTile({
     cleared && 'hotkey-tile--empty',
     isCapturing && 'hotkey-tile--capturing',
     isChanged && 'hotkey-tile--changed',
+    isActive && 'hotkey-tile--active',
   ]
     .filter(Boolean)
     .join(' ')
@@ -55,43 +55,28 @@ export function HotkeyTile({
   }
 
   return (
-    <span className="hotkey-tile-wrap">
-      <button
-        type="button"
-        className={classes}
-        onClick={handleClick}
-        disabled={isReadOnly}
-        title={`${caption} (${entry.id})\n${label || t('common.notAssigned')}`}
-      >
-        {cleared ? (
-          <span className="hotkey-tile__fallback">{caption}</span>
-        ) : (
-          <HotkeyIcon
-            baseUrl={entry.iconUrl}
-            className="hotkey-tile__icon"
-            fallback={<span className="hotkey-tile__fallback">{caption}</span>}
-          />
-        )}
-
-        <span
-          className={cleared ? 'hotkey-tile__key hotkey-tile__key--cleared' : 'hotkey-tile__key'}
-        >
-          {cleared ? '—' : label}
-        </span>
-
-        {isCapturing && <span className="hotkey-tile__capturing">{t('editor.capturing')}</span>}
-      </button>
-
-      {onOpen && (
-        <button
-          type="button"
-          className="hotkey-tile__open"
-          onClick={onOpen}
-          title={t('unit.dependencies')}
-        >
-          ▸
-        </button>
+    <button
+      type="button"
+      className={classes}
+      onClick={handleClick}
+      disabled={isReadOnly}
+      title={`${caption} (${entry.id})\n${label || t('common.notAssigned')}`}
+    >
+      {cleared ? (
+        <span className="hotkey-tile__fallback">{caption}</span>
+      ) : (
+        <HotkeyIcon
+          baseUrl={entry.iconUrl}
+          className="hotkey-tile__icon"
+          fallback={<span className="hotkey-tile__fallback">{caption}</span>}
+        />
       )}
-    </span>
+
+      <span className={cleared ? 'hotkey-tile__key hotkey-tile__key--cleared' : 'hotkey-tile__key'}>
+        {cleared ? '—' : label}
+      </span>
+
+      {isCapturing && <span className="hotkey-tile__capturing">{t('editor.capturing')}</span>}
+    </button>
   )
 }

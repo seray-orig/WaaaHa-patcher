@@ -27,6 +27,46 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Раздел «Стандарт» повторяет игровой экран: войска и постройки слева, панели
+   команд выбранного юнита справа. Так клавиши видны там же, где их ставят в бою. */
+.standard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: start;
+  margin-top: 14px;
+}
+
+@media (max-width: 1400px) {
+  .standard {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.standard__right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 320px;
+}
+
+/* Панель держит форму 4 на 3 и 2 на 4, как в игре: пустые места не убираются,
+   иначе раскладка под решётку qwerty/asdf каждый раз прыгала бы. */
+.slot-grid {
+  display: grid;
+  gap: 6px;
+  justify-content: start;
+}
+
+.slot-grid__empty {
+  width: 62px;
+  height: 62px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: repeating-linear-gradient(45deg, #1b1e24 0 6px, #15181d 6px 12px);
 }
 
 .filter-chip {

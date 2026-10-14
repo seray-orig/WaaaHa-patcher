@@ -120,7 +120,9 @@ export const VEHICLE_IDS: Record<FactionKey, readonly string[]> = {
  * «Построить», и именно они открывают список построек расы.
  */
 export const BUILDER_IDS: Record<FactionKey, readonly string[]> = {
-  marine: ['marine_armoury', 'marine_chapel', 'marine_machine_cult'],
+  // Сервитор строит наравне с оружейней: у него на странице вики есть и «Build»,
+  // и «Repair», и в игре он стоит в панели команд рядом с ними.
+  marine: ['marine_servitor', 'marine_armoury', 'marine_chapel', 'marine_machine_cult'],
   chaos: ['chaos_armoury', 'chaos_temple', 'chaos_machine_pit'],
   ork: ['ork_boy_hut', 'ork_mek_shop', 'ork_pile_o_guns'],
   eldar: ['eldar_aspect_portal', 'eldar_soul_shrine', 'eldar_webway_gate'],
