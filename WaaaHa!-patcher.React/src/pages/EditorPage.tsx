@@ -3,6 +3,7 @@ import { HotkeyApiError, gameApi, hotkeySetsApi } from '../api/client'
 import type { HotkeyEntry, HotkeySetDetails, KeyCatalog, ProfileInfo } from '../api/types'
 import { ErrorBanner, LanguageSwitcher, LoadingScreen } from '../components/Common'
 import { FactionBar } from '../components/FactionBar'
+import { HintTile } from '../components/HintTile'
 import { HotkeyTile } from '../components/HotkeyTile'
 import { useKeyCapture } from '../hooks/useKeyCapture'
 import {
@@ -18,6 +19,7 @@ import {
   PANEL_SLOTS,
   UNIT_LAYOUTS,
   commandOf,
+  isInternalButton,
   rosterOf,
   splitByDescribed,
   type RosterSection,
@@ -466,8 +468,16 @@ function StandardLayout({
   const keep = (entry: HotkeyEntry) =>
     matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
 
-  const shown = (cells: (HotkeyEntry | null)[]) =>
-    cells.map((entry) => (entry && keep(entry) ? entry : null))
+  // Поиск и «только изменённые» прячут команды, но не подсказки: серая плитка не
+  // про хоткей и не должна исчезать от фильтра, который про хоткеи.
+  const shown = (cells: SlotCell[]) =>
+    cells.map((cell) => {
+      if (cell === null || isHint(cell)) {
+        return cell
+      }
+
+      return keep(cell) ? cell : null
+    })
 
   return (
     <div className="standard">
@@ -664,7 +674,7 @@ function SlotPanel({
   onCapture,
 }: {
   title: string
-  slots: (HotkeyEntry | null)[]
+  slots: SlotCell[]
   columns?: number
   capturingId: string | null
   readOnly: boolean
@@ -676,23 +686,42 @@ function SlotPanel({
       <div className="dependency-group__title">{title}</div>
 
       <div className="slot-grid" style={{ gridTemplateColumns: `repeat(${columns}, auto)` }}>
-        {slots.map((entry, index) =>
-          entry ? (
+        {slots.map((cell, index) => {
+          if (cell === null) {
+            return <span key={`empty-${index}`} className="slot-grid__empty" />
+          }
+
+          if (isHint(cell)) {
+            return <HintTile key={`hint-${cell.name}-${index}`} name={cell.name} />
+          }
+
+          return (
             <HotkeyTile
-              key={entry.id}
-              entry={entry}
-              isCapturing={capturingId === entry.id}
-              isChanged={original[entry.id] !== entry.value}
+              key={cell.id}
+              entry={cell}
+              isCapturing={capturingId === cell.id}
+              isChanged={original[cell.id] !== cell.value}
               isReadOnly={readOnly}
-              onCapture={() => onCapture(entry.id)}
+              onCapture={() => onCapture(cell.id)}
             />
-          ) : (
-            <span key={`empty-${index}`} className="slot-grid__empty" />
-          ),
-        )}
+          )
+        })}
       </div>
     </div>
   )
+}
+
+/** Место в панели: команда, подсказка или пустое место. */
+type SlotCell = HotkeyEntry | HintCell | null
+
+/** Внутренняя кнопка: настоящей команды за ней нет, поэтому и класс свой. */
+interface HintCell {
+  readonly hint: true
+  readonly name: string
+}
+
+function isHint(cell: SlotCell): cell is HintCell {
+  return typeof cell === 'object' && cell !== null && 'hint' in cell
 }
 
 /** Места панели по ручной раскладке, дополненные пустыми до размера игровой. */
@@ -700,10 +729,16 @@ function slots(
   manual: readonly (string | null | '')[] | undefined,
   size: number,
   indexed: IndexedHotkeys,
-): (HotkeyEntry | null)[] {
-  const cells = (manual ?? [])
+): SlotCell[] {
+  const cells: SlotCell[] = (manual ?? [])
     .slice(0, size)
-    .map((id) => (id ? entryFor(id, indexed) ?? null : null))
+    .map((id) => {
+      if (!id) {
+        return null
+      }
+
+      return isInternalButton(id) ? { hint: true, name: id } : (entryFor(id, indexed) ?? null)
+    })
 
   while (cells.length < size) {
     cells.push(null)

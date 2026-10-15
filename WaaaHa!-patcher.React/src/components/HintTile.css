@@ -1,0 +1,47 @@
+/* Подсказка на месте кнопки, которой в игре нет. За режимами войск, например,
+   нет настоящей клавиши: они всегда стоят на одной позиции и переключаются
+   нажатием на ту же кнопку. Плитка занимает всю ширину панели — надпись должна
+   читаться, и по форме ей не на что походить. */
+.hint-tile {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 44px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: repeating-linear-gradient(45deg, #1b1e24 0 6px, #15181d 6px 12px);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Значок гасится и обесцвечивается: он здесь для узнаваемости, а не для
+   настройки, и выглядеть как кнопка не должен. */
+.hint-tile__icon {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: grayscale(1) brightness(0.45) contrast(0.8);
+  opacity: 0.5;
+}
+
+.hint-tile__fallback {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: #191d23;
+}
+
+.hint-tile__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--text-muted);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
