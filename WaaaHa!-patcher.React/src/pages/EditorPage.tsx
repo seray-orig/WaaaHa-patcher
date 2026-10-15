@@ -12,21 +12,14 @@ import {
   type CategoryKey,
   type IndexedHotkeys,
 } from '../gameData/hotkeyIndex'
-import { isBuilder, type FactionKey } from '../gameData/factions'
-import { UNIT_LAYOUTS, type UnitLayout } from '../gameData/layouts'
+import type { FactionKey } from '../gameData/factions'
 import {
-  BUILDING_COMMANDS,
-  BUILDING_EXIT_MODES,
-  FACTION_COMMANDS,
-  FACTION_SERGEANT,
   IMPROVEMENT_SLOTS,
   PANEL_SLOTS,
-  SERGEANT_HOSTS,
-  SHARED_COMMANDS,
-  abilitiesOf,
-  isFactionCommand,
-  weaponsOf,
-} from '../gameData/panels'
+  UNIT_LAYOUTS,
+  rosterOf,
+  type RosterSection,
+} from '../gameData/layouts'
 import { shortLabel } from '../hotkeys/keyboard'
 import { builtInNameKey } from '../hotkeys/builtInSets'
 import type { TranslationKey } from '../i18n/dictionaries'
@@ -230,7 +223,7 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
     return <LoadingScreen />
   }
 
-  const filters = buildFilters(faction, indexed)
+  const filters = buildFilters()
   const gridProps = { capturingId, readOnly, original, onCapture: setCapturingId }
 
   return (
@@ -433,9 +426,9 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
 /**
  * Раздел «Стандарт»: повторяет игровой экран.
  *
- * Слева войска и постройки расы, справа панели выбранного юнита. Общие команды не
- * дублируются внутри юнита: у здания их вообще нет, а у отряда они одинаковы с любым
- * другим, и стрелки к ним только мешали.
+ * Слева войска и постройки расы, справа панели выбранного юнита. Всё перечислено
+ * руками в gameData/layouts.ts: правил по умолчанию не осталось, потому что в игре
+ * их тоже нет.
  */
 function StandardLayout({
   faction,
@@ -461,19 +454,18 @@ function StandardLayout({
   onCapture: (id: string | null) => void
 }) {
   const { t } = useLocale()
-  const categories = indexed.byFaction.get(faction) ?? new Map<CategoryKey, HotkeyEntry[]>()
-  const sergeant = FACTION_SERGEANT[faction]
+  const roster = rosterOf(faction)
+  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
+  const layout = selectedUnitId ? UNIT_LAYOUTS[selectedUnitId] : undefined
+  const gridProps = { capturingId, readOnly, original, onCapture }
+
+  // Поиск и «только изменённые» прячут плитки, но не места: панель в игре от
+  // выбранного юнита форму не меняет, и ради этой формы её и настраивают.
   const keep = (entry: HotkeyEntry) =>
     matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
 
-  // Сержант не покупается, а выдаётся на месте, поэтому в списке войск его нет.
-  const troops = [...(categories.get('Infantry') ?? []), ...(categories.get('Vehicle') ?? [])]
-    .filter((entry) => entry.id !== sergeant)
-    .filter(keep)
-
-  const structures = (categories.get('Building') ?? []).filter(keep)
-  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
-  const gridProps = { capturingId, readOnly, original, onCapture }
+  const shown = (cells: (HotkeyEntry | null)[]) =>
+    cells.map((entry) => (entry && keep(entry) ? entry : null))
 
   return (
     <div className="standard">
@@ -481,7 +473,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.troops')}</div>
           <TileGrid
-            entries={troops}
+            entries={pick(roster.troops, indexed).filter(keep)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -493,7 +485,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.structures')}</div>
           <TileGrid
-            entries={structures}
+            entries={pick(roster.buildings, indexed).filter(keep)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -504,14 +496,14 @@ function StandardLayout({
       <div className="standard__middle">
         <SlotPanel
           title={t('editor.commandPanel')}
-          slots={pad(commandSlots(faction, selected, indexed), PANEL_SLOTS)}
+          slots={shown(slots(layout?.command, PANEL_SLOTS, indexed))}
           columns={4}
           {...gridProps}
         />
 
         <SlotPanel
           title={t('editor.commandPanel2')}
-          slots={pad(secondSlots(faction, selected, indexed), PANEL_SLOTS)}
+          slots={shown(slots(layout?.second, PANEL_SLOTS, indexed))}
           columns={4}
           {...gridProps}
         />
@@ -526,10 +518,7 @@ function StandardLayout({
       <div className="standard__right">
         <SlotPanel
           title={t('editor.improvements')}
-          slots={pad(
-            selected ? improvementSlots(indexed, faction, selected) : [],
-            IMPROVEMENT_SLOTS,
-          )}
+          slots={shown(slots(layout?.improvements, IMPROVEMENT_SLOTS, indexed))}
           columns={2}
           {...gridProps}
         />
@@ -538,7 +527,7 @@ function StandardLayout({
   )
 }
 
-/** Остальные фильтры работают по описанию раздела: просто сортируют по категориям. */
+/** Остальные фильтры показывают то, что перечислено руками для разделов расы. */
 function CategoryLayout({
   filter,
   faction,
@@ -562,8 +551,7 @@ function CategoryLayout({
 }) {
   const { t } = useLocale()
   const gridProps = { capturingId, readOnly, original, onCapture }
-  const keep = (entry: HotkeyEntry) =>
-    matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
+  const roster = rosterOf(faction)
 
   let entries: HotkeyEntry[]
 
@@ -572,24 +560,63 @@ function CategoryLayout({
   }
 
   if (filter === 'command') {
-    entries = [...SHARED_COMMANDS, ...BUILDING_COMMANDS, ...FACTION_COMMANDS]
-      .map((id) => indexed.byId.get(id))
-      .filter((entry): entry is HotkeyEntry => entry !== undefined)
+    entries = []
   } else if (filter === 'all') {
-    entries = indexed.all.filter(keep)
+    entries = unique(
+      [
+        ...(roster.troops ?? []),
+        ...(roster.buildings ?? []),
+        ...Object.values(roster.sections ?? {}).flat(),
+      ],
+      indexed,
+    )
   } else if (filter === 'faction') {
-    const categories = faction ? indexed.byFaction.get(faction) : null
-
-    entries = categories
-      ? [...categories.values()].flat().filter(keep)
-      : indexed.all.filter((entry) => entry.group !== 'common')
+    entries = unique(
+      [
+        ...(roster.troops ?? []),
+        ...(roster.buildings ?? []),
+        ...Object.values(roster.sections ?? {}).flat(),
+      ],
+      indexed,
+    )
   } else {
-    entries = (faction ? indexed.byFaction.get(faction)?.get(filter) : undefined) ?? []
+    entries = isRosterSection(filter) ? pick(roster.sections?.[filter], indexed) : []
   }
 
-  return (
-    <EntryGrid entries={entries} emptyText={t('editor.noResults')} {...gridProps} />
+  const visible = entries.filter(
+    (entry) => matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value),
   )
+
+  return (
+    <EntryGrid entries={visible} emptyText={t('editor.noResults')} {...gridProps} />
+  )
+}
+
+/** Переводит перечисленные вручную идентификаторы в хоткеи файла: нужен и значок. */
+function pick(
+  ids: readonly (string | null | undefined)[] | undefined,
+  indexed: IndexedHotkeys,
+): HotkeyEntry[] {
+  return (ids ?? [])
+    .map((id) => (id ? indexed.byId.get(id) : undefined))
+    .filter((entry): entry is HotkeyEntry => entry !== undefined)
+}
+
+function unique(ids: readonly string[], indexed: IndexedHotkeys): HotkeyEntry[] {
+  const seen = new Set<string>()
+
+  return ids
+    .filter((id) => {
+      if (seen.has(id)) {
+        return false
+      }
+
+      seen.add(id)
+
+      return true
+    })
+    .map((id) => indexed.byId.get(id))
+    .filter((entry): entry is HotkeyEntry => entry !== undefined)
 }
 
 /**
@@ -639,117 +666,19 @@ function SlotPanel({
   )
 }
 
-/**
- * Панели выбранного юнита.
- *
- * Что игрок расписал руками в layouts.ts, берётся как есть, вместе с позициями:
- * универсального правила нет, глайдер настраивается у той машинерии, которую игрок
- * выбрал, а угадать это из файла биндингов нельзя. Чего в layouts.ts нет, собирается
- * здесь по общим правилам.
- */
-function panelFor(
-  selected: HotkeyEntry | undefined,
-  indexed: IndexedHotkeys,
-  section: keyof UnitLayout,
-  fallback: () => (HotkeyEntry | null)[],
-): (HotkeyEntry | null)[] {
-  const manual = selected ? UNIT_LAYOUTS[selected.id]?.[section] : undefined
-
-  return manual ? resolve(manual, indexed) : fallback()
-}
-
-/**
- * Основная панель выбранного юнита.
- *
- * У здания общих команд нет: на стоящей постройке нельзя ни двинуться, ни ударить.
- * У остального общие команды одни и те же, а дальше идут умения самого юнита — даже
- * те, что требуют грейда: в бою кнопка всё равно есть, просто затемняется.
- */
-function commandSlots(
-  faction: FactionKey,
-  selected: HotkeyEntry | undefined,
+/** Места панели по ручной раскладке, дополненные пустыми до размера игровой. */
+function slots(
+  manual: readonly (string | null | '')[] | undefined,
+  size: number,
   indexed: IndexedHotkeys,
 ): (HotkeyEntry | null)[] {
-  return panelFor(selected, indexed, 'command', () => {
-    if (!selected) {
-      return resolve(SHARED_COMMANDS, indexed)
-    }
+  const cells = (manual ?? []).slice(0, size).map((id) => (id ? (indexed.byId.get(id) ?? null) : null))
 
-    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
+  while (cells.length < size) {
+    cells.push(null)
+  }
 
-    return building
-      ? resolve([...BUILDING_COMMANDS, ...abilitiesOf(selected.id)], indexed)
-      : resolve([...SHARED_COMMANDS, ...abilitiesOf(selected.id)], indexed)
-  })
-}
-
-/**
- * Вторая панель.
- *
- * Строителю сюда кладутся все здания расы — ровно те, что в игре выходят в его
- * меню постройки. Остальным сюда попадают редкие команды расы.
- */
-function secondSlots(
-  faction: FactionKey,
-  selected: HotkeyEntry | undefined,
-  indexed: IndexedHotkeys,
-): (HotkeyEntry | null)[] {
-  return panelFor(selected, indexed, 'second', () => {
-    if (!selected) {
-      return []
-    }
-
-    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
-
-    if (building) {
-      return indexed.byFaction.get(faction)?.get('Building') ?? []
-    }
-
-    return resolve(
-      FACTION_COMMANDS.filter((id) => isFactionCommand(id, faction)),
-      indexed,
-    )
-  })
-}
-
-/**
- * Улучшения: то, что выдаётся на месте, а не покупается в оружейне.
- *
- * У отряда это выдаваемое оружие, кнопка добавления сержанта и вызов подкрепления.
- * У здания — режимы выхода войск, в классической раскладке F1–F4.
- */
-function improvementSlots(
-  indexed: IndexedHotkeys,
-  faction: FactionKey,
-  selected: HotkeyEntry,
-): (HotkeyEntry | null)[] {
-  return panelFor(selected, indexed, 'improvements', () => {
-    const building = selected.category === 'Building' || isBuilder(faction, selected.id)
-
-    if (building) {
-      return resolve(BUILDING_EXIT_MODES, indexed)
-    }
-
-    const sergeant = FACTION_SERGEANT[faction]
-    const ids = [
-      ...weaponsOf(selected.id),
-      ...(sergeant && SERGEANT_HOSTS[selected.id] ? [sergeant] : []),
-      'reinforce',
-    ]
-
-    return resolve(ids, indexed)
-  })
-}
-
-function resolve(
-  ids: readonly (string | null | undefined)[],
-  indexed: IndexedHotkeys,
-): (HotkeyEntry | null)[] {
-  return ids.map((id) => (id ? (indexed.byId.get(id) ?? null) : null))
-}
-
-function pad(slots: (HotkeyEntry | null)[], size: number): (HotkeyEntry | null)[] {
-  return [...slots, ...Array<null>(Math.max(0, size - slots.length))].slice(0, size)
+  return cells
 }
 
 interface GridProps {
@@ -818,16 +747,15 @@ function EntryGrid({
 }
 
 /**
- * Фильтры собираются под выбранную расу: у неё свои разделы, и пустые вкладки
- * только занимают место. «Панель команд» и «Все» не зависят от расы и идут в конце.
+ * Фильтры перечислены целиком и не зависят от наполненности: пустые вкладки
+ * нужны, чтобы видеть, куда что-то класть, пока таблица раскладки ещё пуста.
  */
-function buildFilters(faction: FactionKey | null, indexed: IndexedHotkeys): FilterKey[] {
-  const categories = faction ? indexed.byFaction.get(faction) : null
-  const own: FilterKey[] = categories
-    ? CATEGORY_ORDER.filter((category) => (categories.get(category)?.length ?? 0) > 0)
-    : []
+function buildFilters(): FilterKey[] {
+  return ['standard', 'faction', ...CATEGORY_ORDER, 'command', 'all']
+}
 
-  return ['standard', 'faction', ...own, 'command', 'all']
+function isRosterSection(filter: FilterKey): filter is RosterSection {
+  return CATEGORY_ORDER.includes(filter as CategoryKey)
 }
 
 function filterLabel(
@@ -844,14 +772,19 @@ function filterLabel(
     return t('tab.command')
   }
 
-  const categories = faction ? indexed.byFaction.get(faction) : null
+  const roster = rosterOf(faction)
+  const listed = [
+    ...(roster.troops ?? []),
+    ...(roster.buildings ?? []),
+    ...Object.values(roster.sections ?? {}).flat(),
+  ]
 
   const count =
-    filter === 'all'
-      ? indexed.all.length
-      : filter === 'faction'
-        ? [...(categories?.values() ?? [])].flat().length
-        : (categories?.get(filter)?.length ?? 0)
+    filter === 'all' || filter === 'faction'
+      ? unique(listed, indexed).length
+      : isRosterSection(filter)
+        ? pick(roster.sections?.[filter], indexed).length
+        : 0
 
   const label =
     filter === 'all' ? t('tab.all') : filter === 'faction' ? t('tab.faction') : t(CATEGORY_LABELS[filter])
