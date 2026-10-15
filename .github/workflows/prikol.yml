@@ -58,20 +58,44 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: Публикация API
+    # Два билда, потому что игроку нужны разные вещи.
+    #
+    # Первый — самодостаточный, со вшитым .NET: работает у кого угодно, но весит
+    # под 80 МБ. Внутри одного файла он ещё и ужат, распаковка случается один раз
+    # при запуске и на работу не влияет.
+    #
+    # Второй — без вшитого .NET: втрое меньше, но требует .NET 10 на машине. Сжимать
+    # его внутри одного файла нельзя, сборка откажется (NETSDK1176): упаковка внутри
+    # файла поддерживается только для самодостаточной публикации. Поэтому сжатый
+    # артефакт здесь — zip ниже, как и раньше.
+    - name: Публикация API (со вшитым .NET)
       run: |
         RAW_VER="${GITHUB_REF_NAME#v}"
         CLEAN_VER="${RAW_VER#dev}"
-        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version="$CLEAN_VER"
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version="$CLEAN_VER" -p:SelfContained=true -p:EnableCompressionInSingleFile=true
+
+    - name: Публикация API (без вшитого .NET)
+      run: |
+        RAW_VER="${GITHUB_REF_NAME#v}"
+        CLEAN_VER="${RAW_VER#dev}"
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64-fd -p:Version="$CLEAN_VER" -p:SelfContained=false -p:EnableCompressionInSingleFile=false
 
     - name: Упаковка API в архив
-      run: 7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64.zip' ./publish-x64/*
+      run: |
+        7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64.zip' ./publish-x64/*
+        7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64-fd.zip' ./publish-x64-fd/*
 
     - name: Сохраняем артефакт x64
       uses: actions/upload-artifact@v4
       with:
         name: WaaaHa!-Patcher_win-x64
         path: WaaaHa!-Patcher_win-x64.zip
+
+    - name: Сохраняем артефакт x64 без вшитого .NET
+      uses: actions/upload-artifact@v4
+      with:
+        name: WaaaHa!-Patcher_win-x64-fd
+        path: WaaaHa!-Patcher_win-x64-fd.zip
 
   release:
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/tags/dev')
@@ -89,11 +113,11 @@ jobs:
     - name: Забираем артефакты
       uses: actions/download-artifact@v4
       with:
-        name: WaaaHa!-Patcher_win-x64
+        pattern: WaaaHa!-Patcher_win-x64*
         merge-multiple: true
 
     - name: Генерация SHA256
-      run: sha256sum 'WaaaHa!-Patcher_win-x64.zip' > checksums.txt
+      run: sha256sum 'WaaaHa!-Patcher_win-x64.zip' 'WaaaHa!-Patcher_win-x64-fd.zip' > checksums.txt
 
     - name: Проверка типа релиза (dev или stable)
       id: check_version
@@ -135,6 +159,7 @@ jobs:
       with:
         files: |
           WaaaHa!-Patcher_win-x64.zip
+          WaaaHa!-Patcher_win-x64-fd.zip
           checksums.txt
         generate_release_notes: true
         prerelease: ${{ steps.check_version.outputs.is_prerelease == 'true' }}

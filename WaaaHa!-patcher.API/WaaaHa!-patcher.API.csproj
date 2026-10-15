@@ -15,7 +15,16 @@
     <NeutralLanguage>ru</NeutralLanguage>
 	  <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
 	  <PublishSingleFile>true</PublishSingleFile>
-    <IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+
+    <!-- Один файл, ужатый внутри: минус треть размера, распаковка один раз при
+         запуске, на работу не влияет. Вырезать код вместо этого нельзя: MVC и
+         System.Text.Json работают через рефлексию, и обрезка молча уносит то, что
+         понадобится в момент запуска. -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
+    <!-- Распаковывать содержимое во временную папку было незачем: интерфейс лежит
+         внутри сборки как ресурсы, а распаковывать нечего. Свойство только
+         замедляло старт. -->
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
     <SelfContained>true</SelfContained>
