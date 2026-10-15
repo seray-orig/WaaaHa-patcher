@@ -13,6 +13,16 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
         public const string BindingsVersionField = "bindings_version";
 
+        /// <summary>
+        /// Имя поля в комментарии шапки, которым набор помнит основу.
+        ///
+        /// Хранится именно имя, без расширения и без пути: приложению достаточно
+        /// знать, в каком файле хоткеев искать значение, а сам файл игрок в любой
+        /// момент может переименовать или удалить — тогда сброс просто ничего не
+        /// сделает.
+        /// </summary>
+        public const string BasedOnComment = "based_on";
+
         /// <summary>Таблица с основными биндингами.</summary>
         public const string MainTableName = "bindings";
 
@@ -26,6 +36,18 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
         /// <summary>Значение поля <c>bindings_locstring</c> — имя набора, которое увидит игрок.</summary>
         public string DisplayName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Имя файла хоткеев, из которого набор вырос, без расширения и пути.
+        ///
+        /// Записывается комментарием в шапку, а не отдельным полем: лишнее поле игра
+        /// читать не станет, зато пометку видно глазами, если открыть файл текстовым
+        /// редактором.
+        ///
+        /// Пустая строка — основу не знаем. Стандартных значений тогда нет, и сброс
+        /// по цифре 0 ничего не меняет.
+        /// </summary>
+        public string BaseName { get; set; } = string.Empty;
 
         public LuaTable? MainTable => Tables.Find(table => table.Name == MainTableName);
 

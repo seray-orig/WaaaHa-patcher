@@ -25,5 +25,14 @@ namespace WaaaHa__patcher.API.Domain.Profiles
         /// папкой профиля, поэтому и проверка имени живёт тут же.
         /// </summary>
         string ResolvePath(string profileName, string fileName);
+
+        /// <summary>
+        /// Файл набора по имени без расширения — так, как набор помнит свою основу.
+        ///
+        /// Возвращает <c>null</c>, если такого файла в профиле больше нет: игрок
+        /// вправе переименовать или удалить основу, и это не повод ломать открытие
+        /// набора — сброс к стандартному просто не сработает.
+        /// </summary>
+        string? FindByBaseName(string profileName, string baseName);
     }
 }

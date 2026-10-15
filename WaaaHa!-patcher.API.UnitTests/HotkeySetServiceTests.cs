@@ -573,6 +573,68 @@ namespace WaaaHa__patcher.API.UnitTests
                 shell);
         }
 
+        /// <summary>
+        /// Сброс по цифре 0 возвращает значение из файла-основы, а набор помнит
+        /// его по имени. Правка в наборе стандартной не является.
+        /// </summary>
+        [Fact]
+        public void УХоткеяЕстьСтандартноеЗначениеИзФайлаОсновы()
+        {
+            _service.Create("Profile1", new CreateHotkeySetRequest(
+                "RESET.LUA",
+                "Свой",
+                "KEYDEFAULTS_MODERN.LUA"));
+
+            _service.Save("Profile1", "RESET.LUA", new SaveHotkeySetRequest(
+                "Правленый",
+                new Dictionary<string, string> { ["marine_hq"] = "F5" }));
+
+            var entry = _service.Get("Profile1", "RESET.LUA").Sections
+                .SelectMany(section => section.Entries)
+                .First(item => item.Id == "marine_hq");
+
+            Assert.Equal("F5", entry.Value);
+            Assert.Equal("H", entry.DefaultValue);
+        }
+
+        /// <summary>
+        /// Набор запоминает основу именем, а не файлом: игрок вправе основу
+        /// переименовать, и тогда стандартных значений просто не будет.
+        /// </summary>
+        [Fact]
+        public void ПереименованнаяОсноваНеЛомаетОткрытиеНабора()
+        {
+            _service.Create("Profile1", new CreateHotkeySetRequest(
+                "ORPHAN.LUA",
+                "Свой",
+                "KEYDEFAULTS_MODERN.LUA"));
+
+            File.Move(
+                Path.Combine(ProfileDirectory, "KEYDEFAULTS_MODERN.LUA"),
+                Path.Combine(ProfileDirectory, "KEYDEFAULTS_RENAMED.LUA"));
+
+            var details = _service.Get("Profile1", "ORPHAN.LUA");
+
+            Assert.Contains(
+                details.Sections.SelectMany(section => section.Entries),
+                entry => entry.Id == "marine_hq");
+        }
+
+        /// <summary>Пометка основы пишется именем без расширения и читается обратно.</summary>
+        [Fact]
+        public void ОсноваЗапоминаетсяИменемБезРасширения()
+        {
+            _service.Create("Profile1", new CreateHotkeySetRequest(
+                "NAMED.LUA",
+                "Свой",
+                "KEYDEFAULTS_MODERN.LUA"));
+
+            var text = File.ReadAllText(Path.Combine(ProfileDirectory, "NAMED.LUA"));
+
+            Assert.Contains("-- based_on: KEYDEFAULTS_MODERN", text);
+            Assert.DoesNotContain("KEYDEFAULTS_MODERN.LUA", text);
+        }
+
         private sealed class StubPathsProvider(string profilesRoot) : IGamePathsProvider
         {
             public GamePaths Get() => new(profilesRoot, Directory.Exists(profilesRoot), false);

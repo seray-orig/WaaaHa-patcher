@@ -22,12 +22,17 @@ namespace WaaaHa__patcher.API.Contracts
     /// <param name="Group">Фракция по префиксу идентификатора: <c>marine</c>, <c>dark_eldar</c> и так далее.</param>
     /// <param name="Category">Раздел внутри фракции: пехота, техника, здания, способности и прочее.</param>
     /// <param name="IconUrl">Путь к картинке-иконке. Может указывать на несуществующий файл — интерфейс подставит заглушку.</param>
+    /// <param name="DefaultValue">
+    /// Значение из файла-основы, то есть то, к чему возвращает сброс по цифре 0.
+    /// У набора игры совпадает с <paramref name="Value"/>: сбрасывать тут некуда.
+    /// </param>
     public sealed record HotkeyEntry(
         string Id,
         string Value,
         string Group,
         string Category,
-        string IconUrl);
+        string IconUrl,
+        string DefaultValue);
 
     /// <summary>
     /// Секция набора, восстановленная по комментариям исходного файла.

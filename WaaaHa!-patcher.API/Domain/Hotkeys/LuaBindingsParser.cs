@@ -28,6 +28,15 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
         [GeneratedRegex(@"^\s*(?<id>[A-Za-z_][A-Za-z0-9_]*)\s*=\s*(?<value>.*?)\s*$")]
         private static partial Regex AssignmentRegex();
 
+        /// <summary>
+        /// Пометка шапки «-- based_on: KEYDEFAULTS_GRID».
+        ///
+        /// Комментарий, а не поле: игра лишние поля читать не умеет, а набор тем
+        /// более не должен этим заниматься.
+        /// </summary>
+        [GeneratedRegex(@"^\s*--\s*based_on\s*:\s*(?<file>\S+?)(?:\.lua)?\s*$", RegexOptions.IgnoreCase)]
+        private static partial Regex BasedOnRegex();
+
         public LuaBindingsDocument ParseFile(string path) => Parse(File.ReadAllLines(path));
 
         public LuaBindingsDocument Parse(IEnumerable<string> lines)
@@ -93,6 +102,14 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
         private static void ReadHeaderLine(LuaBindingsDocument document, string line)
         {
+            var basedOn = BasedOnRegex().Match(line);
+
+            if (basedOn.Success)
+            {
+                document.BaseName = basedOn.Groups["file"].Value;
+                return;
+            }
+
             var match = AssignmentRegex().Match(line);
             if (!match.Success)
                 return;

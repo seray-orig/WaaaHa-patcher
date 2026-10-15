@@ -25,6 +25,11 @@ export interface HotkeyEntry {
   /** Раздел внутри фракции: Infantry, Vehicle, Building и прочие. */
   category: string
   iconUrl: string
+  /**
+   * Значение из файла, из которого набор вырос, — то, к чему возвращает сброс по
+   * цифре 0. У набора игры совпадает с `value`.
+   */
+  defaultValue: string
 }
 
 /** Секция набора, восстановленная по комментариям исходного файла. */

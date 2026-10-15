@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,6 +24,18 @@ namespace WaaaHa__patcher.API.Application
         private readonly IHotkeyCategoryResolver _categories;
         private readonly IBindingValueValidator _validator;
         private readonly IShellLauncher _shell;
+
+        /// <summary>
+        /// Стандартные значения по профилю и файлу-основе.
+        ///
+        /// Файлы игры не меняются, а свои наборы читаются при каждом открытии, так
+        /// что повторный разбор одного и того же основания — чистая потеря времени.
+        /// </summary>
+        private readonly Dictionary<string, IReadOnlyDictionary<string, string>> _defaults =
+            new(StringComparer.OrdinalIgnoreCase);
+
+        private static readonly IReadOnlyDictionary<string, string> NoDefaults =
+            new Dictionary<string, string>();
 
         public HotkeySetService(
             IProfileRepository profiles,
@@ -61,7 +73,7 @@ namespace WaaaHa__patcher.API.Application
             RequireProfile(profileName);
             var set = ReadOrThrow(profileName, fileName);
 
-            return Describe(set);
+            return Describe(profileName, set);
         }
 
         public HotkeySetDetails Create(string profileName, CreateHotkeySetRequest request)
@@ -94,9 +106,11 @@ namespace WaaaHa__patcher.API.Application
             // комментариями Relic. Выкидывать их молча нельзя: игрок, который
             // переписывает раскладку под кампанию, половину нужного потеряет, а
             // разбирать мусор глазами он сможет — для этого есть фильтр «Остальное».
+            document.BaseName = Path.GetFileNameWithoutExtension(request.BaseFileName);
+
             _sets.Write(profileName, fileName, document);
 
-            return Describe(new HotkeySetFile(fileName, fileName, false, document));
+            return Describe(profileName, new HotkeySetFile(fileName, fileName, false, document));
         }
 
         public HotkeySetDetails Save(string profileName, string fileName, SaveHotkeySetRequest request)
@@ -139,7 +153,7 @@ namespace WaaaHa__patcher.API.Application
 
             _sets.Write(profileName, fileName, set.Document);
 
-            return Describe(set);
+            return Describe(profileName, set);
         }
 
         public void Delete(string profileName, string fileName)
@@ -245,13 +259,74 @@ namespace WaaaHa__patcher.API.Application
             }
         }
 
-        private HotkeySetDetails Describe(HotkeySetFile set)
+        private HotkeySetDetails Describe(string profileName, HotkeySetFile set)
             => new(
                 set.FileName,
                 set.Document.DisplayName,
                 set.Document.Version,
                 set.IsBuiltIn,
-                BuildSections(set.Document));
+                BuildSections(set.Document, DefaultsFor(profileName, set)));
+
+        /// <summary>
+        /// Стандартные значения хоткеев — то, к чему возвращает сброс по цифре 0.
+        ///
+        /// Набор помнит только имя файла-основы. Находим файл по имени в папке
+        /// профиля и читаем из него нужную кнопку. У файлов игры основы нет, и
+        /// стандартными считаются их собственные значения: там сбрасывать некуда.
+        /// </summary>
+        private IReadOnlyDictionary<string, string> DefaultsFor(string profileName, HotkeySetFile set)
+        {
+            if (set.IsBuiltIn)
+                return IndexOf(set.Document);
+
+            var baseName = set.Document.BaseName;
+
+            if (string.IsNullOrEmpty(baseName))
+                return NoDefaults;
+
+            var cacheKey = profileName + "|" + baseName;
+
+            if (_defaults.TryGetValue(cacheKey, out var cached))
+                return cached;
+
+            var loaded = LoadDefaults(profileName, baseName);
+            _defaults[cacheKey] = loaded;
+
+            return loaded;
+        }
+
+        /// <summary>
+        /// Основа читается отдельно и молча: если файла нет или он битый, сброс по
+        /// цифре 0 просто ничего не сделает. Ошибка тут не должна рушить открытие.
+        /// </summary>
+        private IReadOnlyDictionary<string, string> LoadDefaults(string profileName, string baseName)
+        {
+            try
+            {
+                var fileName = _sets.FindByBaseName(profileName, baseName);
+
+                return fileName is null ? NoDefaults : IndexOf(_sets.Read(profileName, fileName).Document);
+            }
+            catch (Exception exception) when (exception is IOException
+                                               or UnauthorizedAccessException
+                                               or ArgumentException)
+            {
+                return NoDefaults;
+            }
+        }
+
+        private static IReadOnlyDictionary<string, string> IndexOf(LuaBindingsDocument document)
+        {
+            var values = new Dictionary<string, string>(StringComparer.Ordinal);
+
+            foreach (var table in document.Tables)
+            {
+                foreach (var binding in table.Bindings)
+                    values[binding.Id] = binding.Value;
+            }
+
+            return values;
+        }
 
         /// <summary>
         /// Хоткей ищется во всех таблицах: кроме основной есть camera_bindings,
@@ -262,7 +337,9 @@ namespace WaaaHa__patcher.API.Application
                 .Select(table => table.Find(id))
                 .FirstOrDefault(binding => binding is not null);
 
-        private IReadOnlyList<HotkeySection> BuildSections(LuaBindingsDocument document)
+        private IReadOnlyList<HotkeySection> BuildSections(
+            LuaBindingsDocument document,
+            IReadOnlyDictionary<string, string> defaults)
         {
             var sections = new List<HotkeySection>();
             var entries = new List<HotkeyEntry>();
@@ -289,7 +366,8 @@ namespace WaaaHa__patcher.API.Application
                                 binding.Value,
                                 _groups.Resolve(binding.Id),
                                 ResolveCategory(binding.Id, category),
-                                IconUrl(binding.Id)));
+                                IconUrl(binding.Id),
+                                defaults.GetValueOrDefault(binding.Id, binding.Value)));
                             break;
 
                         case LuaRawLine raw when IsSectionTitle(raw.Text):

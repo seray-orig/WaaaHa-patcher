@@ -146,6 +146,15 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
       setCapturingId(null)
     },
     onCancel: () => setCapturingId(null),
+    // Сброс возвращает значение из файла-основы. Если основы нет, сервер прислал
+    // текущее значение, и сброс просто ничего не меняет.
+    onReset: () => {
+      if (capturingId) {
+        applyValue(capturingId, indexed?.byId.get(capturingId)?.defaultValue ?? '')
+      }
+
+      setCapturingId(null)
+    },
   })
 
   function applyValue(id: string, value: string) {

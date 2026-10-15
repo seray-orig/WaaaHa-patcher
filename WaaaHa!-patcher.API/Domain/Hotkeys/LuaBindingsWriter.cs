@@ -20,8 +20,7 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
             "-- Hotkey set created with WaaaHa!-patcher.",
             "-- The game reads this file on every launch and shows it in the hotkey list,",
             "-- so all changes made here survive restarts and updates of the game itself.",
-            "------------------------------------------------------------------",
-            string.Empty
+            "------------------------------------------------------------------"
         ];
 
         public string Write(LuaBindingsDocument document)
@@ -30,6 +29,18 @@ namespace WaaaHa__patcher.API.Domain.Hotkeys
 
             foreach (var line in HeaderLines)
                 builder.Append(line).Append('\n');
+
+            // Откуда набор вырос — только имя, без расширения и пути. По нему редактор
+            // находит файл хоткеев и знает стандартные значения клавиш, к которым
+            // возвращает сброс по цифре 0.
+            if (!string.IsNullOrEmpty(document.BaseName))
+                builder.Append("-- ")
+                    .Append(LuaBindingsDocument.BasedOnComment)
+                    .Append(": ")
+                    .Append(document.BaseName)
+                    .Append('\n');
+
+            builder.Append('\n');
 
             builder.Append(LuaBindingsDocument.BindingsVersionField)
                 .Append(" = ")

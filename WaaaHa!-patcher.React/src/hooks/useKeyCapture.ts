@@ -7,6 +7,14 @@ export interface KeyCaptureOptions {
   onChord: (value: string) => void
   /** Вызывается, когда игрок отменил захват. */
   onCancel: () => void
+  /**
+   * Вызывается по цифре 0: вернуть хоткей к значению из файла-основы.
+   *
+   * Три клавиши у сброса набиралось по одной: Escape — отмена, Delete — снять
+   * хоткей, 0 — вернуть как было. Верхний ряд цифр для хоткеев и так не занят,
+   * см. keyboard.ts, так что цифра ничего не отнимает.
+   */
+  onReset: () => void
   /** Клавиши из списка «Valid keys»: всё, чего в нём нет, игре некуда записать. */
   keys: KeyCatalog
 }
@@ -63,6 +71,14 @@ export function useKeyCapture(activeId: string | null, options: KeyCaptureOption
       if (event.code === 'Escape') {
         settled = true
         optionsRef.current.onCancel()
+        return
+      }
+
+      // Сброс к стандартному. Цифры и так не назначаются хоткеями, поэтому ловим
+      // прямо здесь, до разбора: со модификаторами сброс не нужен.
+      if (event.code === 'Digit0') {
+        settled = true
+        optionsRef.current.onReset()
         return
       }
 

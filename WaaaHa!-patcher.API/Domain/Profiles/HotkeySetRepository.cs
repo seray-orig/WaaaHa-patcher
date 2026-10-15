@@ -149,6 +149,38 @@ namespace WaaaHa__patcher.API.Domain.Profiles
             return Path.Combine(profile.Directory, fileName);
         }
 
+        public string? FindByBaseName(string profileName, string baseName)
+        {
+            if (string.IsNullOrEmpty(baseName))
+                return null;
+
+            var profile = _profiles.Get(profileName);
+
+            if (profile is null || !Directory.Exists(profile.Directory))
+                return null;
+
+            var wanted = baseName.Trim();
+
+            // Расширение отбрасываем с обеих сторон: набор мог быть записан и с ним,
+            // и без него, а в файлах игры регистр расширения гуляет.
+            if (Path.GetExtension(wanted).Equals(".lua", StringComparison.OrdinalIgnoreCase))
+                wanted = Path.GetFileNameWithoutExtension(wanted);
+
+            if (wanted.Length == 0 || wanted != Path.GetFileName(wanted))
+                return null;
+
+            foreach (var file in Directory.EnumerateFiles(profile.Directory))
+            {
+                var fileName = Path.GetFileName(file);
+
+                if (IsValidFileName(fileName)
+                    && Path.GetFileNameWithoutExtension(fileName).Equals(wanted, StringComparison.OrdinalIgnoreCase))
+                    return fileName;
+            }
+
+            return null;
+        }
+
         private static DateTime? SafeLastWriteTime(string path)
         {
             try
