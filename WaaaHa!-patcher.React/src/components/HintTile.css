@@ -1,15 +1,16 @@
 /* Подсказка на месте кнопки, которой в игре нет. За режимами войск, например,
    нет настоящей клавиши: они всегда стоят на одной позиции и переключаются
-   нажатием на ту же кнопку. Плитка занимает всю ширину панели — надпись должна
-   читаться, и по форме ей не на что походить. */
+   нажатием на ту же кнопку. Плитка квадратная и размером с кнопку — иначе она
+   растягивалась на всю панель и сдвигала всё, что за ней стоит. */
 .hint-tile {
   position: relative;
-  grid-column: 1 / -1;
-  height: 44px;
-  border: 1px dashed var(--border);
+  width: 62px;
+  height: 62px;
+  border: 1px dashed var(--border-strong);
   border-radius: var(--radius-sm);
-  background: repeating-linear-gradient(45deg, #1b1e24 0 6px, #15181d 6px 12px);
+  background: linear-gradient(180deg, #262a32 0%, #171a20 100%);
   overflow: hidden;
+  cursor: default;
   pointer-events: none;
 }
 
@@ -31,17 +32,24 @@
   background: #191d23;
 }
 
+/* Подпись лежит полосой по низу, как плашка клавиши на обычной плитке: в квадрате
+   62 пикселя иначе не поместится, а вылезать за клетку она не должна. */
 .hint-tile__label {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 10px;
-  font-size: 11px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  padding: 3px 3px 4px;
+  background: rgba(10, 11, 14, 0.88);
+  border-top: 1px solid rgba(0, 0, 0, 0.6);
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  line-height: 1.2;
   text-align: center;
   color: var(--text-muted);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }

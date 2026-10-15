@@ -163,7 +163,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     second: ['', '', '', '',
              '', '', '', '',
              'marine_hq_addon_2'],
-    improvements: ['rally'],
+    improvements: ['rally', '@panel'],
   },
 }
 

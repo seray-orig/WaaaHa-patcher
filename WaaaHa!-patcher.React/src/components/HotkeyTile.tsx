@@ -9,10 +9,18 @@ interface HotkeyTileProps {
   entry: HotkeyEntry
   isCapturing: boolean
   isChanged: boolean
-  isReadOnly: boolean
+  /**
+   * Плитку нажать нельзя: так у файлов игры, которые редактор не пишет.
+   *
+   * Отдельно от того, что плитка умеет: выбрать юнита можно и у файла игры —
+   * посмотреть его панели игрок вправе, а вот назначать клавиши в чужом файле
+   * нельзя. Поэтому решение, что делает нажатие, остаётся за тем, кто плитку
+   * показал, а запрет — за этим флагом.
+   */
+  isDisabled: boolean
   /** Подсветка выбранного юнита — по ней панели справа знают, кого показывать. */
   isActive?: boolean
-  onCapture: () => void
+  onActivate: () => void
 }
 
 /**
@@ -26,9 +34,9 @@ export function HotkeyTile({
   entry,
   isCapturing,
   isChanged,
-  isReadOnly,
+  isDisabled,
   isActive = false,
-  onCapture,
+  onActivate,
 }: HotkeyTileProps) {
   const { t } = useLocale()
 
@@ -48,10 +56,7 @@ export function HotkeyTile({
 
   function handleClick(event: MouseEvent) {
     event.preventDefault()
-
-    if (!isReadOnly) {
-      onCapture()
-    }
+    onActivate()
   }
 
   return (
@@ -59,7 +64,7 @@ export function HotkeyTile({
       type="button"
       className={classes}
       onClick={handleClick}
-      disabled={isReadOnly}
+      disabled={isDisabled}
       title={`${caption} (${entry.id})\n${label || t('common.notAssigned')}`}
     >
       {/* Иконка не зависит от наличия хоткея: сняли клавишу — команда никуда не

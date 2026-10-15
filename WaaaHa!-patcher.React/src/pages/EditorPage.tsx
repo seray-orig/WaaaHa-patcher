@@ -340,8 +340,10 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
                   filter={filter}
                   faction={faction}
                   indexed={indexed}
+                  selectedUnitId={selectedUnitId}
                   search={search}
                   onlyChanged={onlyChanged}
+                  onSelectUnit={setSelectedUnitId}
                   {...gridProps}
                 />
               )}
@@ -459,25 +461,8 @@ function StandardLayout({
 }) {
   const { t } = useLocale()
   const roster = rosterOf(faction)
-  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
-  const layout = selectedUnitId ? UNIT_LAYOUTS[selectedUnitId] : undefined
-  const gridProps = { capturingId, readOnly, original, onCapture }
-
-  // Поиск и «только изменённые» прячут плитки, но не места: панель в игре от
-  // выбранного юнита форму не меняет, и ради этой формы её и настраивают.
-  const keep = (entry: HotkeyEntry) =>
-    matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
-
-  // Поиск и «только изменённые» прячут команды, но не подсказки: серая плитка не
-  // про хоткей и не должна исчезать от фильтра, который про хоткеи.
-  const shown = (cells: SlotCell[]) =>
-    cells.map((cell) => {
-      if (cell === null || isHint(cell)) {
-        return cell
-      }
-
-      return keep(cell) ? cell : null
-    })
+  const keep = keepEntry(search, onlyChanged, original)
+  const gridProps = { capturingId, original }
 
   return (
     <div className="standard">
@@ -505,11 +490,72 @@ function StandardLayout({
         </div>
       </div>
 
+      <UnitPanels
+        unitId={selectedUnitId}
+        indexed={indexed}
+        search={search}
+        onlyChanged={onlyChanged}
+        original={original}
+        capturingId={capturingId}
+        readOnly={readOnly}
+        onCapture={onCapture}
+      />
+    </div>
+  )
+}
+
+/**
+ * Панели выбранной единицы: две полосы команд и улучшения.
+ *
+ * Живут отдельно от экрана «Стандарт», потому что нужны в двух местах: там, где
+ * игрок выбирает войска, и в обычных фильтрах, где он нажимает на системный
+ * хоткей и смотрит, что у того за панелями.
+ */
+function UnitPanels({
+  unitId,
+  indexed,
+  search,
+  onlyChanged,
+  original,
+  capturingId,
+  readOnly,
+  onCapture,
+}: {
+  unitId: string | null
+  indexed: IndexedHotkeys
+  search: string
+  onlyChanged: boolean
+  original: Record<string, string>
+  capturingId: string | null
+  readOnly: boolean
+  onCapture: (id: string | null) => void
+}) {
+  const { t } = useLocale()
+  const selected = unitId ? indexed.byId.get(unitId) : undefined
+  const layout = unitId ? UNIT_LAYOUTS[unitId] : undefined
+  const keep = keepEntry(search, onlyChanged, original)
+
+  // Поиск и «только изменённые» прячут команды, но не подсказки: серая плитка не
+  // про хоткей и не должна исчезать от фильтра, который про хоткеи.
+  const shown = (cells: SlotCell[]) =>
+    cells.map((cell) => {
+      if (cell === null || isHint(cell)) {
+        return cell
+      }
+
+      return keep(cell) ? cell : null
+    })
+
+  const gridProps = { capturingId, original, onCapture }
+
+  return (
+    <>
       <div className="standard__middle">
         <SlotPanel
           title={t('editor.commandPanel')}
           slots={shown(slots(layout?.command, PANEL_SLOTS, indexed))}
           columns={4}
+          readOnly={readOnly}
           {...gridProps}
         />
 
@@ -517,6 +563,7 @@ function StandardLayout({
           title={t('editor.commandPanel2')}
           slots={shown(slots(layout?.second, PANEL_SLOTS, indexed))}
           columns={4}
+          readOnly={readOnly}
           {...gridProps}
         />
 
@@ -532,11 +579,27 @@ function StandardLayout({
           title={t('editor.improvements')}
           slots={shown(slots(layout?.improvements, IMPROVEMENT_SLOTS, indexed))}
           columns={2}
+          readOnly={readOnly}
           {...gridProps}
         />
       </div>
-    </div>
+    </>
   )
+}
+
+/**
+ * Проходит ли плитка фильтры поиска и «только изменённые».
+ *
+ * Панель при этом форму не меняет: пустые места остаются на своих местах, иначе
+ * раскладка под решётку qwerty/asdf каждый раз прыгала бы.
+ */
+function keepEntry(
+  search: string,
+  onlyChanged: boolean,
+  original: Record<string, string>,
+): (entry: HotkeyEntry) => boolean {
+  return (entry) =>
+    matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
 }
 
 /** Остальные фильтры показывают то, что перечислено руками для разделов расы. */
@@ -544,25 +607,28 @@ function CategoryLayout({
   filter,
   faction,
   indexed,
+  selectedUnitId,
   search,
   onlyChanged,
   original,
   capturingId,
   readOnly,
+  onSelectUnit,
   onCapture,
 }: {
   filter: FilterKey
   faction: FactionKey | null
   indexed: IndexedHotkeys
+  selectedUnitId: string | null
   search: string
   onlyChanged: boolean
   original: Record<string, string>
   capturingId: string | null
   readOnly: boolean
+  onSelectUnit: (id: string | null) => void
   onCapture: (id: string | null) => void
 }) {
   const { t } = useLocale()
-  const gridProps = { capturingId, readOnly, original, onCapture }
   const roster = rosterOf(faction)
 
   let entries: HotkeyEntry[]
@@ -595,12 +661,32 @@ function CategoryLayout({
     entries = isRosterSection(filter) ? pick(roster.sections?.[filter], indexed) : []
   }
 
-  const visible = entries.filter(
-    (entry) => matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value),
-  )
+  const visible = entries.filter(keepEntry(search, onlyChanged, original))
 
+  // Нажатая кнопка раскрывает панели своего юнита — как в разделе «Стандарт».
+  // Назначать клавиши отсюда нельзя: это список для разведки, что вообще есть.
   return (
-    <EntryGrid entries={visible} emptyText={t('editor.noResults')} {...gridProps} />
+    <div className="standard">
+      <TileGrid
+        entries={visible}
+        activeId={selectedUnitId}
+        onPick={onSelectUnit}
+        emptyText={t('editor.noResults')}
+        capturingId={capturingId}
+        original={original}
+      />
+
+      <UnitPanels
+        unitId={selectedUnitId}
+        indexed={indexed}
+        search={search}
+        onlyChanged={onlyChanged}
+        original={original}
+        capturingId={capturingId}
+        readOnly={readOnly}
+        onCapture={onCapture}
+      />
+    </div>
   )
 }
 
@@ -701,8 +787,8 @@ function SlotPanel({
               entry={cell}
               isCapturing={capturingId === cell.id}
               isChanged={original[cell.id] !== cell.value}
-              isReadOnly={readOnly}
-              onCapture={() => onCapture(cell.id)}
+              isDisabled={readOnly}
+              onActivate={() => onCapture(cell.id)}
             />
           )
         })}
@@ -749,9 +835,7 @@ function slots(
 
 interface GridProps {
   capturingId: string | null
-  readOnly: boolean
   original: Record<string, string>
-  onCapture: (id: string | null) => void
 }
 
 /** Сетка плиток с выбором: нажатая подсвечивается и наполняет панели справа. */
@@ -759,12 +843,18 @@ function TileGrid({
   entries,
   activeId,
   onPick,
+  emptyText,
   ...rest
-}: GridProps & { entries: HotkeyEntry[]; activeId: string | null; onPick: (id: string) => void }) {
+}: GridProps & {
+  entries: HotkeyEntry[]
+  activeId: string | null
+  onPick: (id: string) => void
+  emptyText?: string
+}) {
   const { t } = useLocale()
 
   if (entries.length === 0) {
-    return <div className="empty-state">{t('common.empty')}</div>
+    return <div className="empty-state">{emptyText || t('common.empty')}</div>
   }
 
   return (
@@ -775,37 +865,11 @@ function TileGrid({
           entry={entry}
           isCapturing={rest.capturingId === entry.id}
           isChanged={rest.original[entry.id] !== entry.value}
-          isReadOnly={rest.readOnly}
+          // Выбрать юнита можно и у файла игры: посмотреть его панели игрок вправе,
+          // а вот писать в чужой файл — нет. Клавиши отсюда не назначаются вовсе.
+          isDisabled={false}
           isActive={activeId === entry.id}
-          onCapture={() => onPick(entry.id)}
-        />
-      ))}
-    </div>
-  )
-}
-
-function EntryGrid({
-  entries,
-  emptyText,
-  capturingId,
-  readOnly,
-  original,
-  onCapture,
-}: GridProps & { entries: HotkeyEntry[]; emptyText: string }) {
-  if (entries.length === 0) {
-    return <div className="empty-state">{emptyText}</div>
-  }
-
-  return (
-    <div className="hotkey-grid">
-      {entries.map((entry) => (
-        <HotkeyTile
-          key={entry.id}
-          entry={entry}
-          isCapturing={capturingId === entry.id}
-          isChanged={original[entry.id] !== entry.value}
-          isReadOnly={readOnly}
-          onCapture={() => onCapture(entry.id)}
+          onActivate={() => onPick(entry.id)}
         />
       ))}
     </div>
