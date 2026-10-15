@@ -170,6 +170,10 @@ export const PANEL_COMMANDS: readonly string[] = [
   'stance_stand_ground',
   'stance_burn',
   'stance_cease_fire',
+  'melee_stance_assault',
+  'melee_stance_ranged',
+  'meleestance',
+  'combatstance',
   'move',
   'stop',
   'attackmove',
@@ -180,10 +184,6 @@ export const PANEL_COMMANDS: readonly string[] = [
   'attackground',
   'rally',
   'escape',
-  'combatstance',
-  'meleestance',
-  'melee_stance_assault',
-  'melee_stance_ranged',
   'builder_cycle',
   'hq_cycle',
   'military_cycle',
@@ -232,7 +232,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     second: ['', '', '', '',
              '', '', '', '',
              'marine_hq_addon_2'],
-    improvements: ['rally', '@panel'],
+    improvements: ['rally', '@panel_yellow'],
   },
 }
 
@@ -278,7 +278,10 @@ export interface InternalButton {
 }
 
 export const INTERNAL_BUTTONS: Readonly<Record<string, InternalButton>> = {
-  '@panel': { icon: 'stance_attack', hint: 'editor.internalPanel' },
+  '@panel_red': { icon: 'stance_attack', hint: 'editor.internalPanel' },
+  '@panel_yellow': { icon: 'stance_hold', hint: 'editor.internalPanel' },
+  '@panel_gun': { icon: 'melee_stance_ranged', hint: 'editor.internalPanel' },
+  '@panel_melee': { icon: 'melee_stance_assault', hint: 'editor.internalPanel' },
 }
 
 /** Внутренняя кнопка, а не команда: её нельзя ни показать, ни записать в файл. */
