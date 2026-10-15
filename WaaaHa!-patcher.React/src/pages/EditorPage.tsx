@@ -16,6 +16,7 @@ import {
 import type { FactionKey } from '../gameData/factions'
 import {
   IMPROVEMENT_SLOTS,
+  PANEL_COMMANDS,
   PANEL_SLOTS,
   UNIT_LAYOUTS,
   commandOf,
@@ -594,7 +595,7 @@ function CategoryLayout({
     // автор ещё не подумал, не должен прятаться за чужими фракциями.
     entries = splitByDescribed(indexed.all).other
   } else if (filter === 'command') {
-    entries = []
+    entries = pick(PANEL_COMMANDS, indexed)
   } else if (filter === 'all') {
     // Каскад: описал хоть что-то в раскладке — хоткей оказался здесь. Отдельных
     // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
@@ -851,7 +852,7 @@ function EntryGrid({
  * нужны, чтобы видеть, куда что-то класть, пока таблица раскладки ещё пуста.
  */
 function buildFilters(): FilterKey[] {
-  return ['standard', 'faction', ...CATEGORY_ORDER, 'command', 'other', 'all']
+  return ['standard', 'faction', ...CATEGORY_ORDER, 'command', 'all', 'other']
 }
 
 function isRosterSection(filter: FilterKey): filter is RosterSection {
@@ -868,10 +869,6 @@ function filterLabel(
     return t('tab.standard')
   }
 
-  if (filter === 'command') {
-    return t('tab.command')
-  }
-
   const roster = rosterOf(faction)
   const listed = [
     ...(roster.troops ?? []),
@@ -882,24 +879,28 @@ function filterLabel(
   const { described, other } = splitByDescribed(indexed.all)
 
   const count =
-    filter === 'all'
-      ? described.length
-      : filter === 'other'
-        ? other.length
-        : filter === 'faction'
-          ? unique(listed, indexed).length
-          : isRosterSection(filter)
-            ? pick(roster.sections?.[filter], indexed).length
-            : 0
+    filter === 'command'
+      ? pick(PANEL_COMMANDS, indexed).length
+      : filter === 'all'
+        ? described.length
+        : filter === 'other'
+          ? other.length
+          : filter === 'faction'
+            ? unique(listed, indexed).length
+            : isRosterSection(filter)
+              ? pick(roster.sections?.[filter], indexed).length
+              : 0
 
   const label =
-    filter === 'all'
-      ? t('tab.all')
-      : filter === 'other'
-        ? t('tab.other')
-        : filter === 'faction'
-          ? t('tab.faction')
-          : t(CATEGORY_LABELS[filter])
+    filter === 'command'
+      ? t('tab.command')
+      : filter === 'all'
+        ? t('tab.all')
+        : filter === 'other'
+          ? t('tab.other')
+          : filter === 'faction'
+            ? t('tab.faction')
+            : t(CATEGORY_LABELS[filter])
 
   return `${label} · ${count}`
 }

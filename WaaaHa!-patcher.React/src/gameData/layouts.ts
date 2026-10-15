@@ -76,6 +76,18 @@ import type { FactionKey } from './factions'
  * в файл не попадает. Новых внутренних кнопок добавляется строкой в
  * INTERNAL_BUTTONS: имя, картинка и ключ подписи.
  *
+ * ── Фильтр «Панель команд» ───────────────────────────────────────────────
+ *
+ * Команды самой игровой панели — движение, атака, постройка, режимы. В
+ * FACTION_ROSTERS им не место: там всё, что принадлежит конкретной расе, а у
+ * этих команд префикс не фракционный. Список свой, в PANEL_COMMANDS, и
+ * добавляется руками — по одному идентификатору в строке:
+ *
+ *   export const PANEL_COMMANDS: readonly string[] = [
+ *     'move',
+ *     'stop',
+ *   ]
+ *
  * ── Фильтры «Все» и «Остальное» ───────────────────────────────────────────
  *
  * Эти два фильтра делят файл надвое, и пересчитываются сами при каждой сборке:
@@ -128,6 +140,69 @@ export interface UnitLayout {
   /** Улучшения. Не более IMPROVEMENT_SLOTS мест. */
   improvements?: readonly (string | null | '')[]
 }
+
+/**
+ * Содержимое фильтра «Панель команд».
+ *
+ * Это те команды, которые в игре висят на самой панели, а не внутри панели
+ * конкретного юнита: движение, атака, постройка, режимы. Их нельзя положить в
+ * FACTION_ROSTERS — там всё, что принадлежит конкретной расе, и префиксы у
+ * таких команд не фракционные.
+ *
+ * Добавляется руками, по одному идентификатору в строке, в любом порядке:
+ *
+ *   export const PANEL_COMMANDS: readonly string[] = [
+ *     'move',
+ *     'stop',
+ *   ]
+ *
+ * Проверить, что команда есть в файле игры:
+ *
+ *   node tools/layout.mjs check
+ *
+ * Порядок ни на что не влияет — в фильтре плитки идут в порядке файла, как и
+ * везде. Перечисленное здесь считается описанным и потому уходит из
+ * «Остального» и появляется во «Все».
+ */
+export const PANEL_COMMANDS: readonly string[] = [
+  'move',
+  'stop',
+  'attack',
+  'attackground',
+  'attackmove',
+  'attackmelee',
+  'entrench',
+  'rally',
+  'build',
+  'repair',
+  'escape',
+  'stance_attack',
+  'stance_burn',
+  'stance_cease_fire',
+  'stance_hold',
+  'stance_stand_ground',
+  'combatstance',
+  'meleestance',
+  'melee_dance',
+  'melee_stance_assault',
+  'melee_stance_ranged',
+  'builder_cycle',
+  'hq_cycle',
+  'military_cycle',
+  'research_cycle',
+  'scuttle',
+  'jump',
+  'fear',
+  'rampage',
+  'harvest',
+  'reinforce',
+  'relocate',
+  'unload',
+  'possess',
+  'cancelconstruction',
+  'cancel_overwatch',
+  'toggle_overwatch',
+]
 
 /** Состав рас. */
 export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>>> = {
@@ -238,6 +313,12 @@ function collectDescribed(): Set<string> {
       }
     })
   }
+
+  PANEL_COMMANDS.forEach((id) => {
+    if (!isInternalButton(id)) {
+      ids.add(id)
+    }
+  })
 
   Object.values(FACTION_ROSTERS).forEach((roster) => {
     take(roster?.troops)
