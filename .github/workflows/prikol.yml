@@ -60,7 +60,9 @@ jobs:
 
     - name: Публикация API
       run: |
-        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version=${GITHUB_REF#refs/tags/v}
+        RAW_VER="${GITHUB_REF_NAME#v}"
+        CLEAN_VER="${RAW_VER#dev}"
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version="$CLEAN_VER"
 
     - name: Упаковка API в архив
       run: 7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64.zip' ./publish-x64/*
