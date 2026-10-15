@@ -71,7 +71,8 @@ import type { FactionKey } from './factions'
  *
  *   command: ['move', 'stop', '@panel'],
  *
- * Покажется серая плитка с подписью «Панель команд» — она ничего не назначает и
+ * Покажется приглушённая плитка со значком stance_hold и подписью «Панель
+ * команд» — она ничего не назначает и
  * в файл не попадает. Новых внутренних кнопок добавляется строкой в
  * INTERNAL_BUTTONS: имя, картинка и ключ подписи.
  *
@@ -202,14 +203,14 @@ export function commandOf(id: string): string {
  * В файл такие кнопки не попадают: это подсказка, а не привязка.
  */
 export interface InternalButton {
-  /** Имя картинки в hotkey-images: рисуется серая, она ничего не назначает. */
+  /** Имя картинки в hotkey-images: рисуется приглушённой, она ничего не назначает. */
   icon: string
   /** Ключ локализации с подписью по центру плитки. */
   hint: TranslationKey
 }
 
 export const INTERNAL_BUTTONS: Readonly<Record<string, InternalButton>> = {
-  '@panel': { icon: 'stance_hold', hint: 'editor.internalPanel' },
+  '@panel': { icon: 'stance_attack', hint: 'editor.internalPanel' },
 }
 
 /** Внутренняя кнопка, а не команда: её нельзя ни показать, ни записать в файл. */

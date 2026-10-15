@@ -535,8 +535,8 @@ function UnitPanels({
   const layout = unitId ? UNIT_LAYOUTS[unitId] : undefined
   const keep = keepEntry(search, onlyChanged, original)
 
-  // Поиск и «только изменённые» прячут команды, но не подсказки: серая плитка не
-  // про хоткей и не должна исчезать от фильтра, который про хоткеи.
+  // Поиск и «только изменённые» прячут команды, но не подсказки: плитка не про
+  // хоткей и не должна исчезать от фильтра, который про хоткеи.
   const shown = (cells: SlotCell[]) =>
     cells.map((cell) => {
       if (cell === null || isHint(cell)) {
