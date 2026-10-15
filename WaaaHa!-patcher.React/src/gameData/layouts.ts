@@ -58,6 +58,15 @@ import type { FactionKey } from './factions'
  *
  * Что в панели не описано, не показывается: никаких правил по умолчанию больше нет.
  *
+ * ── Фильтры «Все» и «Остальное» ───────────────────────────────────────────
+ *
+ * Эти два фильтра делят файл надвое, и пересчитываются сами при каждой сборке:
+ * описал команду в раскладке — ушла из «Остального» и появилась во «Все»;
+ * убрал — вернулась. Никаких правил по умолчанию, только сам факт упоминания.
+ *
+ * «Все» показывает описанное, «Остальное» — неописанное. Второй и есть рабочий
+ * инструмент: там кампании, внутренние хоткеи игры и то, что автор забыл.
+ *
  * ── Проверка ───────────────────────────────────────────────────────────────
  *
  *   node tools/layout.mjs check
@@ -162,4 +171,71 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
 /** Настоящая команда за именем из раскладки: само имя либо то, на что оно указывает. */
 export function commandOf(id: string): string {
   return COMMAND_ALIASES[id] ?? id
+}
+
+/**
+ * Команды, которым не прописано зависимостей ни в одной раскладке.
+ *
+ * Собирается один раз при загрузке: раскладка описана руками и до перезагрузки
+ * страницы не меняется.
+ */
+const DESCRIBED: ReadonlySet<string> = collectDescribed()
+
+function collectDescribed(): Set<string> {
+  const ids = new Set<string>()
+
+  const take = (list: readonly (string | null | '')[] | undefined) => {
+    list?.forEach((id) => {
+      if (id) {
+        ids.add(id)
+      }
+    })
+  }
+
+  Object.values(FACTION_ROSTERS).forEach((roster) => {
+    take(roster?.troops)
+    take(roster?.buildings)
+    Object.values(roster?.sections ?? {}).forEach(take)
+  })
+
+  Object.entries(UNIT_LAYOUTS).forEach(([unit, layout]) => {
+    ids.add(unit)
+    take(layout.command)
+    take(layout.second)
+    take(layout.improvements)
+  })
+
+  return ids
+}
+
+/** Упомянута ли команда где-нибудь в раскладке — от этого зависит её фильтр. */
+export function isDescribed(id: string): boolean {
+  return DESCRIBED.has(id)
+}
+
+/**
+ * Разделяет файл надвое: описанное раскладкой и неописанное.
+ *
+ * «Все» и «Остальное» — это ровно эти две половины, и перехода между ними не
+ * надо делать руками: прописал команду хоть в одном юните хоть в чужой расе, и
+ * она ушла из «Остального» сама. Обратно тоже: убрал из раскладки — вернулась.
+ *
+ * Порядок файла сохраняется, чтобы плитки не прыгали при переключении фильтра.
+ */
+export function splitByDescribed<T extends { id: string }>(all: readonly T[]): {
+  described: T[]
+  other: T[]
+} {
+  const described: T[] = []
+  const other: T[] = []
+
+  for (const entry of all) {
+    if (isDescribed(entry.id)) {
+      described.push(entry)
+    } else {
+      other.push(entry)
+    }
+  }
+
+  return { described, other }
 }

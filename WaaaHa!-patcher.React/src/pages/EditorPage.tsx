@@ -19,6 +19,7 @@ import {
   UNIT_LAYOUTS,
   commandOf,
   rosterOf,
+  splitByDescribed,
   type RosterSection,
 } from '../gameData/layouts'
 import { shortLabel } from '../hotkeys/keyboard'
@@ -39,7 +40,7 @@ const CATEGORY_LABELS: Record<CategoryKey, TranslationKey> = {
   System: 'tab.command',
 }
 
-type FilterKey = 'standard' | 'faction' | CategoryKey | 'command' | 'all'
+type FilterKey = 'standard' | 'faction' | CategoryKey | 'command' | 'other' | 'all'
 
 interface EditorPageProps {
   profile: ProfileInfo
@@ -560,17 +561,17 @@ function CategoryLayout({
     return null
   }
 
-  if (filter === 'command') {
+  if (filter === 'other') {
+    // Не описанные нигде: команды из кампаний, внутренние хоткеи, забытые расы.
+    // Фильтр общий для всего файла, а не только выбранной расы: хоткей, о котором
+    // автор ещё не подумал, не должен прятаться за чужими фракциями.
+    entries = splitByDescribed(indexed.all).other
+  } else if (filter === 'command') {
     entries = []
   } else if (filter === 'all') {
-    entries = unique(
-      [
-        ...(roster.troops ?? []),
-        ...(roster.buildings ?? []),
-        ...Object.values(roster.sections ?? {}).flat(),
-      ],
-      indexed,
-    )
+    // Каскад: описал хоть что-то в раскладке — хоткей оказался здесь. Отдельных
+    // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
+    entries = splitByDescribed(indexed.all).described
   } else if (filter === 'faction') {
     entries = unique(
       [
@@ -781,7 +782,7 @@ function EntryGrid({
  * нужны, чтобы видеть, куда что-то класть, пока таблица раскладки ещё пуста.
  */
 function buildFilters(): FilterKey[] {
-  return ['standard', 'faction', ...CATEGORY_ORDER, 'command', 'all']
+  return ['standard', 'faction', ...CATEGORY_ORDER, 'command', 'other', 'all']
 }
 
 function isRosterSection(filter: FilterKey): filter is RosterSection {
@@ -809,15 +810,27 @@ function filterLabel(
     ...Object.values(roster.sections ?? {}).flat(),
   ]
 
+  const { described, other } = splitByDescribed(indexed.all)
+
   const count =
-    filter === 'all' || filter === 'faction'
-      ? unique(listed, indexed).length
-      : isRosterSection(filter)
-        ? pick(roster.sections?.[filter], indexed).length
-        : 0
+    filter === 'all'
+      ? described.length
+      : filter === 'other'
+        ? other.length
+        : filter === 'faction'
+          ? unique(listed, indexed).length
+          : isRosterSection(filter)
+            ? pick(roster.sections?.[filter], indexed).length
+            : 0
 
   const label =
-    filter === 'all' ? t('tab.all') : filter === 'faction' ? t('tab.faction') : t(CATEGORY_LABELS[filter])
+    filter === 'all'
+      ? t('tab.all')
+      : filter === 'other'
+        ? t('tab.other')
+        : filter === 'faction'
+          ? t('tab.faction')
+          : t(CATEGORY_LABELS[filter])
 
   return `${label} · ${count}`
 }

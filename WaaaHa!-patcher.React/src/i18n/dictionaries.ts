@@ -117,6 +117,7 @@ export const ru = {
 
   'tab.factions': 'Фракции',
   'tab.all': 'Все',
+  'tab.other': 'Остальное',
   'tab.standard': 'Стандарт',
   'tab.faction': 'Фракция',
   'tab.command': 'Панель команд',
@@ -274,6 +275,7 @@ export const en: Dictionary = {
 
   'tab.factions': 'Factions',
   'tab.all': 'All',
+  'tab.other': 'Other',
   'tab.standard': 'Standard',
   'tab.faction': 'Faction',
   'tab.command': 'Command panel',
@@ -427,6 +429,7 @@ export const ko: Dictionary = {
 
   'tab.factions': '진영',
   'tab.all': '전체',
+  'tab.other': '기타',
   'tab.standard': '표준',
   'tab.faction': '진영',
   'tab.command': '커맨드 패널',
