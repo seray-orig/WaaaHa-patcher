@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { HotkeyApiError, gameApi, hotkeySetsApi } from '../api/client'
 import type { HotkeyEntry, HotkeySetDetails, KeyCatalog, ProfileInfo } from '../api/types'
 import { ErrorBanner, LanguageSwitcher, LoadingScreen } from '../components/Common'
@@ -340,10 +340,8 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
                   filter={filter}
                   faction={faction}
                   indexed={indexed}
-                  selectedUnitId={selectedUnitId}
                   search={search}
                   onlyChanged={onlyChanged}
-                  onSelectUnit={setSelectedUnitId}
                   {...gridProps}
                 />
               )}
@@ -462,7 +460,21 @@ function StandardLayout({
   const { t } = useLocale()
   const roster = rosterOf(faction)
   const keep = keepEntry(search, onlyChanged, original)
-  const gridProps = { capturingId, original }
+  const gridProps = { capturingId, readOnly, original, onCapture }
+  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
+  const layout = selectedUnitId ? UNIT_LAYOUTS[selectedUnitId] : undefined
+
+  // Поиск и «только изменённые» прячут команды, но не подсказки: плитка не про
+  // хоткей и не должна исчезать от фильтра, который про хоткеи. И не места —
+  // панель в игре от выбранного юнита форму не меняет.
+  const shown = (cells: SlotCell[]) =>
+    cells.map((cell) => {
+      if (cell === null || isHint(cell)) {
+        return cell
+      }
+
+      return keep(cell) ? cell : null
+    })
 
   return (
     <div className="standard">
@@ -490,72 +502,11 @@ function StandardLayout({
         </div>
       </div>
 
-      <UnitPanels
-        unitId={selectedUnitId}
-        indexed={indexed}
-        search={search}
-        onlyChanged={onlyChanged}
-        original={original}
-        capturingId={capturingId}
-        readOnly={readOnly}
-        onCapture={onCapture}
-      />
-    </div>
-  )
-}
-
-/**
- * Панели выбранной единицы: две полосы команд и улучшения.
- *
- * Живут отдельно от экрана «Стандарт», потому что нужны в двух местах: там, где
- * игрок выбирает войска, и в обычных фильтрах, где он нажимает на системный
- * хоткей и смотрит, что у того за панелями.
- */
-function UnitPanels({
-  unitId,
-  indexed,
-  search,
-  onlyChanged,
-  original,
-  capturingId,
-  readOnly,
-  onCapture,
-}: {
-  unitId: string | null
-  indexed: IndexedHotkeys
-  search: string
-  onlyChanged: boolean
-  original: Record<string, string>
-  capturingId: string | null
-  readOnly: boolean
-  onCapture: (id: string | null) => void
-}) {
-  const { t } = useLocale()
-  const selected = unitId ? indexed.byId.get(unitId) : undefined
-  const layout = unitId ? UNIT_LAYOUTS[unitId] : undefined
-  const keep = keepEntry(search, onlyChanged, original)
-
-  // Поиск и «только изменённые» прячут команды, но не подсказки: плитка не про
-  // хоткей и не должна исчезать от фильтра, который про хоткеи.
-  const shown = (cells: SlotCell[]) =>
-    cells.map((cell) => {
-      if (cell === null || isHint(cell)) {
-        return cell
-      }
-
-      return keep(cell) ? cell : null
-    })
-
-  const gridProps = { capturingId, original, onCapture }
-
-  return (
-    <>
       <div className="standard__middle">
         <SlotPanel
           title={t('editor.commandPanel')}
           slots={shown(slots(layout?.command, PANEL_SLOTS, indexed))}
           columns={4}
-          readOnly={readOnly}
           {...gridProps}
         />
 
@@ -563,7 +514,6 @@ function UnitPanels({
           title={t('editor.commandPanel2')}
           slots={shown(slots(layout?.second, PANEL_SLOTS, indexed))}
           columns={4}
-          readOnly={readOnly}
           {...gridProps}
         />
 
@@ -579,11 +529,10 @@ function UnitPanels({
           title={t('editor.improvements')}
           slots={shown(slots(layout?.improvements, IMPROVEMENT_SLOTS, indexed))}
           columns={2}
-          readOnly={readOnly}
           {...gridProps}
         />
       </div>
-    </>
+    </div>
   )
 }
 
@@ -602,30 +551,32 @@ function keepEntry(
     matchesSearch(entry, search) && (!onlyChanged || original[entry.id] !== entry.value)
 }
 
-/** Остальные фильтры показывают то, что перечислено руками для разделов расы. */
+/**
+ * Остальные фильтры: плоский список без панелей юнита.
+ *
+ * Панели «Панель команд», «Панель команд 2» и «Улучшения» есть только у
+ * фильтра «Стандарт» — там они повторяют игровой экран. Здесь же плитка сама по
+ * себе кнопка настройки: нажал и назначил.
+ */
 function CategoryLayout({
   filter,
   faction,
   indexed,
-  selectedUnitId,
   search,
   onlyChanged,
   original,
   capturingId,
   readOnly,
-  onSelectUnit,
   onCapture,
 }: {
   filter: FilterKey
   faction: FactionKey | null
   indexed: IndexedHotkeys
-  selectedUnitId: string | null
   search: string
   onlyChanged: boolean
   original: Record<string, string>
   capturingId: string | null
   readOnly: boolean
-  onSelectUnit: (id: string | null) => void
   onCapture: (id: string | null) => void
 }) {
   const { t } = useLocale()
@@ -663,30 +614,15 @@ function CategoryLayout({
 
   const visible = entries.filter(keepEntry(search, onlyChanged, original))
 
-  // Нажатая кнопка раскрывает панели своего юнита — как в разделе «Стандарт».
-  // Назначать клавиши отсюда нельзя: это список для разведки, что вообще есть.
   return (
-    <div className="standard">
-      <TileGrid
-        entries={visible}
-        activeId={selectedUnitId}
-        onPick={onSelectUnit}
-        emptyText={t('editor.noResults')}
-        capturingId={capturingId}
-        original={original}
-      />
-
-      <UnitPanels
-        unitId={selectedUnitId}
-        indexed={indexed}
-        search={search}
-        onlyChanged={onlyChanged}
-        original={original}
-        capturingId={capturingId}
-        readOnly={readOnly}
-        onCapture={onCapture}
-      />
-    </div>
+    <EntryGrid
+      entries={visible}
+      emptyText={t('editor.noResults')}
+      capturingId={capturingId}
+      readOnly={readOnly}
+      original={original}
+      onCapture={onCapture}
+    />
   )
 }
 
@@ -838,23 +774,21 @@ interface GridProps {
   original: Record<string, string>
 }
 
-/** Сетка плиток с выбором: нажатая подсвечивается и наполняет панели справа. */
+/** Сетка войск и построек: нажатая подсвечивается и наполняет панели справа. */
 function TileGrid({
   entries,
   activeId,
   onPick,
-  emptyText,
   ...rest
 }: GridProps & {
   entries: HotkeyEntry[]
   activeId: string | null
   onPick: (id: string) => void
-  emptyText?: string
 }) {
   const { t } = useLocale()
 
   if (entries.length === 0) {
-    return <div className="empty-state">{emptyText || t('common.empty')}</div>
+    return <div className="empty-state">{t('common.empty')}</div>
   }
 
   return (
@@ -866,10 +800,46 @@ function TileGrid({
           isCapturing={rest.capturingId === entry.id}
           isChanged={rest.original[entry.id] !== entry.value}
           // Выбрать юнита можно и у файла игры: посмотреть его панели игрок вправе,
-          // а вот писать в чужой файл — нет. Клавиши отсюда не назначаются вовсе.
+          // а вот писать в чужой файл — нет.
           isDisabled={false}
           isActive={activeId === entry.id}
           onActivate={() => onPick(entry.id)}
+        />
+      ))}
+    </div>
+  )
+}
+
+/** Сетка обычных фильтров: плитка сама по себе кнопка настройки. */
+function EntryGrid({
+  entries,
+  emptyText,
+  capturingId,
+  readOnly,
+  original,
+  onCapture,
+}: {
+  entries: HotkeyEntry[]
+  emptyText: string
+  capturingId: string | null
+  readOnly: boolean
+  original: Record<string, string>
+  onCapture: (id: string | null) => void
+}) {
+  if (entries.length === 0) {
+    return <div className="empty-state">{emptyText}</div>
+  }
+
+  return (
+    <div className="hotkey-grid">
+      {entries.map((entry) => (
+        <HotkeyTile
+          key={entry.id}
+          entry={entry}
+          isCapturing={capturingId === entry.id}
+          isChanged={original[entry.id] !== entry.value}
+          isDisabled={readOnly}
+          onActivate={() => onCapture(entry.id)}
         />
       ))}
     </div>

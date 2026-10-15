@@ -4,7 +4,7 @@ import { useLocale } from '../i18n/localeContext'
 import './HintTile.css'
 
 /**
- * Серая плитка-подсказка на месте кнопки, которой нет.
+ * Плитка-подсказка на месте кнопки, которой нет.
  *
  * За такими кнопками в игре нет настоящей клавиши — например, режимы войск
  * всегда стоят на одной позиции и переключаются нажатием на ту же кнопку.
@@ -31,7 +31,11 @@ export function HintTile({ name }: { name: string }) {
         fallback={<span className="hint-tile__fallback" />}
       />
 
-      <span className="hint-tile__label">{t(button.hint)}</span>
+      {/* Плашка по центру значка: зачем идти в фильтр — видно сразу, а не по
+          подсказке в заголовке, до которого ещё надо дотянуться. */}
+      <span className="hint-tile__label">
+        <span className="hint-tile__plate">{t(button.hint)}</span>
+      </span>
     </div>
   )
 }
