@@ -6,6 +6,7 @@ using System.Text;
 using WaaaHa__patcher.API.Contracts;
 using WaaaHa__patcher.API.Domain.Hotkeys;
 using WaaaHa__patcher.API.Domain.Profiles;
+using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.Application
 {
@@ -22,19 +23,22 @@ namespace WaaaHa__patcher.API.Application
         private readonly IHotkeyGroupResolver _groups;
         private readonly IHotkeyCategoryResolver _categories;
         private readonly IBindingValueValidator _validator;
+        private readonly IShellLauncher _shell;
 
         public HotkeySetService(
             IProfileRepository profiles,
             IHotkeySetRepository sets,
             IHotkeyGroupResolver groups,
             IHotkeyCategoryResolver categories,
-            IBindingValueValidator validator)
+            IBindingValueValidator validator,
+            IShellLauncher shell)
         {
             _profiles = profiles;
             _sets = sets;
             _groups = groups;
             _categories = categories;
             _validator = validator;
+            _shell = shell;
         }
 
         public IReadOnlyList<HotkeySetSummary> List(string profileName)
@@ -146,6 +150,46 @@ namespace WaaaHa__patcher.API.Application
                     $"Файл «{fileName}» — оригинальный файл игры. Его нельзя удалить.");
 
             _sets.Delete(profileName, fileName);
+        }
+
+        /// <summary>
+        /// Показывает файл набора средствами системы: открыть его связанной
+        /// программой или показать папку профиля с выделенным файлом.
+        ///
+        /// Файл при этом не читается — достаточно знать, где он лежит.
+        /// </summary>
+        public void Reveal(string profileName, string fileName, ShellRevealTarget target)
+        {
+            RequireProfile(profileName);
+
+            if (!HotkeySetRepository.IsValidFileName(fileName))
+                throw new HotkeyException(
+                    HotkeyErrorCode.FileNameInvalid,
+                    $"Недопустимое имя файла: «{fileName}».",
+                    fileName);
+
+            var path = _sets.ResolvePath(profileName, fileName);
+
+            if (!File.Exists(path))
+                throw new HotkeyException(
+                    HotkeyErrorCode.SetNotFound,
+                    $"Файл «{fileName}» не найден в профиле «{profileName}».",
+                    fileName);
+
+            try
+            {
+                if (target == ShellRevealTarget.Folder)
+                    _shell.RevealInFolder(path);
+                else
+                    _shell.OpenFile(path);
+            }
+            catch (IOException exception)
+            {
+                throw new HotkeyException(
+                    HotkeyErrorCode.ShellFailed,
+                    exception.Message,
+                    fileName);
+            }
         }
 
         private void RequireProfile(string profileName)

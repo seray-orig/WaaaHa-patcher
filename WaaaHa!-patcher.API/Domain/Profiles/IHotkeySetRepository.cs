@@ -19,5 +19,11 @@ namespace WaaaHa__patcher.API.Domain.Profiles
 
         /// <summary>Проверяет, что имя файла безопасное и не принадлежит игре.</summary>
         bool IsEditableFileName(string fileName);
+
+        /// <summary>
+        /// Полный путь к файлу набора. Единственное место, где имя склеивается с
+        /// папкой профиля, поэтому и проверка имени живёт тут же.
+        /// </summary>
+        string ResolvePath(string profileName, string fileName);
     }
 }

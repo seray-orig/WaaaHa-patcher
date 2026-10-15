@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using WaaaHa__patcher.API.Application;
 using WaaaHa__patcher.API.Contracts;
+using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.Controllers
 {
@@ -44,5 +46,27 @@ namespace WaaaHa__patcher.API.Controllers
             // нужно гадать, разбирать ли пустое тело как JSON.
             return NoContent();
         }
+
+        /// <summary>
+        /// Показать файл набора средствами системы: открыть его связанной программой
+        /// или открыть папку профиля с выделенным файлом.
+        /// </summary>
+        /// <remarks>
+        /// Запрос не читает и не меняет файл, но намеренно не GET: открытие окна
+        /// для того, кто нажал ссылку, ещё и от предзагрузки страницы, — не то
+        /// действие, о котором стоит просить.
+        /// </remarks>
+        [HttpPost("{fileName}/reveal")]
+        public IActionResult Reveal(string profile, string fileName, RevealHotkeySetRequest? request)
+        {
+            _sets.Reveal(profile, fileName, ParseTarget(request?.Target));
+
+            return NoContent();
+        }
+
+        private static ShellRevealTarget ParseTarget(string? target)
+            => string.Equals(target, "folder", StringComparison.OrdinalIgnoreCase)
+                ? ShellRevealTarget.Folder
+                : ShellRevealTarget.File;
     }
 }

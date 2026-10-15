@@ -252,6 +252,20 @@
   font-size: 12px;
 }
 
+/* Кнопки под именем набора: открыть файл и показать его в папке профиля. */
+.set-files {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.set-files .btn {
+  flex: 1;
+  justify-content: center;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
 .path-row {
   display: flex;
   align-items: center;

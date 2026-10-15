@@ -71,6 +71,7 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   const [keys, setKeys] = useState<KeyCatalog | null>(null)
   const [draftName, setDraftName] = useState('')
   const [original, setOriginal] = useState<Record<string, string>>({})
+  const [revealing, setRevealing] = useState<'file' | 'folder' | null>(null)
 
   const readOnly = details?.isBuiltIn ?? true
 
@@ -177,6 +178,27 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
   }
 
   const isDirty = changed.length > 0 || draftName !== (details?.displayName ?? '')
+
+  /**
+   * Показать файл средствами системы. Кнопка гаснет на время запроса: открытие
+   * папки недолгое, но если система не отвечает, без этого можно было бы
+   * нащёлкать десяток окон подряд.
+   */
+  async function reveal(target: 'file' | 'folder') {
+    setRevealing(target)
+    setError(null)
+    setNotice(null)
+
+    try {
+      await hotkeySetsApi.reveal(profile.name, fileName, target)
+    } catch (reason) {
+      if (reason instanceof HotkeyApiError) {
+        setError(reason)
+      }
+    } finally {
+      setRevealing(null)
+    }
+  }
 
   async function save() {
     if (!details) {
@@ -342,6 +364,28 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
                 maxLength={64}
                 onChange={(event) => setDraftName(event.target.value)}
               />
+
+              {/* Набор — обычный файл в папке профиля, и игрок заглядывает туда
+                  сам: подправить руками, переименовать, показать другу. Кнопки
+                  доступны и для файлов игры — открыть их тоже нужно. */}
+              <div className="set-files">
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={revealing !== null}
+                  onClick={() => void reveal('file')}
+                >
+                  {t('editor.openFile')}
+                </button>
+                <button
+                  className="btn"
+                  type="button"
+                  disabled={revealing !== null}
+                  onClick={() => void reveal('folder')}
+                >
+                  {t('editor.revealFolder')}
+                </button>
+              </div>
 
               <div className="binding-list" style={{ marginTop: 14 }}>
                 {entries

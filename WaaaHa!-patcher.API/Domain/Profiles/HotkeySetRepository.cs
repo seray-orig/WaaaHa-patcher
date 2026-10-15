@@ -138,7 +138,7 @@ namespace WaaaHa__patcher.API.Domain.Profiles
             }
         }
 
-        private string ResolvePath(string profileName, string fileName)
+        public string ResolvePath(string profileName, string fileName)
         {
             if (!IsValidFileName(fileName))
                 throw new ArgumentException($"Недопустимое имя файла: «{fileName}».", nameof(fileName));

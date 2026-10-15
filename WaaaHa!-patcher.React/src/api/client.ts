@@ -96,4 +96,13 @@ export const hotkeySetsApi = {
     }),
   remove: (profile: string, fileName: string) =>
     request<void>(`/api/profiles/${encode(profile)}/sets/${encode(fileName)}`, { method: 'DELETE' }),
+  /**
+   * Показать файл средствами системы. Отдельный POST, а не GET: открытие окна
+   * тем, кто просто перешёл по ссылке, не должно случаться само.
+   */
+  reveal: (profile: string, fileName: string, target: 'file' | 'folder') =>
+    request<void>(`/api/profiles/${encode(profile)}/sets/${encode(fileName)}/reveal`, {
+      method: 'POST',
+      body: JSON.stringify({ target }),
+    }),
 }

@@ -63,6 +63,8 @@ export const ru = {
   'editor.readOnly': 'Это файл игры. Он не изменяется: создайте свой набор на его основе.',
   'editor.duplicate': 'Создать свой набор',
   'editor.setName': 'Название набора',
+  'editor.openFile': 'Открыть файл',
+  'editor.revealFolder': 'Показать в папке',
   'editor.captureHint': 'Нажмите клавишу, чтобы назначить. Esc — отмена, Delete — убрать хоткей.',
   'editor.capturing': 'Нажмите клавишу…',
   'editor.searchPlaceholder': 'Найти команду по названию',
@@ -149,6 +151,7 @@ export const ru = {
   'error.ReadOnly': 'Файл игры нельзя изменить',
   'error.InvalidBindingValue': 'Игра не распознаёт такую комбинацию клавиш',
   'error.UnknownBinding': 'Неизвестная команда',
+  'error.ShellFailed': 'Система не смогла открыть файл',
 } as const
 
 export type TranslationKey = keyof typeof ru
@@ -216,6 +219,8 @@ export const en: Dictionary = {
   'editor.readOnly': 'This is a game file and stays untouched. Create your own set based on it.',
   'editor.duplicate': 'Create my own set',
   'editor.setName': 'Set name',
+  'editor.openFile': 'Open file',
+  'editor.revealFolder': 'Show in folder',
   'editor.captureHint': 'Press a key to assign. Esc cancels, Delete clears the hotkey.',
   'editor.capturing': 'Press a key…',
   'editor.searchPlaceholder': 'Find a command by name',
@@ -302,6 +307,7 @@ export const en: Dictionary = {
   'error.ReadOnly': 'Game files cannot be modified',
   'error.InvalidBindingValue': 'The game does not recognise this key combination',
   'error.UnknownBinding': 'Unknown command',
+  'error.ShellFailed': 'The system could not open the file',
 }
 
 export const ko: Dictionary = {
@@ -365,6 +371,8 @@ export const ko: Dictionary = {
   'editor.readOnly': '게임 파일이며 수정되지 않습니다. 이를 바탕으로 내 세트를 만드세요.',
   'editor.duplicate': '내 세트 만들기',
   'editor.setName': '세트 이름',
+  'editor.openFile': '파일 열기',
+  'editor.revealFolder': '폴더에서 보기',
   'editor.captureHint': '키를 눌러 지정하세요. Esc 취소, Delete 해제.',
   'editor.capturing': '키를 누르세요…',
   'editor.searchPlaceholder': '명령어 검색',
@@ -451,4 +459,5 @@ export const ko: Dictionary = {
   'error.ReadOnly': '게임 파일은 수정할 수 없습니다',
   'error.InvalidBindingValue': '게임이 이 조합을 인식하지 못합니다',
   'error.UnknownBinding': '알 수 없는 명령어입니다',
+  'error.ShellFailed': '시스템이 파일을 열지 못했습니다',
 }

@@ -17,7 +17,8 @@ namespace WaaaHa__patcher.API.Application
         DisplayNameInvalid,
         ReadOnly,
         InvalidBindingValue,
-        UnknownBinding
+        UnknownBinding,
+        ShellFailed
     }
 
     /// <summary>

@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.IO;
 using WaaaHa__patcher.API.Application;
 using WaaaHa__patcher.API.Contracts;
 using WaaaHa__patcher.API.Domain.Hotkeys;
 using WaaaHa__patcher.API.Domain.Profiles;
+using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.UnitTests
 {
@@ -75,7 +78,7 @@ namespace WaaaHa__patcher.API.UnitTests
             File.WriteAllText(Path.Combine(profileDirectory, "name.dat"), "steam_76561198345835446");
             File.WriteAllText(Path.Combine(profileDirectory, "ui_name.dat"), "seray");
 
-            _service = BuildService(_profilesRoot);
+            _service = BuildService();
         }
 
         public void Dispose()
@@ -376,11 +379,109 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.DoesNotContain('"', details.DisplayName);
         }
 
+        [Fact]
+        public void ОткрытьФайлПередаётОболочкеПолныйПуть()
+        {
+            _service.Reveal("Profile1", "KEYDEFAULTS_MODERN.LUA", ShellRevealTarget.File);
+
+            var (isFolder, path) = Assert.Single(_shell.Opened);
+
+            Assert.False(isFolder);
+            Assert.Equal(Path.Combine(ProfileDirectory, "KEYDEFAULTS_MODERN.LUA"), path);
+        }
+
+        [Fact]
+        public void ПоказатьВПапкеПроситИменноПапку()
+        {
+            _service.Reveal("Profile1", "KEYDEFAULTS_MODERN.LUA", ShellRevealTarget.Folder);
+
+            var (isFolder, _) = Assert.Single(_shell.Opened);
+
+            Assert.True(isFolder);
+        }
+
+        /// <summary>
+        /// Файлы игры открывать и показывать тоже нужно: игрок смотрит, что
+        /// предлагает игра, прежде чем заводить свой набор.
+        /// </summary>
+        [Fact]
+        public void ФайлИгрыТожеОткрывается()
+        {
+            _service.Reveal("Profile1", "KEYDEFAULTS_MODERN.LUA", ShellRevealTarget.File);
+
+            Assert.Single(_shell.Opened);
+        }
+
+        [Fact]
+        public void ОткрытьНесуществующийНаборНельзя()
+        {
+            var exception = Assert.Throws<HotkeyException>(
+                () => _service.Reveal("Profile1", "NO_SUCH.LUA", ShellRevealTarget.File));
+
+            Assert.Equal(HotkeyErrorCode.SetNotFound, exception.Code);
+            Assert.Empty(_shell.Opened);
+        }
+
+        /// <summary>
+        /// Имя файла приходит от клиента, поэтому путь собирать из него нельзя:
+        /// иначе через «..» можно было бы указать любой файл на диске.
+        /// </summary>
+        [Theory]
+        [InlineData("../KEYDEFAULTS_MODERN.LUA")]
+        [InlineData(@"C:\Windows\notepad.exe")]
+        [InlineData("MY_SET.txt")]
+        public void ПутьСобираетсяТолькоПоПроверенномуИмени(string fileName)
+        {
+            Assert.ThrowsAny<Exception>(
+                () => _service.Reveal("Profile1", fileName, ShellRevealTarget.File));
+
+            Assert.Empty(_shell.Opened);
+        }
+
+        [Fact]
+        public void ОтказСистемыНеПроглатывается()
+        {
+            _shell.FailWith = new IOException("нет программы для .lua");
+
+            var exception = Assert.Throws<HotkeyException>(
+                () => _service.Reveal("Profile1", "KEYDEFAULTS_MODERN.LUA", ShellRevealTarget.File));
+
+            Assert.Equal(HotkeyErrorCode.ShellFailed, exception.Code);
+        }
+
         private string ProfileDirectory => Path.Combine(_profilesRoot, "Profile1");
 
         private IProfileRepository _serviceRepository => new ProfileRepository(new StubPathsProvider(_profilesRoot));
 
-        private static HotkeySetService BuildService(string profilesRoot)
+        private RecordingShellLauncher _shell { get; } = new();
+
+        /// <summary>
+        /// Оболочка, которая запоминает, что её попросили открыть. Настоящая
+        /// запускает блокнот и проводник — в тестах это недопустимо.
+        /// </summary>
+        private sealed class RecordingShellLauncher : IShellLauncher
+        {
+            public List<(bool IsFolder, string Path)> Opened { get; } = [];
+
+            public Exception? FailWith { get; set; }
+
+            public void OpenFile(string path) => Record(false, path);
+
+            public void RevealInFolder(string path) => Record(true, path);
+
+            private void Record(bool isFolder, string path)
+            {
+                if (FailWith is not null)
+                    throw FailWith;
+
+                Opened.Add((isFolder, path));
+            }
+        }
+
+        private HotkeySetService BuildService()
+            => BuildService(_profilesRoot, _shell);
+
+        private static HotkeySetService BuildService(string profilesRoot, IShellLauncher shell)
         {
             IProfileRepository profiles = new ProfileRepository(new StubPathsProvider(profilesRoot));
 
@@ -389,7 +490,8 @@ namespace WaaaHa__patcher.API.UnitTests
                 new HotkeySetRepository(profiles, new LuaBindingsParser(), new LuaBindingsWriter()),
                 new HotkeyGroupResolver(),
                 new HotkeyCategoryResolver(),
-                new BindingValueValidator(new KeyRegistry()));
+                new BindingValueValidator(new KeyRegistry()),
+                shell);
         }
 
         private sealed class StubPathsProvider(string profilesRoot) : IGamePathsProvider

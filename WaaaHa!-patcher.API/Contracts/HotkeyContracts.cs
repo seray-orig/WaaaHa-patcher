@@ -68,4 +68,13 @@ namespace WaaaHa__patcher.API.Contracts
     /// <param name="DisplayName">Имя набора, которое увидит игрок.</param>
     /// <param name="Bindings">Новые значения хоткеев в виде «идентификатор → комбинация».</param>
     public sealed record SaveHotkeySetRequest(string DisplayName, IReadOnlyDictionary<string, string> Bindings);
+
+    /// <summary>
+    /// Запрос показать файл набора средствами операционной системы.
+    /// </summary>
+    /// <param name="Target">
+    /// Что открыть: <c>file</c> — связанной с <c>.lua</c> программой,
+    /// <c>folder</c> — папку профиля с выделенным файлом.
+    /// </param>
+    public sealed record RevealHotkeySetRequest(string? Target);
 }

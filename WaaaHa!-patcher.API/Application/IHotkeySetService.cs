@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using WaaaHa__patcher.API.Contracts;
+using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.Application
 {
@@ -17,5 +18,8 @@ namespace WaaaHa__patcher.API.Application
         HotkeySetDetails Save(string profileName, string fileName, SaveHotkeySetRequest request);
 
         void Delete(string profileName, string fileName);
+
+        /// <summary>Показать набор средствами операционной системы.</summary>
+        void Reveal(string profileName, string fileName, ShellRevealTarget target);
     }
 }
