@@ -46,6 +46,7 @@ namespace WaaaHa__patcher.API.Utilities
             builder.Services.AddSingleton<IBindingValueValidator, BindingValueValidator>();
             builder.Services.AddSingleton<ILuaBindingsParser, LuaBindingsParser>();
             builder.Services.AddSingleton<ILuaBindingsWriter, LuaBindingsWriter>();
+            builder.Services.AddSingleton<IHotkeyPresetCatalog, HotkeyPresetCatalog>();
 
             builder.Services.AddSingleton<IGamePathsProvider, GamePathsProvider>();
             builder.Services.AddSingleton<IProfileRepository, ProfileRepository>();

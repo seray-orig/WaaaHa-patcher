@@ -24,6 +24,7 @@ namespace WaaaHa__patcher.API.Application
         private readonly IHotkeyCategoryResolver _categories;
         private readonly IBindingValueValidator _validator;
         private readonly IShellLauncher _shell;
+        private readonly IHotkeyPresetCatalog _presets;
 
         public HotkeySetService(
             IProfileRepository profiles,
@@ -31,7 +32,8 @@ namespace WaaaHa__patcher.API.Application
             IHotkeyGroupResolver groups,
             IHotkeyCategoryResolver categories,
             IBindingValueValidator validator,
-            IShellLauncher shell)
+            IShellLauncher shell,
+            IHotkeyPresetCatalog presets)
         {
             _profiles = profiles;
             _sets = sets;
@@ -39,6 +41,7 @@ namespace WaaaHa__patcher.API.Application
             _categories = categories;
             _validator = validator;
             _shell = shell;
+            _presets = presets;
         }
 
         public IReadOnlyList<HotkeySetSummary> List(string profileName)
@@ -55,6 +58,8 @@ namespace WaaaHa__patcher.API.Application
                     descriptor.ModifiedAtUtc))
                 .ToList();
         }
+
+        public IReadOnlyList<HotkeyPresetSummary> ListPresets() => [_presets.Multiplayer];
 
         public HotkeySetDetails Get(string profileName, string fileName)
         {
@@ -81,7 +86,7 @@ namespace WaaaHa__patcher.API.Application
                     HotkeyErrorCode.FileNameTaken,
                     $"Файл «{fileName}» уже существует.");
 
-            var baseSet = ReadOrThrow(profileName, request.BaseFileName);
+            var baseSet = ReadBase(profileName, request);
 
             if (baseSet.Document.MainTable is null)
                 throw new HotkeyException(
@@ -90,9 +95,52 @@ namespace WaaaHa__patcher.API.Application
 
             var document = LuaBindingsDocument.CopyOf(baseSet.Document, displayName);
 
+            // Основа из файла игры тащит за собой всё, что Relic напихал в общий
+            // список: исследования и умения из кампаний плюс простыни комментариев.
+            // В сетевой игре этого нет, поэтому свой набор начинается с чистого.
+            // Исключения — кампания, ради которой игрок и открывает редактор.
+            if (baseSet.IsBuiltIn)
+                PruneCampaignCommands(document);
+
             _sets.Write(profileName, fileName, document);
 
             return Describe(new HotkeySetFile(fileName, fileName, false, document));
+        }
+
+        private HotkeySetFile ReadBase(string profileName, CreateHotkeySetRequest request)
+            => string.Equals(request.BaseFileName, IHotkeyPresetCatalog.MultiplayerBaseName, StringComparison.Ordinal)
+                ? new HotkeySetFile(
+                    IHotkeyPresetCatalog.MultiplayerBaseName,
+                    string.Empty,
+                    false,
+                    _presets.LoadDocument())
+                : ReadOrThrow(profileName, request.BaseFileName);
+
+        /// <summary>
+        /// Убирает хоткеи, которых нет в сетевом пресете, и оставляет только
+        /// комментарии-разделители секций: по ним редактор раскладывает команды по
+        /// разделам, а поясняющие комментарии Relic в пользовательском файле —
+        /// шум.
+        /// </summary>
+        private void PruneCampaignCommands(LuaBindingsDocument document)
+        {
+            foreach (var table in document.Tables)
+            {
+                var keepValues = !string.Equals(table.Name, LuaBindingsDocument.MainTableName, StringComparison.Ordinal);
+                table.Items.RemoveAll(item =>
+                    item switch
+                    {
+                        LuaBinding binding => !_presets.Contains(binding.Id),
+                        LuaRawLine raw => !IsSectionTitle(raw.Text),
+                        _ => false,
+                    });
+
+                if (keepValues)
+                    continue;
+
+                foreach (var binding in table.Bindings)
+                    binding.TrailingComment = string.Empty;
+            }
         }
 
         public HotkeySetDetails Save(string profileName, string fileName, SaveHotkeySetRequest request)
@@ -192,6 +240,10 @@ namespace WaaaHa__patcher.API.Application
             }
         }
 
+        /// <summary>
+        /// Заголовок секции — короткий комментарий капсом. Пояснения Relic
+        /// прописной буквой в разделители секций не превращаются.
+        /// </summary>
         private void RequireProfile(string profileName)
         {
             if (_profiles.Get(profileName) is null)

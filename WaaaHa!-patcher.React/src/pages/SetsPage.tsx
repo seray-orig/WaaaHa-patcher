@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { HotkeyApiError, hotkeySetsApi } from '../api/client'
-import type { HotkeySetSummary, ProfileInfo } from '../api/types'
+import type { HotkeySetPresetSummary, HotkeySetSummary, ProfileInfo } from '../api/types'
 import { ConfirmDialog, ErrorBanner, LanguageSwitcher, Modal } from '../components/Common'
 import { useConfirm } from '../hooks/useConfirm'
 import { builtInNameKey } from '../hotkeys/builtInSets'
@@ -29,13 +29,20 @@ export function SetsPage({
   const [error, setError] = useState<HotkeyApiError | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [presets, setPresets] = useState<HotkeySetPresetSummary[]>([])
   const confirm = useConfirm()
 
   const reload = useCallback(async () => {
     setError(null)
 
     try {
-      setSets(await hotkeySetsApi.list(profile.name))
+      const [list, bundled] = await Promise.all([
+        hotkeySetsApi.list(profile.name),
+        hotkeySetsApi.presets(),
+      ])
+
+      setSets(list)
+      setPresets(bundled)
     } catch (reason) {
       if (reason instanceof HotkeyApiError) {
         setError(reason)
@@ -115,6 +122,7 @@ export function SetsPage({
       {creating && (
         <CreateSetModal
           profile={profile}
+          presets={presets}
           baseOptions={builtIn.length > 0 ? builtIn : sets}
           onClose={onCancelCreate}
           onCreated={(fileName, displayName) => {
@@ -222,11 +230,13 @@ function SetGroup({
 
 function CreateSetModal({
   profile,
+  presets,
   baseOptions,
   onClose,
   onCreated,
 }: {
   profile: ProfileInfo
+  presets: HotkeySetPresetSummary[]
   baseOptions: HotkeySetSummary[]
   onClose: () => void
   onCreated: (fileName: string, displayName: string) => void
@@ -234,7 +244,9 @@ function CreateSetModal({
   const { t } = useLocale()
   const [fileName, setFileName] = useState('')
   const [displayName, setDisplayName] = useState('')
-  const [baseFileName, setBaseFileName] = useState(baseOptions[0]?.fileName ?? '')
+  // Пресет для сетевой игры стоит первым: он и есть то, ради чего игрок сюда
+  // приходит, а файлы игры нужны тем, кто хочет переписать раскладку целиком.
+  const [baseFileName, setBaseFileName] = useState(presets[0]?.fileName ?? baseOptions[0]?.fileName ?? '')
   const [error, setError] = useState<HotkeyApiError | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -321,16 +333,28 @@ function CreateSetModal({
           value={baseFileName}
           onChange={(event) => setBaseFileName(event.target.value)}
         >
-          {baseOptions.map((option) => {
-            const key = builtInNameKey(option.displayName)
+          {presets.length > 0 && (
+            <optgroup label={t('sets.presetsGroup')}>
+              {presets.map((preset) => (
+                <option key={preset.fileName} value={preset.fileName}>
+                  {t('sets.preset.multiplayer')} ({t('sets.bindings')}: {preset.bindingCount})
+                </option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label={t('sets.builtIn')}>
+            {baseOptions.map((option) => {
+              const key = builtInNameKey(option.displayName)
 
-            return (
-              <option key={option.fileName} value={option.fileName}>
-                {(key && t(key)) || option.displayName} ({option.fileName})
-              </option>
-            )
-          })}
+              return (
+                <option key={option.fileName} value={option.fileName}>
+                  {(key && t(key)) || option.displayName} ({option.fileName})
+                </option>
+              )
+            })}
+          </optgroup>
         </select>
+        <span className="field__hint">{t('sets.newBaseHint')}</span>
       </div>
     </Modal>
   )

@@ -54,6 +54,12 @@
       <Content Remove="dotnet-tools.json" />
     </ItemGroup>
 
+    <!-- Пресеты едут внутри сборки: приложение однофайловое, файла рядом может
+         не оказаться. -->
+    <ItemGroup>
+      <EmbeddedResource Include="Presets\**" />
+    </ItemGroup>
+
     <ItemGroup>
       <None Include="dotnet-tools.json">
         <CopyToOutputDirectory>Never</CopyToOutputDirectory>

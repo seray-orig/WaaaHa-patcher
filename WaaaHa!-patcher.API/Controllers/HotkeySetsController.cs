@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using WaaaHa__patcher.API.Application;
 using WaaaHa__patcher.API.Contracts;
+using WaaaHa__patcher.API.Domain.Hotkeys;
 using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.Controllers
@@ -21,6 +22,10 @@ namespace WaaaHa__patcher.API.Controllers
         /// <summary>Все наборы профиля: встроенные файлы игры и созданные пользователем.</summary>
         [HttpGet]
         public IReadOnlyList<HotkeySetSummary> List(string profile) => _sets.List(profile);
+
+        /// <summary>Наборы, которые приложение везёт с собой и предлагает основой.</summary>
+        [HttpGet("/api/presets")]
+        public IReadOnlyList<HotkeyPresetSummary> Presets() => _sets.ListPresets();
 
         /// <summary>Содержимое набора для редактирования.</summary>
         [HttpGet("{fileName}")]

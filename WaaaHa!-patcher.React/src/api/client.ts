@@ -2,6 +2,7 @@ import type {
   ApiError,
   GamePathsInfo,
   HotkeySetDetails,
+  HotkeySetPresetSummary,
   HotkeySetSummary,
   KeyCatalog,
   ProfileInfo,
@@ -77,6 +78,7 @@ export const profileApi = {
 
 export const hotkeySetsApi = {
   list: (profile: string) => request<HotkeySetSummary[]>(`/api/profiles/${encode(profile)}/sets`),
+  presets: () => request<HotkeySetPresetSummary[]>('/api/presets'),
   get: (profile: string, fileName: string) =>
     request<HotkeySetDetails>(`/api/profiles/${encode(profile)}/sets/${encode(fileName)}`),
   create: (profile: string, fileName: string, displayName: string, baseFileName: string) =>

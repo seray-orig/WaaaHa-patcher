@@ -16,6 +16,14 @@ export interface HotkeySetSummary {
   modifiedAtUtc: string | null
 }
 
+/** Набор, который приложение везёт с собой и предлагает основой. */
+export interface HotkeySetPresetSummary {
+  fileName: string
+  displayName: string
+  version: string
+  bindingCount: number
+}
+
 /** Один редактируемый хоткей. */
 export interface HotkeyEntry {
   id: string
