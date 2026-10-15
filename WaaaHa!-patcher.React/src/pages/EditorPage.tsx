@@ -17,6 +17,7 @@ import {
   IMPROVEMENT_SLOTS,
   PANEL_SLOTS,
   UNIT_LAYOUTS,
+  commandOf,
   rosterOf,
   type RosterSection,
 } from '../gameData/layouts'
@@ -598,7 +599,7 @@ function pick(
   indexed: IndexedHotkeys,
 ): HotkeyEntry[] {
   return (ids ?? [])
-    .map((id) => (id ? indexed.byId.get(id) : undefined))
+    .map((id) => (id ? entryFor(id, indexed) : undefined))
     .filter((entry): entry is HotkeyEntry => entry !== undefined)
 }
 
@@ -607,16 +608,43 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): HotkeyEntry[] 
 
   return ids
     .filter((id) => {
-      if (seen.has(id)) {
+      const command = commandOf(id)
+
+      if (seen.has(command)) {
         return false
       }
 
-      seen.add(id)
+      seen.add(command)
 
       return true
     })
-    .map((id) => indexed.byId.get(id))
+    .map((id) => entryFor(id, indexed))
     .filter((entry): entry is HotkeyEntry => entry !== undefined)
+}
+
+/**
+ * Хоткей, стоящий за именем из раскладки.
+ *
+ * У псевдонима из COMMAND_ALIASES команда общая с оригиналом, а значок свой:
+ * возвращаем копию, у которой путь к картинке ведёт на имя из раскладки. Сама
+ * команда остаётся — по ней показывается клавиша и по ней же клик её запишет.
+ */
+function entryFor(id: string, indexed: IndexedHotkeys): HotkeyEntry | undefined {
+  const command = commandOf(id)
+  const entry = indexed.byId.get(command)
+
+  if (entry === undefined) {
+    return undefined
+  }
+
+  return command === id ? entry : { ...entry, iconUrl: withIconOf(entry.iconUrl, id) }
+}
+
+/** Тот же путь к картинке, но с именем из раскладки вместо имени команды. */
+function withIconOf(iconUrl: string, name: string): string {
+  const slash = iconUrl.lastIndexOf('/')
+
+  return slash < 0 ? iconUrl : `${iconUrl.slice(0, slash + 1)}${name}`
 }
 
 /**
@@ -672,7 +700,9 @@ function slots(
   size: number,
   indexed: IndexedHotkeys,
 ): (HotkeyEntry | null)[] {
-  const cells = (manual ?? []).slice(0, size).map((id) => (id ? (indexed.byId.get(id) ?? null) : null))
+  const cells = (manual ?? [])
+    .slice(0, size)
+    .map((id) => (id ? entryFor(id, indexed) ?? null : null))
 
   while (cells.length < size) {
     cells.push(null)
