@@ -102,7 +102,7 @@ export interface UnitLayout {
   improvements?: readonly (string | null | '')[]
 }
 
-/** Состав рас. Пока пусто — всё заполняется руками. */
+/** Состав рас. */
 export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>>> = {
    marine: {
      troops: ['marine_servitor', 'marine_space_marine'],
@@ -131,8 +131,12 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: ['',],
   },
   marine_hq: {
-    command: ['', '', '', 'build', 'repair'],
-    second: ['marine_armoury', 'marine_chapel'],
+    command: ['marine_servitor', 'marine_scout', 'marine_chaplain', '',
+              'marine_squad_cap_research', 'marine_vehicle_cap_research', '', '',
+              'marine_hq_addon_1', 'marine_skull_probe_infiltration_research', 'marine_scout_infiltration_research', 'marine_sniper_rifle_research'],
+    second: ['', '', '', '',
+             '', '', '', '',
+             'marine_hq_addon_2'],
     improvements: ['rally'],
   },
 }

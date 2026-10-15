@@ -43,8 +43,6 @@
 	  </ItemGroup>
   </Target>
 
-  <!-- А вот тут зависимости обязательны: публикуемое приложение несёт в себе интерфейс,
-       и без него выйдет бинарник, который открывается пустым белым экраном. -->
   <Target Name="FailWithoutFrontend" BeforeTargets="ComputeFilesToPublish"
           Condition="!Exists('$(MSBuildProjectDirectory)/../WaaaHa!-patcher.React/node_modules')">
     <Error Text="Сначала выполните 'npm ci --prefix WaaaHa!-patcher.React', иначе приложение опубликуется без интерфейса." />
@@ -54,11 +52,6 @@
       <Content Remove="dotnet-tools.json" />
     </ItemGroup>
 
-    <!-- Пресеты едут внутри сборки: приложение однофайловое, файла рядом может
-         не оказаться. -->
-    <ItemGroup>
-      <EmbeddedResource Include="Presets\**" />
-    </ItemGroup>
 
     <ItemGroup>
       <None Include="dotnet-tools.json">

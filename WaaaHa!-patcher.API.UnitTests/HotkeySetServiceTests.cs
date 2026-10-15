@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using WaaaHa__patcher.API.Application;
 using WaaaHa__patcher.API.Contracts;
@@ -57,58 +57,6 @@ namespace WaaaHa__patcher.API.UnitTests
 
             camera_bindings =
             {
-            	camera_panleft		= "Left,Shift+A",
-            }
-            """;
-
-        /// <summary>
-        /// Пресет приложения в тестах повторяет главное: та же таблица камеры и
-        /// без единой команды из кампаний. Всё остальное совпадает с основой,
-        /// чтобы проверки копирования не пострадали.
-        /// </summary>
-        private const string PresetBindings = """
-            bindings_version = 15.2
-            bindings_locstring = "Multiplayer"
-
-            bindings =
-            {
-            	-- SYSTEM COMMANDS
-            	objectivesmenu		= "Control+O",
-
-            	-- TASKBAR COMMANDS
-            	stop 				= "S",
-            	move 				= "M",
-
-            	-- BUILDINGS FOR MARINES
-            	marine_hq					= "H",
-
-            	-- TROOPERS FOR MARINES
-            	marine_servitor				= "B",
-            	marine_chaplain			= "Z",
-
-            	-- TROOPERS FOR ELDAR
-            	eldar_farseer				= "Y",
-
-            	-- BUILDINGS FOR ELDAR
-            	eldar_webway_gate			= "W",
-
-            	-- TROOPERS FOR DARK ELDAR
-            	dark_eldar_archon			= "C",
-
-            	-- RESEARCH FOR MARINES
-            	-- HQ
-            	marine_hq_addon_1			= "U",
-
-            	-- ABILITIES FOR MARINES
-            	marine_battlecry			= "B",
-
-            	-- ABILITIES FOR DARK ELDAR
-            	dark_eldar_upgrade_retinue	= "F",
-            }
-
-            camera_bindings =
-            {
-            	-- CAMERA COMMANDS
             	camera_panleft		= "Left,Shift+A",
             }
             """;
@@ -503,11 +451,12 @@ namespace WaaaHa__patcher.API.UnitTests
 
         /// <summary>
         /// Файлы игры собраны из всех частей первой Dawn of War, и в общий список
-        /// попали исследования из кампаний. В сетевой игре их нет, и в своём наборе
-        /// они только занимают место в списке клавиш.
+        /// попали исследования из кампаний. Свой набор наследует основу как есть:
+        /// выкидывать команды молча нельзя — игрок, который переписывает раскладку
+        /// под кампанию, половину нужного потеряет.
         /// </summary>
         [Fact]
-        public void ИзФайлаИгрыВычищаютсяКомандыИзКампаний()
+        public void ИзФайлаИгрыКампанейныеКомандыСохраняются()
         {
             var details = _service.Create("Profile1", new CreateHotkeySetRequest(
                 "FROM_GAME.LUA",
@@ -519,8 +468,7 @@ namespace WaaaHa__patcher.API.UnitTests
                 .Select(entry => entry.Id)
                 .ToList();
 
-            // marine_frag_grenade_research в пресете нет, marine_battlecry есть.
-            Assert.DoesNotContain("marine_frag_grenade_research", ids);
+            Assert.Contains("marine_frag_grenade_research", ids);
             Assert.Contains("marine_battlecry", ids);
         }
 
@@ -540,23 +488,33 @@ namespace WaaaHa__patcher.API.UnitTests
             Assert.Equal("Left,Shift+A", camera!.Value);
         }
 
+        /// <summary>
+        /// Набор можно завести на основе другого своего: список основа — это все
+        /// наборы профиля, а не только файлы игры.
+        /// </summary>
         [Fact]
-        public void ПресетСоздаётНаборСоСвоимиКлавишамиИКамерой()
+        public void СвойНаборМожноВзятьЗаОснову()
         {
+            _service.Create("Profile1", new CreateHotkeySetRequest(
+                "BASE.LUA",
+                "Основа",
+                "KEYDEFAULTS_MODERN.LUA"));
+
+            _service.Save("Profile1", "BASE.LUA", new SaveHotkeySetRequest(
+                "Осова с правкой",
+                new Dictionary<string, string> { ["marine_hq"] = "F5" }));
+
             var details = _service.Create("Profile1", new CreateHotkeySetRequest(
-                "FROM_PRESET.LUA",
-                "Сетевой",
-                IHotkeyPresetCatalog.MultiplayerBaseName));
+                "COPIED.LUA",
+                "Копия",
+                "BASE.LUA"));
 
-            var ids = details.Sections
+            var hq = details.Sections
                 .SelectMany(section => section.Entries)
-                .Select(entry => entry.Id)
-                .ToList();
+                .FirstOrDefault(entry => entry.Id == "marine_hq");
 
-            Assert.Contains("marine_hq", ids);
-            Assert.Contains("marine_servitor", ids);
-            Assert.Contains("camera_panleft", ids);
-            Assert.DoesNotContain("marine_frag_grenade_research", ids);
+            Assert.NotNull(hq);
+            Assert.Equal("F5", hq!.Value);
         }
 
         [Fact]
@@ -612,26 +570,7 @@ namespace WaaaHa__patcher.API.UnitTests
                 new HotkeyGroupResolver(),
                 new HotkeyCategoryResolver(),
                 new BindingValueValidator(new KeyRegistry()),
-                shell,
-                new StubPresetCatalog());
-        }
-
-        /// <summary>
-        /// Пресет подставляется текстом, а не из сборки: так тест не зависит от
-        /// того, что файл пресета собрали и положили в проект.
-        /// </summary>
-        private sealed class StubPresetCatalog : IHotkeyPresetCatalog
-        {
-            private readonly LuaBindingsDocument _document = new LuaBindingsParser()
-                .Parse(PresetBindings.Split('\n'));
-
-            public HotkeyPresetSummary Multiplayer
-                => new(IHotkeyPresetCatalog.MultiplayerBaseName, "Multiplayer", "15.2", _document.MainTable!.Bindings.Count());
-
-            public LuaBindingsDocument LoadDocument() => _document;
-
-            public bool Contains(string bindingId)
-                => _document.Tables.Any(table => table.Find(bindingId) is not null);
+                shell);
         }
 
         private sealed class StubPathsProvider(string profilesRoot) : IGamePathsProvider

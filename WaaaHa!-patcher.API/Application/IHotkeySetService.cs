@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using WaaaHa__patcher.API.Contracts;
-using WaaaHa__patcher.API.Domain.Hotkeys;
 using WaaaHa__patcher.API.Utilities;
 
 namespace WaaaHa__patcher.API.Application
 {
     /// <summary>
-    /// Сценарии работы с наборами хоткеев. Контроллеры остаются тонкими.
+    /// Наборы хоткеев игрока: встроенные файлы игры и созданные им сами.
     /// </summary>
     public interface IHotkeySetService
     {
@@ -20,10 +19,7 @@ namespace WaaaHa__patcher.API.Application
 
         void Delete(string profileName, string fileName);
 
-        /// <summary>Показать набор средствами операционной системы.</summary>
+        /// <summary>Открыть набор средствами системы: файл или папку профиля.</summary>
         void Reveal(string profileName, string fileName, ShellRevealTarget target);
-
-        /// <summary>Пресеты, которые приложение везёт с собой: их выбирают основой набора.</summary>
-        IReadOnlyList<HotkeyPresetSummary> ListPresets();
     }
 }
