@@ -197,7 +197,7 @@ export const PANEL_ROW_BREAK = '|'
 export const PANEL_COMMANDS: readonly string[] = [
   'stance_hold', 'stance_stand_ground', 'stance_burn', 'stance_cease_fire', 'stance_attack', PANEL_ROW_BREAK,
   'melee_stance_assault', 'melee_stance_ranged', 'meleestance', 'combatstance', 'attack', 'attackground', PANEL_ROW_BREAK,
-  'move', 'stop', 'attackmove', 'attackmelee', 'build', 'repair', 'rally', 'escape', 'cancelconstruction', 'scuttle', PANEL_ROW_BREAK,
+  'move', 'stop', 'attackmove', 'attackmelee', 'build', 'repair', 'rally', 'escape', 'escape2', 'cancelconstruction', 'scuttle', PANEL_ROW_BREAK,
   'attach', 'detach',
   'builder_cycle',
   'hq_cycle',
@@ -241,16 +241,16 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'marine_furious_charge_research', 'marine_frag_grenade_research',
         'marine_sergeant_ranged_research', 'marine_power_research_1', 'marine_power_research_2', 'marine_requisition_research_1', 'marine_requisition_research_2',
         'marine_commander_health_research_1', 'marine_commander_health_research_2', 'marine_librarian_research_1', 'marine_librarian_research_2',
-        'marine_librarian_research_2_w40k', 'marine_force_commander_research_1', 'marine_force_commander_research_2', 'marine_personalteleporter_research',
-        'marine_daemon_hammer_research', 'marine__melee_research_1'
+        'marine_librarian_research_2_w40k', 'marine_force_commander_research_1', 'marine_force_commander_research_2', 'marine_personalteleporter_research'
       ],
       WeaponUpgrade: [
-        'marine_flamer', 'marine_heavy_bolter', 'marine_heavy_flamer', 'marine_plasma_gun', 'marine_missile_launcher',
-        'marine_sniper_rifle', 'marine_assault_cannon', 'marine_power_halberd',
-        'marine_lascannon_1', 'marine_lascannon_2', 'marine_lascannon_twin'
+        'marine_flamer', 'marine_heavy_bolter', 'marine_sniper_rifle', 'marine_plasma_gun', 'marine_missile_launcher',
+        'marine_heavy_flamer', 'marine_assault_cannon', 'marine_dreadnought_assault_cannon', 'marine_dreadnought_lascannon_twin',
+        'marine_missile_frag', 'marine_missile_krak', 'marine_lascannon_1', 'marine_lascannon_2', 'marine_lascannon_twin'
       ],
       Addon: [
-        'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_turret_addon'
+        'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_missile_launcher_turret', 'marine_listening_post_1', 'marine_listening_post_2',
+        'marine_heavy_armor_deployment'
       ],
      },
    },
@@ -385,7 +385,8 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   marine_terminator: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
-      '', '', '@panel_yellow', '@panel_gun'
+      '', '', '@panel_yellow', '@panel_gun',
+      '', '', '', 'teleport'
     ],
     second: [''],
     improvements: [
@@ -397,7 +398,8 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   marine_assault_terminator: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
-      '', '', '@panel_yellow'
+      '', '', '@panel_yellow', '',
+      '', '', '', 'teleport'
     ],
     second: [''],
     improvements: ['reinforce']

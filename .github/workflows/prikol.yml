@@ -159,8 +159,11 @@ jobs:
       with:
         files: |
           WaaaHa!-Patcher_win-x64.zip
-          WaaaHa!-Patcher_win-x64-fd.zip
+          WaaaHa!-Patcher_win-x64-Lite.zip
           checksums.txt
-        generate_release_notes: true
+        body: |
+          # Что скачивать:
+          - WaaaHa!-Patcher_win-x64.zip - Автономная версия, запустится везде.
+          - WaaaHa!-Patcher_win-x64-Lite.zip - Лёгкая, но на вашем компьютере обязательно должен быть установлен ASP.NET или не запустится.
         prerelease: ${{ steps.check_version.outputs.is_prerelease == 'true' }}
         make_latest: ${{ steps.check_version.outputs.is_latest }}
