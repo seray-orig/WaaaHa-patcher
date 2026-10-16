@@ -238,13 +238,19 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'marine_squad_cap_research', 'marine_vehicle_cap_research', 'marine_sniper_rifle_research', 'marine_health_research_1', 'marine_health_research_2',
         'marine_accuracy_research_1', 'marine_accuracy_research_2', 'marine_power_swords_research', 'marine_sergeant_melee_research_2',
         'marine_scout_infiltration_research', 'marine_smoke_launcher_research', 'marine_skull_probe_infiltration_research', 'marine_melta_bomb_research',
-        'marine_furious_charge_research', 'marine_frag_grenade_research', 
+        'marine_furious_charge_research', 'marine_frag_grenade_research',
+        'marine_sergeant_ranged_research', 'marine_power_research_1', 'marine_power_research_2', 'marine_requisition_research_1', 'marine_requisition_research_2',
+        'marine_commander_health_research_1', 'marine_commander_health_research_2', 'marine_librarian_research_1', 'marine_librarian_research_2',
+        'marine_librarian_research_2_w40k', 'marine_force_commander_research_1', 'marine_force_commander_research_2', 'marine_personalteleporter_research',
+        'marine_daemon_hammer_research', 'marine__melee_research_1'
       ],
       WeaponUpgrade: [
-
+        'marine_flamer', 'marine_heavy_bolter', 'marine_heavy_flamer', 'marine_plasma_gun', 'marine_missile_launcher',
+        'marine_sniper_rifle', 'marine_assault_cannon', 'marine_power_halberd',
+        'marine_lascannon_1', 'marine_lascannon_2', 'marine_lascannon_twin'
       ],
       Addon: [
-
+        'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_turret_addon'
       ],
      },
    },
