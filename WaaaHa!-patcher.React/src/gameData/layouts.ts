@@ -12,20 +12,24 @@ import type { FactionKey } from './factions'
  *
  * ── Как описать состав расы ────────────────────────────────────────────────
  *
- * В FACTION_ROSTERS ключ — фракция, значение — что стоит в плитках и в фильтрах.
- * Список читается сверху вниз, и это же порядок показывается на экране:
+ * В FACTION_ROSTERS ключ — фракция, значение — разделы. Раздел читается сверху
+ * вниз, и это же порядок показывается на экране:
  *
  *   marine: {
- *     troops:    ['marine_servitor', 'marine_space_marine'],
- *     buildings: ['marine_hq'],
  *     sections: {
  *       Infantry:     ['marine_servitor', 'marine_space_marine'],
+ *       Vehicle:      ['marine_rhino'],
  *       Building:     ['marine_hq'],
  *       Ability:      ['marine_battlecry'],
  *       Research:     ['marine_hq_addon_1'],
  *       WeaponUpgrade: ['marine_flamer'],
  *     },
  *   },
+ *
+ * Отдельных списков «Войска» и «Строения» нет, и писать их не нужно: левая
+ * колонка сетки берёт «Войска» из Infantry с Vehicle, а «Строения» из Building.
+ * Перечислять юнита дважды незачем — списки разъезжаются, и юнит пропадает с
+ * одной из сторон молча.
  *
  * ── Как привязать кнопку к команде ────────────────────────────────────────
  *
@@ -113,18 +117,32 @@ export type RosterSection =
   | 'WeaponUpgrade'
   | 'Addon'
 
+/** Разделы в том порядке, в каком они идут на экране. */
+export const ROSTER_SECTIONS: readonly RosterSection[] = [
+  'Infantry',
+  'Vehicle',
+  'Building',
+  'Ability',
+  'Research',
+  'WeaponUpgrade',
+  'Addon',
+]
+
 /** Четыре столба на три строки — столько мест в игровой панели команд. */
 export const PANEL_SLOTS = 12
 
 /** Мест в панели улучшений: два столбца на четыре строки. */
 export const IMPROVEMENT_SLOTS = 8
 
+/**
+ * Состав расы — только разделы.
+ *
+ * Отдельных списков «Войска» и «Строения» нет и быть не должно: они выводятся
+ * из Infantry с Vehicle и из Building. Списка два — значит юнит пришлось бы
+ * переписывать дважды, и рано или поздно в одном из них он осел бы один.
+ */
 export interface FactionRoster {
-  /** Плитки «Войска»: отряды и техника, доступные прямо на поле. */
-  troops?: readonly string[]
-  /** Плитки «Строения»: постройки расы. */
-  buildings?: readonly string[]
-  /** Содержимое остальных фильтров. */
+  /** Содержимое фильтров. Из них же собираются «Войска» и «Строения» в сетке. */
   sections?: Partial<Record<RosterSection, readonly string[]>>
 }
 
@@ -177,34 +195,19 @@ export interface UnitLayout {
 export const PANEL_ROW_BREAK = '|'
 
 export const PANEL_COMMANDS: readonly string[] = [
-  'stance_attack',
-  'stance_hold',
-  'stance_stand_ground',
-  'stance_burn',
-  'stance_cease_fire',
-  'melee_stance_assault',
-  'melee_stance_ranged',
-  'meleestance',
-  'combatstance',
-  'move',
-  'stop',
-  'attackmove',
-  'attackmelee',
-  'build',
-  'repair',
-  'attack',
-  'attackground',
-  'rally',
-  'escape',
+  'stance_hold', 'stance_stand_ground', 'stance_burn', 'stance_cease_fire', 'stance_attack', PANEL_ROW_BREAK,
+  'melee_stance_assault', 'melee_stance_ranged', 'meleestance', 'combatstance', 'attack', 'attackground', PANEL_ROW_BREAK,
+  'move', 'stop', 'attackmove', 'attackmelee', 'build', 'repair', 'rally', 'escape', 'cancelconstruction', 'scuttle', PANEL_ROW_BREAK,
+  'attach', 'detach',
   'builder_cycle',
   'hq_cycle',
   'military_cycle',
   'research_cycle',
-  'scuttle',
-  'jump',
+  
+  'jump', 'teleport',
   'reinforce',
   'unload',
-  'cancelconstruction',
+  
   'cancel_overwatch',
   'toggle_overwatch',
 ]
@@ -212,11 +215,37 @@ export const PANEL_COMMANDS: readonly string[] = [
 /** Состав рас. */
 export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>>> = {
    marine: {
-     troops: ['marine_servitor', 'marine_space_marine'],
-     buildings: ['marine_hq'],
      sections: {
-       Infantry: ['marine_servitor', 'marine_space_marine'],
-       Building: ['marine_hq'],
+      Infantry: [
+        'marine_servitor', 'marine_scout', 'marine_skull_probe', 'marine_space_marine', 'marine_assault_marine', 'marine_force_commander',
+        'marine_chaplain', 'marine_librarian', 'marine_grey_knights', 'marine_terminator', 'marine_assault_terminator'
+      ],
+      Vehicle: [
+        'marine_rhino', 'marine_land_speeder', 'marine_dreadnought', 'marine_dreadnought_hellfire', 'marine_tempest',
+        'marine_predator', 'marine_whirlwind', 'marine_land_raider'
+      ],
+      Building: [
+        'marine_hq', 'marine_chapel', 'marine_listening_post', 'marine_generator',
+        'marine_armoury', 'marine_machine_cult', 'marine_artefact', 'marine_thermo_generator',
+        'marine_bolter_turret', 'marine_mine_field', 'marine_orbital_relay'
+      ],
+      Ability: [
+        'marine_sabotage', 'marine_frag_grenades', 'jump', 'teleport', 'marine_rally', 'marine_melta_bombs', 'marine_demoralize',
+        'marine_smite', 'marine_weaken_resolve', 'marine_inquisition', 'marine_smoke_launchers', 'marine_word_of_emperer',
+        'marine_battlecry', 'marine_orbital_bombardment', 'marine_machine_spirit'
+      ],
+      Research: [
+        'marine_squad_cap_research', 'marine_vehicle_cap_research', 'marine_sniper_rifle_research', 'marine_health_research_1', 'marine_health_research_2',
+        'marine_accuracy_research_1', 'marine_accuracy_research_2', 'marine_power_swords_research', 'marine_sergeant_melee_research_2',
+        'marine_scout_infiltration_research', 'marine_smoke_launcher_research', 'marine_skull_probe_infiltration_research', 'marine_melta_bomb_research',
+        'marine_furious_charge_research', 'marine_frag_grenade_research', 
+      ],
+      WeaponUpgrade: [
+
+      ],
+      Addon: [
+
+      ],
      },
    },
 }
@@ -224,32 +253,390 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
 /** Панели юнитов и строений.
  * 
  * marine_servitor: {
-    command: ['move', 'stop', 'attackmove', 'attackmelee'],
-    second: ['',],
-    improvements: ['',],
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee'
+    ],
+    second: [''],
+    improvements: ['']
   },
 */
 export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   marine_servitor: {
     command: ['move', 'stop', '', '', 'build', 'repair'],
-    second: ['marine_hq', 'marine_chapel', 'marine_listening_post', 'marine_generator',
-             'marine_armoury', 'marine_machine_cult', 'marine_artefact', 'marine_thermo_generator',
-             'marine_bolter_turret', 'marine_mine_field', 'marine_orbital_relay', 'escape'],
-    improvements: ['',],
+    second: [
+      'marine_hq', 'marine_chapel', 'marine_listening_post', 'marine_generator',
+      'marine_armoury', 'marine_machine_cult', 'marine_artefact', 'marine_thermo_generator',
+      'marine_bolter_turret', 'marine_mine_field', 'marine_orbital_relay', 'escape'
+    ],
+    improvements: ['']
   },
+
+  marine_scout: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: ['',],
+    improvements: [
+      'reinforce', '',
+      'marine_flamer', 'marine_sniper_rifle',
+      'marine_plasma_gun'
+    ]
+  },
+
+  marine_skull_probe: {
+    command: [
+      'move', 'stop', '', '',
+      '', '', '', '',
+      'marine_sabotage'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  marine_space_marine: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'marine_frag_grenades', 'marine_rally', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'marine_sergeant',
+      'marine_flamer', 'marine_heavy_bolter',
+      'marine_plasma_gun', 'marine_missile_launcher'
+    ]
+  },
+
+  marine_assault_marine: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'marine_rally', '@panel_yellow', '@panel_melee',
+      'marine_melta_bombs', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['reinforce', 'marine_sergeant']
+  },
+
+  marine_force_commander: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'marine_battlecry', 'marine_orbital_bombardment'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  marine_chaplain: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'marine_demoralize'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  marine_librarian: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'marine_smite', 'marine_weaken_resolve', 'marine_word_of_emperer'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  marine_grey_knights: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'marine_inquisition', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  marine_terminator: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', '',
+      'marine_heavy_flamer', 'marine_assault_cannon'
+    ]
+  },
+
+  marine_assault_terminator: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  marine_rhino: {
+    command: [
+      'move', 'stop', '', '',
+      '', 'unload', '', '',
+      'marine_smoke_launchers'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_land_speeder: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow', '',
+      '', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_dreadnought: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'marine_dreadnought_assault_cannon', 'marine_dreadnought_lascannon_twin'
+    ]
+  },
+
+  marine_dreadnought_hellfire: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_tempest: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'marine_missile_frag', 'marine_missile_krak'
+    ]
+  },
+
+  marine_predator: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'marine_lascannon_twin', 'marine_lascannon_1',
+      'marine_lascannon_2'
+    ]
+  },
+
+  marine_whirlwind: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_land_raider: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'unload', '@panel_yellow', '',
+      'marine_machine_spirit'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
   marine_hq: {
-    command: ['marine_servitor', 'marine_scout', 'marine_chaplain', '',
-              'marine_squad_cap_research', 'marine_vehicle_cap_research', '', '',
-              'marine_hq_addon_1', 'marine_skull_probe_infiltration_research', 'marine_scout_infiltration_research', 'marine_sniper_rifle_research'],
-    second: ['', '', '', '',
-             '', '', '', '',
-             'marine_hq_addon_2'],
-    improvements: ['rally', '@panel_yellow'],
+    command: [
+      'marine_servitor', 'marine_scout', 'marine_chaplain', '',
+      'marine_squad_cap_research', 'marine_vehicle_cap_research', '', '',
+      'marine_hq_addon_1', 'marine_skull_probe_infiltration_research', 'marine_scout_infiltration_research', 'marine_sniper_rifle_research'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'marine_hq_addon_2'
+    ],
+    improvements: ['rally', '@panel_yellow']
   },
+
+  marine_chapel: {
+    command: [
+      'marine_space_marine', 'marine_assault_marine', 'marine_terminator', 'marine_assault_terminator',
+      'marine_force_commander', 'marine_grey_knights', '', '',
+      'marine_frag_grenade_research', 'marine_melta_bomb_research'
+    ],
+    second: [''],
+    improvements: [
+      'rally', '@panel_yellow',
+      'deepstrike'
+    ]
+  },
+
+  marine_listening_post: {
+    command: [
+      'marine_listening_post_1', '', '', '',
+      'marine_requisition_research_1', '', '', '',
+      'marine_skull_probe'
+    ],
+    second: [
+      '', 'marine_listening_post_2', '', '',
+      'marine_requisition_research_2'
+    ],
+    improvements: [
+      'rally', '@panel_yellow',
+      '', 'attack'
+    ]
+  },
+
+  marine_generator: {
+    command: ['marine_power_research_1'],
+    second: ['marine_power_research_2'],
+    improvements: ['']
+  },
+
+  marine_armoury: {
+    command: [
+      'marine_max_weapons_research', 'marine_furious_charge_research', '', '',
+      'marine_health_research_1', 'marine_accuracy_research_1', '', '',
+      'marine_power_swords_research', 'marine_sergeant_ranged_research'
+    ],
+    second: [
+      '', '', '', '',
+      'marine_health_research_2', 'marine_accuracy_research_2', '', '',
+      'marine_sergeant_melee_research_2'
+    ],
+    improvements: ['']
+  },
+
+  marine_machine_cult: {
+    command: [
+      'marine_rhino', 'marine_land_speeder', 'marine_dreadnought', 'marine_dreadnought_hellfire',
+      'marine_tempest', 'marine_whirlwind', 'marine_predator', 'marine_land_raider',
+      'marine_heavy_armor_deployment', 'marine_smoke_launcher_research'
+    ],
+    second: [''],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  marine_artefact: {
+    command: [
+      'marine_apothecary', 'marine_librarian', '', '',
+      'marine_commander_health_research_1', 'marine_librarian_research_2', '', '',
+      'marine_force_commander_research_1', 'marine_librarian_research_1'
+    ],
+    second: [
+      '', '', '', '',
+      'marine_commander_health_research_2', '', '', '',
+      'marine_force_commander_research_2'
+    ],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  marine_thermo_generator: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_bolter_turret: {
+    command: ['marine_missile_launcher_turret'],
+    second: [''],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  marine_mine_field: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  marine_orbital_relay: {
+    command: [
+      'marine_space_marine', '', 'marine_dreadnought', 'marine_dreadnought_hellfire',
+      '', '', '', '',
+      'marine_personalteleporter_research'
+    ],
+    second: [''],
+    improvements: [
+      '', '@panel_yellow',
+      'deepstrike'
+    ]
+  },
+
 }
 
 export function rosterOf(faction: FactionKey | null): FactionRoster {
   return (faction && FACTION_ROSTERS[faction]) || {}
+}
+
+/**
+ * Плитки «Войска» в сетке: всё, что выбирается на поле, — пехота и техника.
+ *
+ * Порядок разделов повторяет игровую панель: сперва пехота, потом техника.
+ */
+export function troopsOf(roster: FactionRoster): readonly string[] {
+  return [
+    ...(roster.sections?.Infantry ?? []),
+    ...(roster.sections?.Vehicle ?? []),
+  ]
+}
+
+/** Плитки «Строения» в сетке: постройки расы. */
+export function buildingsOf(roster: FactionRoster): readonly string[] {
+  return roster.sections?.Building ?? []
+}
+
+/** Всё, чем набрана раса, в порядке разделов — так наполняется фильтр «Фракция». */
+export function rosterEntries(roster: FactionRoster): readonly string[] {
+  return ROSTER_SECTIONS.flatMap((section) => roster.sections?.[section] ?? [])
 }
 
 /**
@@ -264,6 +651,11 @@ export function rosterOf(faction: FactionKey | null): FactionRoster {
  */
 export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   escape2: 'escape',
+  teleport: 'jump',
+  detach: 'attach',
+  marine_dreadnought_assault_cannon: 'marine_assault_cannon',
+  marine_lascannon_2: 'marine_lascannon_1',
+  marine_dreadnought_lascannon_twin: 'marine_lascannon_twin'
 }
 
 /** Настоящая команда за именем из раскладки: само имя либо то, на что оно указывает. */
@@ -351,8 +743,6 @@ function collectDescribed(): Set<string> {
   })
 
   Object.values(FACTION_ROSTERS).forEach((roster) => {
-    take(roster?.troops)
-    take(roster?.buildings)
     Object.values(roster?.sections ?? {}).forEach(take)
   })
 
