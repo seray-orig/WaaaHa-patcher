@@ -178,8 +178,11 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
         return null
       }
 
+      // Фильтр при смене расы не трогаем: «Исследования» у космодесантов и у
+      // тау — это один и тот же вопрос про две разные расы, и возвращаться на
+      // «Сетку» каждый раз приходилось бы заново. Выбранный юнит сбрасываем —
+      // он из прежней расы, и в её списке его больше нет.
       setSelectedUnitId(null)
-      setFilter('standard')
 
       return next
     })
