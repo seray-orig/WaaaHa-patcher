@@ -19,11 +19,14 @@ import {
   PANEL_COMMANDS,
   PANEL_SLOTS,
   UNIT_LAYOUTS,
+  buildingsOf,
   commandOf,
   isInternalButton,
   panelCommandRows,
+  rosterEntries,
   rosterOf,
   splitByDescribed,
+  troopsOf,
   type RosterSection,
 } from '../gameData/layouts'
 import { shortLabel } from '../hotkeys/keyboard'
@@ -496,7 +499,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.troops')}</div>
           <TileGrid
-            entries={pick(roster.troops, indexed).filter(keep)}
+            entries={pick(troopsOf(roster), indexed).filter(keep)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -508,7 +511,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.structures')}</div>
           <TileGrid
-            entries={pick(roster.buildings, indexed).filter(keep)}
+            entries={pick(buildingsOf(roster), indexed).filter(keep)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -628,14 +631,7 @@ function CategoryLayout({
     // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
     entries = splitByDescribed(indexed.all).described
   } else if (filter === 'faction') {
-    entries = unique(
-      [
-        ...(roster.troops ?? []),
-        ...(roster.buildings ?? []),
-        ...Object.values(roster.sections ?? {}).flat(),
-      ],
-      indexed,
-    )
+    entries = unique(rosterEntries(roster), indexed)
   } else {
     entries = isRosterSection(filter) ? pick(roster.sections?.[filter], indexed) : []
   }
@@ -956,11 +952,7 @@ function filterLabel(
   }
 
   const roster = rosterOf(faction)
-  const listed = [
-    ...(roster.troops ?? []),
-    ...(roster.buildings ?? []),
-    ...Object.values(roster.sections ?? {}).flat(),
-  ]
+  const listed = rosterEntries(roster)
 
   const { described, other } = splitByDescribed(indexed.all)
 
