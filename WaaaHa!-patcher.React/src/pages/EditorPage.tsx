@@ -475,6 +475,7 @@ function StandardLayout({
   const { t } = useLocale()
   const roster = rosterOf(faction)
   const keep = keepEntry(search, onlyChanged, original)
+  const keepCell = (cell: LaidOutCommand) => keep(cell.entry)
   const gridProps = { capturingId, readOnly, original, onCapture }
   const layout = selectedUnitId ? UNIT_LAYOUTS[selectedUnitId] : undefined
 
@@ -487,7 +488,7 @@ function StandardLayout({
         return cell
       }
 
-      return keep(cell) ? cell : null
+      return keepCell(cell) ? cell : null
     })
 
   return (
@@ -496,7 +497,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.troops')}</div>
           <TileGrid
-            entries={pick(troopsOf(roster), indexed).filter(keep)}
+            entries={pick(troopsOf(roster), indexed).filter(keepCell)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -508,7 +509,7 @@ function StandardLayout({
         <div className="dependency-group">
           <div className="dependency-group__title">{t('editor.structures')}</div>
           <TileGrid
-            entries={pick(buildingsOf(roster), indexed).filter(keep)}
+            entries={pick(buildingsOf(roster), indexed).filter(keepCell)}
             activeId={selectedUnitId}
             onPick={onSelectUnit}
             {...gridProps}
@@ -593,8 +594,9 @@ function CategoryLayout({
 }) {
   const { t } = useLocale()
   const roster = rosterOf(faction)
+  const keep = keepEntry(search, onlyChanged, original)
 
-  let entries: HotkeyEntry[]
+  let entries: LaidOutCommand[]
 
   if (filter === 'standard') {
     return null
@@ -604,7 +606,7 @@ function CategoryLayout({
     // Не описанные нигде: команды из кампаний, внутренние хоткеи, забытые расы.
     // Фильтр общий для всего файла, а не только выбранной расы: хоткей, о котором
     // автор ещё не подумал, не должен прятаться за чужими фракциями.
-    entries = splitByDescribed(indexed.all).other
+    entries = splitByDescribed(indexed.all).other.map(asLaidOut)
   } else if (filter === 'command') {
     return (
       <div className="dependency-group filter-list">
@@ -613,7 +615,7 @@ function CategoryLayout({
         <PanelCommandGrid
           rows={panelCommandRows()}
           indexed={indexed}
-          keep={keepEntry(search, onlyChanged, original)}
+          keep={(cell) => keep(cell.entry)}
           capturingId={capturingId}
           readOnly={readOnly}
           original={original}
@@ -624,14 +626,14 @@ function CategoryLayout({
   } else if (filter === 'all') {
     // Каскад: описал хоть что-то в раскладке — хоткей оказался здесь. Отдельных
     // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
-    entries = splitByDescribed(indexed.all).described
+    entries = splitByDescribed(indexed.all).described.map(asLaidOut)
   } else if (filter === 'faction') {
     entries = unique(rosterEntries(roster), indexed)
   } else {
     entries = isRosterSection(filter) ? pick(roster.sections?.[filter], indexed) : []
   }
 
-  const visible = entries.filter(keepEntry(search, onlyChanged, original))
+  const visible = entries.filter((cell) => keep(cell.entry))
 
   return (
     <div className="dependency-group filter-list">
@@ -666,7 +668,7 @@ function PanelCommandGrid({
 }: {
   rows: readonly (readonly string[])[]
   indexed: IndexedHotkeys
-  keep: (entry: HotkeyEntry) => boolean
+  keep: (cell: LaidOutCommand) => boolean
   capturingId: string | null
   readOnly: boolean
   original: Record<string, string>
@@ -685,12 +687,12 @@ function PanelCommandGrid({
   return (
     <div className="hotkey-grid">
       {visibleRows.map((row, index) => (
-        <Fragment key={row.map((entry) => entry.id).join(',')}>
+        <Fragment key={row.map(({ name }) => name).join(',')}>
           {index > 0 && <span className="hotkey-grid__break" />}
 
-          {row.map((entry) => (
+          {row.map(({ entry, name }) => (
             <HotkeyTile
-              key={entry.id}
+              key={name}
               entry={entry}
               isCapturing={capturingId === entry.id}
               isChanged={original[entry.id] !== entry.value}
@@ -704,17 +706,47 @@ function PanelCommandGrid({
   )
 }
 
+/**
+ * Команда раскладки вместе с именем, под которым она там написана.
+ *
+ * Имя нужно потому, что на одну команду могут указывать два значка сразу
+ * (escape и escape2, jump и teleport). Команда у плиток общая, а React обязан
+ * различать их ключи — иначе на переключении фильтров плитки не заменяются, а
+ * накапливаются: ключ у всех один, движок не знает, кто есть кто.
+ */
+interface LaidOutCommand {
+  /** Сама команда: по ней показывается клавиша и по ней клик её запишет. */
+  entry: HotkeyEntry
+  /** Имя из раскладки — им плитка опознаётся среди соседей. */
+  name: string
+}
+
+/** Хоткей, взятый из самого файла: имя у него и есть идентификатор. */
+function asLaidOut(entry: HotkeyEntry): LaidOutCommand {
+  return { entry, name: entry.id }
+}
+
 /** Переводит перечисленные вручную идентификаторы в хоткеи файла: нужен и значок. */
 function pick(
   ids: readonly (string | null | undefined)[] | undefined,
   indexed: IndexedHotkeys,
-): HotkeyEntry[] {
+): LaidOutCommand[] {
   return (ids ?? [])
-    .map((id) => (id ? entryFor(id, indexed) : undefined))
-    .filter((entry): entry is HotkeyEntry => entry !== undefined)
+    .map((name) => {
+      const entry = name ? entryFor(name, indexed) : undefined
+
+      return entry === undefined ? undefined : { entry, name: name as string }
+    })
+    .filter((item): item is LaidOutCommand => item !== undefined)
 }
 
-function unique(ids: readonly string[], indexed: IndexedHotkeys): HotkeyEntry[] {
+/**
+ * То же, но с пропуском повторов по команде.
+ *
+ * Разные имена на одну команду остаются: это те самые два значка, ради которых
+ * затевалась таблица псевдонимов.
+ */
+function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand[] {
   const seen = new Set<string>()
 
   return ids
@@ -729,8 +761,12 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): HotkeyEntry[] 
 
       return true
     })
-    .map((id) => entryFor(id, indexed))
-    .filter((entry): entry is HotkeyEntry => entry !== undefined)
+    .map((name) => {
+      const entry = entryFor(name, indexed)
+
+      return entry === undefined ? undefined : { entry, name }
+    })
+    .filter((item): item is LaidOutCommand => item !== undefined)
 }
 
 /**
@@ -797,12 +833,12 @@ function SlotPanel({
 
           return (
             <HotkeyTile
-              key={cell.id}
-              entry={cell}
-              isCapturing={capturingId === cell.id}
-              isChanged={original[cell.id] !== cell.value}
+              key={cell.name}
+              entry={cell.entry}
+              isCapturing={capturingId === cell.entry.id}
+              isChanged={original[cell.entry.id] !== cell.entry.value}
               isDisabled={readOnly}
-              onActivate={() => onCapture(cell.id)}
+              onActivate={() => onCapture(cell.entry.id)}
             />
           )
         })}
@@ -812,7 +848,7 @@ function SlotPanel({
 }
 
 /** Место в панели: команда, подсказка или пустое место. */
-type SlotCell = HotkeyEntry | HintCell | null
+type SlotCell = LaidOutCommand | HintCell | null
 
 /** Внутренняя кнопка: настоящей команды за ней нет, поэтому и класс свой. */
 interface HintCell {
@@ -832,12 +868,18 @@ function slots(
 ): SlotCell[] {
   const cells: SlotCell[] = (manual ?? [])
     .slice(0, size)
-    .map((id) => {
-      if (!id) {
+    .map((name) => {
+      if (!name) {
         return null
       }
 
-      return isInternalButton(id) ? { hint: true, name: id } : (entryFor(id, indexed) ?? null)
+      if (isInternalButton(name)) {
+        return { hint: true, name }
+      }
+
+      const entry = entryFor(name, indexed)
+
+      return entry === undefined ? null : { entry, name }
     })
 
   while (cells.length < size) {
@@ -859,7 +901,7 @@ function TileGrid({
   onPick,
   ...rest
 }: GridProps & {
-  entries: HotkeyEntry[]
+  entries: LaidOutCommand[]
   activeId: string | null
   onPick: (id: string) => void
 }) {
@@ -871,9 +913,9 @@ function TileGrid({
 
   return (
     <div className="hotkey-grid">
-      {entries.map((entry) => (
+      {entries.map(({ entry, name }) => (
         <HotkeyTile
-          key={entry.id}
+          key={name}
           entry={entry}
           isCapturing={rest.capturingId === entry.id}
           isChanged={rest.original[entry.id] !== entry.value}
@@ -897,7 +939,7 @@ function EntryGrid({
   original,
   onCapture,
 }: {
-  entries: HotkeyEntry[]
+  entries: LaidOutCommand[]
   emptyText: string
   capturingId: string | null
   readOnly: boolean
@@ -910,9 +952,9 @@ function EntryGrid({
 
   return (
     <div className="hotkey-grid">
-      {entries.map((entry) => (
+      {entries.map(({ entry, name }) => (
         <HotkeyTile
-          key={entry.id}
+          key={name}
           entry={entry}
           isCapturing={capturingId === entry.id}
           isChanged={original[entry.id] !== entry.value}
