@@ -127,12 +127,7 @@
   background: repeating-linear-gradient(45deg, #1b1e24 0 6px, #15181d 6px 12px);
 }
 
-/* Подпись под панелями: где какая панель в игре, если потерялся. */
-.slot-hint {
-  font-size: 11px;
-  color: var(--text-faint);
-  margin-top: 6px;
-}
+
 
 .filter-chip {
   padding: 5px 12px;
@@ -257,6 +252,15 @@
 
 .small {
   font-size: 12px;
+}
+
+/* Подсказка про нажатие. Серым она тонула среди серых строк и её переставали
+   читать, а в ней перечислены три сброса — без них сброс ищут вслепую. */
+.capture-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--gold);
 }
 
 /* Кнопки под именем набора: открыть файл и показать его в папке профиля. */

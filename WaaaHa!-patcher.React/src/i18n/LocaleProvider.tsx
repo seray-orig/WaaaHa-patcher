@@ -9,6 +9,31 @@ import type { TranslationKey } from './dictionaries'
 
 const STORAGE_KEY = 'waaaha.locale'
 
+/** Язык, если системный не переводится: английский. */
+const FALLBACK: LocaleCode = 'en'
+
+/**
+ * Системный язык по языкам браузера.
+ *
+ * Браузер наследует язык системы, а navigator.languages перечисляет не только
+ * первый: если основной не переводится, но в списке есть переводимый — берётся
+ * он. Например, при немецком и втором английском приложение откроется на
+ * английском, а не на запасном.
+ */
+function fromSystem(): LocaleCode {
+  const preferred = navigator.languages?.length > 0 ? navigator.languages : [navigator.language]
+
+  for (const tag of preferred) {
+    const base = tag.slice(0, 2).toLowerCase()
+
+    if (base in dictionaries) {
+      return base as LocaleCode
+    }
+  }
+
+  return FALLBACK
+}
+
 function detectLocale(): LocaleCode {
   const stored = localStorage.getItem(STORAGE_KEY)
 
@@ -16,9 +41,7 @@ function detectLocale(): LocaleCode {
     return stored as LocaleCode
   }
 
-  const browser = navigator.language.slice(0, 2).toLowerCase()
-
-  return browser in dictionaries ? (browser as LocaleCode) : 'ru'
+  return fromSystem()
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {

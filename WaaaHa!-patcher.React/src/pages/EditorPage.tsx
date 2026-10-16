@@ -323,9 +323,7 @@ export function EditorPage({ profile, fileName, onBack, onDuplicate }: EditorPag
                 )}
               </div>
 
-              <p className="small muted" style={{ margin: '10px 0 0' }}>
-                {t('editor.captureHint')}
-              </p>
+              <p className="capture-hint">{t('editor.captureHint')}</p>
 
               <div className="editor__filters">
                 {filters.map((item) => (
@@ -478,7 +476,6 @@ function StandardLayout({
   const roster = rosterOf(faction)
   const keep = keepEntry(search, onlyChanged, original)
   const gridProps = { capturingId, readOnly, original, onCapture }
-  const selected = selectedUnitId ? indexed.byId.get(selectedUnitId) : undefined
   const layout = selectedUnitId ? UNIT_LAYOUTS[selectedUnitId] : undefined
 
   // Поиск и «только изменённые» прячут команды, но не подсказки: плитка не про
@@ -533,8 +530,6 @@ function StandardLayout({
           columns={4}
           {...gridProps}
         />
-
-        {selected && <p className="slot-hint">{t('editor.manualHint')}</p>}
       </div>
 
       {/* Улучшения стоят третьим столбцом справа от панелей команд, а не под ними:

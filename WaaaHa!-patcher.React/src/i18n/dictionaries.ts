@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Словари интерфейса. Русский — основной, английский и корейский добавлены следом,
  * но заложены сразу, чтобы новые строки не терялись при добавлении языка.
  */
@@ -66,7 +66,7 @@ export const ru = {
   'editor.setName': 'Название набора',
   'editor.openFile': 'Открыть файл',
   'editor.revealFolder': 'Показать в папке',
-  'editor.captureHint': 'Нажмите клавишу, чтобы назначить. Esc — отмена, Delete — убрать хоткей, 0 — вернуть как было.',
+  'editor.captureHint': 'Нажмите клавишу, чтобы назначить. Esc — отмена; Delete — убрать хоткей; 0 — вернуть как было.',
   'editor.capturing': 'Нажмите клавишу…',
   'editor.searchPlaceholder': 'Найти команду по названию',
   'editor.showOnlyChanged': 'Только изменённые',
@@ -127,7 +127,6 @@ export const ru = {
   'editor.improvements': 'Улучшения',
   'editor.troops': 'Войска',
   'editor.structures': 'Строения',
-  'editor.manualHint': 'Порядок и позиции можно задать вручную: layouts.ts',
   'tab.infantry': 'Пехота',
   'tab.vehicle': 'Техника',
   'tab.building': 'Строения',
@@ -225,7 +224,7 @@ export const en: Dictionary = {
   'editor.setName': 'Set name',
   'editor.openFile': 'Open file',
   'editor.revealFolder': 'Show in folder',
-  'editor.captureHint': 'Press a key to assign. Esc cancels, Delete clears the hotkey, 0 restores the original.',
+  'editor.captureHint': 'Press a key to assign. Esc cancels; Delete clears the hotkey; 0 restores the original.',
   'editor.capturing': 'Press a key…',
   'editor.searchPlaceholder': 'Find a command by name',
   'editor.showOnlyChanged': 'Changed only',
@@ -286,7 +285,6 @@ export const en: Dictionary = {
   'editor.improvements': 'Improvements',
   'editor.troops': 'Troops',
   'editor.structures': 'Structures',
-  'editor.manualHint': 'Order and positions can be set by hand: layouts.ts',
   'tab.infantry': 'Infantry',
   'tab.vehicle': 'Vehicles',
   'tab.building': 'Buildings',
@@ -380,7 +378,7 @@ export const ko: Dictionary = {
   'editor.setName': '세트 이름',
   'editor.openFile': '파일 열기',
   'editor.revealFolder': '폴더에서 보기',
-  'editor.captureHint': '키를 눌러 지정하세요. Esc 취소, Delete 해제.',
+  'editor.captureHint': '키를 눌러 지정하세요. Esc 취소; Delete 해제; 0 원래대로.',
   'editor.capturing': '키를 누르세요…',
   'editor.searchPlaceholder': '명령어 검색',
   'editor.showOnlyChanged': '변경된 것만',
@@ -441,7 +439,6 @@ export const ko: Dictionary = {
   'editor.improvements': '업그레이드',
   'editor.troops': '병력',
   'editor.structures': '건물',
-  'editor.manualHint': '순서와 위치는 layouts.ts에서 직접 지정할 수 있습니다',
   'tab.infantry': '보병',
   'tab.vehicle': '차량',
   'tab.building': '건물',
