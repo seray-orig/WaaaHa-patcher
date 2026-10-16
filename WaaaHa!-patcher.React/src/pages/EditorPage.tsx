@@ -606,7 +606,7 @@ function CategoryLayout({
     entries = splitByDescribed(indexed.all).other
   } else if (filter === 'command') {
     return (
-      <div className="dependency-group">
+      <div className="dependency-group filter-list">
         <div className="dependency-group__title">{filterName(filter, t)}</div>
 
         <PanelCommandGrid
@@ -640,10 +640,7 @@ function CategoryLayout({
   const visible = entries.filter(keepEntry(search, onlyChanged, original))
 
   return (
-    <div className="dependency-group">
-      {/* Заголовок повторяет название на кнопке фильтра: иначе между списком и
-          переключателем не�� чем ориентироваться, а в сетке такое заголовки есть
-          всегда — «Войска», «Строения», «Панель команд». */}
+    <div className="dependency-group filter-list">
       <div className="dependency-group__title">{filterName(filter, t)}</div>
 
       <EntryGrid
@@ -981,10 +978,7 @@ function filterLabel(
 }
 
 /**
- * Название фильтра без счётчика.
- *
- * Счётки не годится: в обычных фильтрах он показан на самой кнопке, а над сеткой
- * стоит заголовок группы — как «Войска» и «Строения» в сетке.
+ * Название фильтра без счётчика: тот же заголовок, что и над кнопкой фильтра.
  */
 function filterName(
   filter: FilterKey,
