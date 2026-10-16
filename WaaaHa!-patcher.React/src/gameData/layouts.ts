@@ -163,7 +163,19 @@ export interface UnitLayout {
  * Порядок ни на что не влияет — в фильтре плитки идут в порядке файла, как и
  * везде. Перечисленное здесь считается описанным и потому уходит из
  * «Остального» и появляется во «Все».
+ *
+ * Чтобы развести кнопки по рядам вручную, поставь между ними PANEL_ROW_BREAK:
+ *
+ *   export const PANEL_COMMANDS: readonly string[] = [
+ *     'stance_attack', 'stance_hold', 'stance_stand_ground', PANEL_ROW_BREAK,
+ *     'move', 'stop', 'attackmove',
+ *   ]
+ *
+ * Сам разделитель в файле игры не окажется и в «Остальном» не посчитается
+ * командой: это только разрыв ряда на экране.
  */
+export const PANEL_ROW_BREAK = '|'
+
 export const PANEL_COMMANDS: readonly string[] = [
   'stance_attack',
   'stance_hold',
@@ -259,6 +271,30 @@ export function commandOf(id: string): string {
   return COMMAND_ALIASES[id] ?? id
 }
 
+/** Команда ли это имя, а не разрыв ряда и не внутренняя кнопка. */
+export function isCommandName(id: string): boolean {
+  return id !== PANEL_ROW_BREAK && !isInternalButton(id)
+}
+
+/** Разбивает список панели команд на ряды: разделитель начинает новый ряд. */
+export function panelCommandRows(): readonly (readonly string[])[] {
+  const rows: string[][] = [[]]
+
+  for (const id of PANEL_COMMANDS) {
+    if (id === PANEL_ROW_BREAK) {
+      if (rows[rows.length - 1].length > 0) {
+        rows.push([])
+      }
+
+      continue
+    }
+
+    rows[rows.length - 1].push(id)
+  }
+
+  return rows.filter((row) => row.length > 0)
+}
+
 /**
  * Внутренние кнопки: команды за настоящими хоткеями нет.
  *
@@ -302,16 +338,14 @@ function collectDescribed(): Set<string> {
 
   const take = (list: readonly (string | null | '')[] | undefined) => {
     list?.forEach((id) => {
-      // Внутренние кнопки командами не являются: за ними в файле ничего нет,
-      // и в «Все» они попадать не должны.
-      if (id && !isInternalButton(id)) {
+      if (id && isCommandName(id)) {
         ids.add(id)
       }
     })
   }
 
   PANEL_COMMANDS.forEach((id) => {
-    if (!isInternalButton(id)) {
+    if (isCommandName(id)) {
       ids.add(id)
     }
   })
@@ -323,7 +357,7 @@ function collectDescribed(): Set<string> {
   })
 
   Object.entries(UNIT_LAYOUTS).forEach(([unit, layout]) => {
-    if (!isInternalButton(unit)) {
+    if (isCommandName(unit)) {
       ids.add(unit)
     }
 

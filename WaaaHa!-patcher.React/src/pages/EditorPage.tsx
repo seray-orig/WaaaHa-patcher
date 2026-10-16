@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { Fragment, useEffect, useMemo, useState } from 'react'
 import { HotkeyApiError, gameApi, hotkeySetsApi } from '../api/client'
 import type { HotkeyEntry, HotkeySetDetails, KeyCatalog, ProfileInfo } from '../api/types'
 import { ErrorBanner, LanguageSwitcher, LoadingScreen } from '../components/Common'
@@ -21,6 +21,7 @@ import {
   UNIT_LAYOUTS,
   commandOf,
   isInternalButton,
+  panelCommandRows,
   rosterOf,
   splitByDescribed,
   type RosterSection,
@@ -604,7 +605,21 @@ function CategoryLayout({
     // автор ещё не подумал, не должен прятаться за чужими фракциями.
     entries = splitByDescribed(indexed.all).other
   } else if (filter === 'command') {
-    entries = pick(PANEL_COMMANDS, indexed)
+    return (
+      <div className="dependency-group">
+        <div className="dependency-group__title">{filterName(filter, t)}</div>
+
+        <PanelCommandGrid
+          rows={panelCommandRows()}
+          indexed={indexed}
+          keep={keepEntry(search, onlyChanged, original)}
+          capturingId={capturingId}
+          readOnly={readOnly}
+          original={original}
+          onCapture={onCapture}
+        />
+      </div>
+    )
   } else if (filter === 'all') {
     // Каскад: описал хоть что-то в раскладке — хоткей оказался здесь. Отдельных
     // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
@@ -625,14 +640,76 @@ function CategoryLayout({
   const visible = entries.filter(keepEntry(search, onlyChanged, original))
 
   return (
-    <EntryGrid
-      entries={visible}
-      emptyText={t('editor.noResults')}
-      capturingId={capturingId}
-      readOnly={readOnly}
-      original={original}
-      onCapture={onCapture}
-    />
+    <div className="dependency-group">
+      {/* Заголовок повторяет название на кнопке фильтра: иначе между списком и
+          переключателем не�� чем ориентироваться, а в сетке такое заголовки есть
+          всегда — «Войска», «Строения», «Панель команд». */}
+      <div className="dependency-group__title">{filterName(filter, t)}</div>
+
+      <EntryGrid
+        entries={visible}
+        emptyText={t('editor.noResults')}
+        capturingId={capturingId}
+        readOnly={readOnly}
+        original={original}
+        onCapture={onCapture}
+      />
+    </div>
+  )
+}
+
+/**
+ * Сетка «Панели команд» с ручными переносами рядов.
+ *
+ * Ряды разбиты автором в PANEL_COMMANDS, а внутри ряда плитки встают как влезут:
+ * автор задаёт смысловые группы, а ширину экрана угадывать незачем.
+ */
+function PanelCommandGrid({
+  rows,
+  indexed,
+  keep,
+  capturingId,
+  readOnly,
+  original,
+  onCapture,
+}: {
+  rows: readonly (readonly string[])[]
+  indexed: IndexedHotkeys
+  keep: (entry: HotkeyEntry) => boolean
+  capturingId: string | null
+  readOnly: boolean
+  original: Record<string, string>
+  onCapture: (id: string | null) => void
+}) {
+  const { t } = useLocale()
+
+  const visibleRows = rows
+    .map((row) => pick(row, indexed).filter(keep))
+    .filter((row) => row.length > 0)
+
+  if (visibleRows.length === 0) {
+    return <div className="empty-state">{t('editor.noResults')}</div>
+  }
+
+  return (
+    <div className="hotkey-grid">
+      {visibleRows.map((row, index) => (
+        <Fragment key={row.map((entry) => entry.id).join(',')}>
+          {index > 0 && <span className="hotkey-grid__break" />}
+
+          {row.map((entry) => (
+            <HotkeyTile
+              key={entry.id}
+              entry={entry}
+              isCapturing={capturingId === entry.id}
+              isChanged={original[entry.id] !== entry.value}
+              isDisabled={readOnly}
+              onActivate={() => onCapture(entry.id)}
+            />
+          ))}
+        </Fragment>
+      ))}
+    </div>
   )
 }
 
@@ -875,7 +952,7 @@ function filterLabel(
   t: (key: TranslationKey, values?: Record<string, string | number>) => string,
 ): string {
   if (filter === 'standard') {
-    return t('tab.standard')
+    return filterName(filter, t)
   }
 
   const roster = rosterOf(faction)
@@ -900,18 +977,36 @@ function filterLabel(
               ? pick(roster.sections?.[filter], indexed).length
               : 0
 
-  const label =
-    filter === 'command'
-      ? t('tab.command')
-      : filter === 'all'
-        ? t('tab.all')
-        : filter === 'other'
-          ? t('tab.other')
-          : filter === 'faction'
-            ? t('tab.faction')
-            : t(CATEGORY_LABELS[filter])
+  return `${filterName(filter, t)} · ${count}`
+}
 
-  return `${label} · ${count}`
+/**
+ * Название фильтра без счётчика.
+ *
+ * Счётки не годится: в обычных фильтрах он показан на самой кнопке, а над сеткой
+ * стоит заголовок группы — как «Войска» и «Строения» в сетке.
+ */
+function filterName(
+  filter: FilterKey,
+  t: (key: TranslationKey, values?: Record<string, string | number>) => string,
+): string {
+  if (filter === 'command') {
+    return t('tab.command')
+  }
+
+  if (filter === 'all') {
+    return t('tab.all')
+  }
+
+  if (filter === 'other') {
+    return t('tab.other')
+  }
+
+  if (filter === 'faction') {
+    return t('tab.faction')
+  }
+
+  return filter === 'standard' ? t('tab.standard') : t(CATEGORY_LABELS[filter])
 }
 
 /** У встроенных наборов имя хранится как $id локализации — показываем перевод. */
