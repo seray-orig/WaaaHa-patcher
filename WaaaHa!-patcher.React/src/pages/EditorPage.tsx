@@ -613,28 +613,30 @@ function DuplicateSection({
             <code>{block.unit}</code>
           </div>
 
-          {block.rows.map((row) => (
-            <div key={row.id} className="duplicates__row">
-              <span className="duplicates__key">{row.key}</span>
+          <div className="duplicates__rows">
+            {block.rows.map((row) => (
+              <div key={row.id} className="duplicates__row">
+                <span className="duplicates__key">{row.key}</span>
 
-              <div className="hotkey-grid">
-                {row.cells.map(({ entry, name }) => (
-                  <HotkeyTile
-                    key={name}
-                    entry={entry}
-                    isCapturing={capturingId === entry.id}
-                    isChanged={original[entry.id] !== entry.value}
-                    isDisabled={readOnly}
-                    onActivate={() => onCapture(entry.id)}
-                  />
-                ))}
+                <div className="hotkey-grid">
+                  {row.cells.map(({ entry, name }) => (
+                    <HotkeyTile
+                      key={name}
+                      entry={entry}
+                      isCapturing={capturingId === entry.id}
+                      isChanged={original[entry.id] !== entry.value}
+                      isDisabled={readOnly}
+                      onActivate={() => onCapture(entry.id)}
+                    />
+                  ))}
+                </div>
+
+                <span className="duplicates__panels">
+                  {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
+                </span>
               </div>
-
-              <span className="duplicates__panels">
-                {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
-              </span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       ))}
     </div>
@@ -928,14 +930,22 @@ function asLaidOut(entry: HotkeyEntry): LaidOutCommand {
  * Список команд приходит с сервера, где одна команда — одна строка, поэтому
  * псевдонимы в него не попадают. В фильтре «Все» они нужны: иначе вторая
  * картинка, ради которой псевдоним и заводили, нигде не показывается.
+ *
+ * Псевдоним пропускается, если имя есть в файле и само по себе. marine_lascannon_2
+ * прописан и в раскладке, и в COMMAND_ALIASES, хотя в игре это самостоятельная
+ * привязка со своей картинкой — добавлять её вторым значком значило бы показать
+ * плитку дважды, и с двумя одинаковыми ключами React при переключении фильтров
+ * оставил бы на месте старую плитку и добавил новую.
  */
 function withAliases(
   entries: HotkeyEntry[],
   indexed: IndexedHotkeys,
 ): LaidOutCommand[] {
+  const own = new Set(entries.map((entry) => entry.id))
+
   return entries.flatMap((entry) => [
     asLaidOut(entry),
-    ...pick(aliasNamesOf(entry.id), indexed),
+    ...pick(aliasNamesOf(entry.id).filter((name) => !own.has(name)), indexed),
   ])
 }
 
@@ -964,7 +974,7 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand
 
   return ids
     .filter((id) => {
-      const command = commandOf(id)
+      const command = resolveCommand(id, indexed)
 
       if (seen.has(command)) {
         return false
@@ -983,6 +993,18 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand
 }
 
 /**
+ * Настоящая команда за именем из раскладки.
+ *
+ * COMMAND_ALIASES отвечает за вторую картинку у команды: значок свой, а хоткей
+ * общий с оригиналом. Но если в файле есть привязка и под таким именем тоже,
+ * псевдонимом она быть не может — иначе редактор показал бы и показывал чужую
+ * клавишу и записывал бы не туда. Своё имя всегда выигрывает.
+ */
+function resolveCommand(id: string, indexed: IndexedHotkeys): string {
+  return indexed.byId.has(id) ? id : commandOf(id)
+}
+
+/**
  * Хоткей, стоящий за именем из раскладки.
  *
  * У псевдонима из COMMAND_ALIASES команда общая с оригиналом, а значок свой:
@@ -990,7 +1012,7 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand
  * команда остаётся — по ней показывается клавиша и по ней же клик её запишет.
  */
 function entryFor(id: string, indexed: IndexedHotkeys): HotkeyEntry | undefined {
-  const command = commandOf(id)
+  const command = resolveCommand(id, indexed)
   const entry = indexed.byId.get(command)
 
   if (entry === undefined) {

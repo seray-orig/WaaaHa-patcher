@@ -1,7 +1,7 @@
 .hotkey-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--tile-gap);
 }
 
 /* Принудительный перенос ряда вручную: занимает всю ширину, и следующая плитка
@@ -20,8 +20,8 @@
 
 .hotkey-tile {
   position: relative;
-  width: 62px;
-  height: 62px;
+  width: var(--tile-size);
+  height: var(--tile-size);
   padding: 0;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
