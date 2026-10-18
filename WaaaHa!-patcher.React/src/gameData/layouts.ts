@@ -220,8 +220,7 @@ export const PANEL_COMMANDS: readonly string[] = [
   'unload',
   
   'cancel_overwatch',
-  'toggle_overwatch',
-  PANEL_ROW_BREAK,
+  'toggle_overwatch', PANEL_ROW_BREAK,
   'camera_panleft', 'camera_panright', 'camera_panup', 'camera_pandown', 'camera_rotate', 'camera_defaultcam',
 ]
 
@@ -434,6 +433,16 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: ['reinforce', 'sisters_repentia_mistress']
   },
 
+  sisters_living_saint: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '',
+      'sisters_ardent_flame', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
   sisters_hq: {
     command: [
       'sisters_servitor', 'sisters_missionary', '', 'sisters_confessor',
@@ -468,6 +477,84 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
       '', '', '', '',
       'sisters_upgrade_requisition_2'
     ],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  sisters_generator: {
+    command: ['sisters_upgrade_power_1'],
+    second: ['sisters_upgrade_power_2'],
+    improvements: ['']
+  },
+
+  sisters_sanctuary: {
+    command: [
+      'sisters_research_max_weapons', 'sisters_research_zealot_charge', '', 'sisters_research_blessed_ammunition',
+      'sisters_research_health', 'sisters_research_ranged_damage', '', '',
+      'sisters_research_leader_melee_1', 'sisters_research_leader_range', 'sisters_research_laud_hailer', 'sisters_laud_hailer'
+    ],
+    second: [
+      '', '', '', '',
+      'sisters_research_health_2', 'sisters_research_ranged_damage_2', '', '',
+      'sisters_research_leader_melee_2'
+    ],
+    improvements: ['']
+  },
+
+  sisters_vehicle_building: {
+    command: [
+      'sisters_rhino', 'sisters_immolator_tank', 'sisters_lightning', 'sisters_exorcist_tank',
+      'sisters_penitent_engine', '', '', 'sisters_research_vehicle_armor',
+      'sisters_vehicle_cap', 'sisters_conflagration', 'sisters_research_holy_promethium', 'sisters_laud_hailer'
+    ],
+    second: [''],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  sisters_holy_reliquary: {
+    command: [
+      'sisters_research_commander_health_1', 'sisters_research_divine_pronouncement', 'sisters_research_ascension', '',
+      'sisters_research_martyrs_gift', 'sisters_research_faithful_morale', '', '',
+      '', '', '', 'sisters_laud_hailer'
+    ],
+    second: [
+      'sisters_research_commander_health_2', '', '', '',
+      '', 'sisters_upgrade_heart_of_worship'
+    ],
+    improvements: ['']
+  },
+
+  sisters_thermo_generator: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_shrine: {
+    command: ['sisters_living_saint'],
+    second: [''],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  sisters_mines: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_turret_flamer: {
+    command: ['addon_sisters_turret'],
+    second: [''],
     improvements: [
       '', '',
       '', 'attack'
@@ -874,6 +961,19 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   sisters_research_health_2: 'sisters_research_health',
   sisters_research_ranged_damage_2: 'sisters_research_ranged_damage',
   sisters_repentia_mistress: 'leader',
+}
+
+/**
+ * Значки, ведущие на ту же команду, что и их оригинал, — по команде.
+ *
+ * Нужно фильтру «Все»: там показывается всё описанное, а без этого из списка
+ * выпадали бы вторые картинки одной команды. Рядом со своей командой они и
+ * встают — иначе в списке из восьмисот команд найти их невозможно.
+ */
+export function aliasNamesOf(command: string): readonly string[] {
+  return Object.entries(COMMAND_ALIASES)
+    .filter(([, target]) => target === command)
+    .map(([name]) => name)
 }
 
 /** Настоящая команда за именем из раскладки: само имя либо то, на что оно указывает. */
