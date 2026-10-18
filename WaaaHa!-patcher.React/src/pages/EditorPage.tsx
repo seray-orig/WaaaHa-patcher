@@ -549,21 +549,31 @@ function StandardLayout({
         />
       </div>
 
-      <DuplicateSection roster={roster} indexed={indexed} {...gridProps} />
+      <DuplicateSection
+        roster={roster}
+        indexed={indexed}
+        panelName={(panel) =>
+          panel === 'command'
+            ? t('editor.commandPanel')
+            : panel === 'second'
+              ? t('editor.commandPanel2')
+              : t('editor.improvements')
+        }
+        {...gridProps}
+      />
     </div>
   )
 }
 
 /**
- * Отсек «Дубликаты»: у кого из юнитов и построек одна команда стоит дважды.
+ * Отсек «Дубликаты»: где на одну клавишу встали две разные команды.
  *
- * В игре такая кнопка сработает один раз, а вторая останется висеть мёртвой:
- * игрок про неё не знает, потому что на панели она ничем не отличается от
- * рабочей. Причина обычно одна — два значка на одну команду, то есть псевдоним
- * из COMMAND_ALIASES, хотя повторяется и одно и то же имя дважды.
+ * В игре сработает только одна из них, а вторая останется висеть мёртвой, и на
+ * панели она ничем от рабочей не отличается. Поэтому сверяется не команда, а
+ * клавиша: две кнопки на одну команду — это псевдоним, и так выглядеть не должно,
+ * а вот две разные команды на S — это ровно та ошибка, которую ищем.
  *
- * Показывается только в сетке и только по текущей расе: чужую расу игрок сюда не
- * открывает, а пересчитывать чужие повторы незачем.
+ * Показывается только в сетке и только по текущей расе.
  */
 function DuplicateSection({
   roster,
@@ -572,6 +582,7 @@ function DuplicateSection({
   readOnly,
   original,
   onCapture,
+  panelName,
 }: {
   roster: FactionRoster
   indexed: IndexedHotkeys
@@ -579,14 +590,15 @@ function DuplicateSection({
   readOnly: boolean
   original: Record<string, string>
   onCapture: (id: string | null) => void
+  panelName: (panel: PanelId) => string
 }) {
   const { t } = useLocale()
 
-  const rows = [...troopsOf(roster), ...buildingsOf(roster)]
-    .map((unit) => ({ unit, cells: duplicatesIn(UNIT_LAYOUTS[unit], indexed) }))
-    .filter((row) => row.cells.length > 0)
+  const blocks = [...troopsOf(roster), ...buildingsOf(roster)]
+    .map((unit) => ({ unit, rows: duplicateRowsIn(UNIT_LAYOUTS[unit], indexed) }))
+    .filter((block) => block.rows.length > 0)
 
-  if (rows.length === 0) {
+  if (blocks.length === 0) {
     return null
   }
 
@@ -594,68 +606,143 @@ function DuplicateSection({
     <div className="duplicates">
       <div className="dependency-group__title">{t('editor.duplicates')}</div>
 
-      {rows.map((row) => (
-        <div key={row.unit} className="duplicates__unit">
+      {blocks.map((block) => (
+        <div key={block.unit} className="duplicates__unit">
           <div className="duplicates__unit-name">
-            <span>{shortLabel(row.unit)}</span>
-            <code>{row.unit}</code>
+            <span>{shortLabel(block.unit)}</span>
+            <code>{block.unit}</code>
           </div>
 
-          <div className="hotkey-grid">
-            {row.cells.map(({ entry, name }) => (
-              <HotkeyTile
-                key={name}
-                entry={entry}
-                isCapturing={capturingId === entry.id}
-                isChanged={original[entry.id] !== entry.value}
-                isDisabled={readOnly}
-                onActivate={() => onCapture(entry.id)}
-              />
-            ))}
-          </div>
+          {block.rows.map((row) => (
+            <div key={row.id} className="duplicates__row">
+              <span className="duplicates__key">{row.key}</span>
+
+              <div className="hotkey-grid">
+                {row.cells.map(({ entry, name }) => (
+                  <HotkeyTile
+                    key={name}
+                    entry={entry}
+                    isCapturing={capturingId === entry.id}
+                    isChanged={original[entry.id] !== entry.value}
+                    isDisabled={readOnly}
+                    onActivate={() => onCapture(entry.id)}
+                  />
+                ))}
+              </div>
+
+              <span className="duplicates__panels">
+                {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
+              </span>
+            </div>
+          ))}
         </div>
       ))}
     </div>
   )
 }
 
+type PanelId = 'command' | 'second' | 'improvements'
+
+interface DuplicateRow {
+  /** Подряд идущие панели и клавиша — на случай если строки совпадут. */
+  id: string
+  key: string
+  panels: PanelId[]
+  cells: LaidOutCommand[]
+}
+
 /**
- * Команды, встречающиеся в панелях одного юнита больше одного раза.
+ * Клавиши, занятые в одном юните больше одного раза.
  *
- * Считаются по команде, а не по имени: два значка на одну команду — это как раз
- * повтор, и смотреть на имена было бы неверно.
+ * Сравниваются не все панели между собой, а только те, что в игре делят
+ * клавиатуру. «Панель команд» и «Панель команд 2» между собой её не делят, и
+ * одинаковая буква в них — не беда; обе они делят её с «Улучшениями», и там
+ * совпадение уже ломает раскладку. Внутри одной панели совпадение тоже ломает.
  */
-function duplicatesIn(
+function duplicateRowsIn(
   layout: UnitLayout | undefined,
   indexed: IndexedHotkeys,
-): LaidOutCommand[] {
+): DuplicateRow[] {
   if (layout === undefined) {
     return []
   }
 
-  const byCommand = new Map<string, LaidOutCommand[]>()
+  const sources: Record<PanelId, readonly (string | null | '')[]> = {
+    command: layout.command ?? [],
+    second: layout.second ?? [],
+    improvements: layout.improvements ?? [],
+  }
 
-  for (const panel of [layout.command, layout.second, layout.improvements]) {
-    for (const name of panel ?? []) {
+  const cellsOf = (panel: PanelId): LaidOutCommand[] =>
+    sources[panel].flatMap((name) => {
       if (!name || isInternalButton(name)) {
-        continue
+        return []
       }
 
       const entry = entryFor(name, indexed)
 
-      if (entry === undefined) {
-        continue
-      }
+      return entry === undefined || entry.value === '' ? [] : [{ entry, name }]
+    })
 
-      const command = commandOf(name)
-      const cells = byCommand.get(command) ?? []
+  const panels = Object.keys(sources) as PanelId[]
+  const rows = new Map<string, DuplicateRow>()
 
-      cells.push({ entry, name })
-      byCommand.set(command, cells)
+  /** Клетки одной панели, разложенные по клавишам. */
+  const byKey = (cells: LaidOutCommand[]) => {
+    const map = new Map<string, LaidOutCommand[]>()
+
+    for (const cell of cells) {
+      const key = normalizeKey(cell.entry.value)
+      const list = map.get(key) ?? []
+
+      list.push(cell)
+      map.set(key, list)
+    }
+
+    return map
+  }
+
+  const put = (id: string, key: string, panels: PanelId[], cells: LaidOutCommand[]) => {
+    // Считаются именно разные команды. Две клетки на одну команду — это
+    // псевдоним, нажатие сработает в обоих случаях одинаково и ничего не портит.
+    const commands = new Set(cells.map(({ entry }) => entry.id))
+
+    if (commands.size > 1) {
+      rows.set(id, { id, key, panels, cells })
     }
   }
 
-  return [...byCommand.values()].flatMap((cells) => (cells.length > 1 ? cells : []))
+  const upgrades = byKey(cellsOf('improvements'))
+
+  // Внутри одной панели.
+  for (const panel of panels) {
+    for (const [key, cells] of byKey(cellsOf(panel))) {
+      put(`${panel}/${key}`, key, [panel], cells)
+    }
+  }
+
+  // Панели команд против «Улучше��ий» — клавиатура у них общая.
+  for (const panel of ['command', 'second'] as PanelId[]) {
+    for (const [key, cells] of byKey(cellsOf(panel))) {
+      const also = upgrades.get(key)
+
+      if (also) {
+        put(`${panel}/${key}`, key, [panel, 'improvements'], [...cells, ...also])
+      }
+    }
+  }
+
+  return [...rows.values()].sort((left, right) => left.key.localeCompare(right.key))
+}
+
+/** Клавиши сравниваются по-настоящему: порядок частей в файле значения не задаёт. */
+function normalizeKey(value: string): string {
+  return value
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part !== '')
+    .sort()
+    .join(',')
 }
 
 /**

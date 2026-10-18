@@ -90,6 +90,8 @@
 
 .duplicates__unit + .duplicates__unit {
   margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 .duplicates__unit-name {
@@ -100,6 +102,36 @@
   font-size: 11px;
   font-weight: 600;
   color: var(--text-dim);
+}
+
+/* Строка: клавиша слева, плитки по центру, названия панелей справа. */
+.duplicates__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.duplicates__row + .duplicates__row {
+  margin-top: 10px;
+}
+
+.duplicates__key {
+  flex: 0 0 auto;
+  min-width: 26px;
+  padding: 2px 6px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  background: rgba(201, 162, 39, 0.12);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gold-bright);
+}
+
+.duplicates__panels {
+  flex: 0 0 auto;
+  font-size: 10px;
+  color: var(--text-faint);
 }
 
 .duplicates__unit-name code {
