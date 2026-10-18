@@ -56,6 +56,15 @@ export function ProfilesPage({ game, onSelect }: ProfilesPageProps) {
 
         <div className="topbar__spacer" />
         <LanguageSwitcher />
+
+        <a
+          className="btn btn--gold"
+          href="https://github.com/seray-orig/WaaaHa-patcher/issues"
+          target="_blank"
+          rel="noreferrer"
+        >
+          {t('common.reportIssue')}
+        </a>
       </header>
 
       <main className="content">

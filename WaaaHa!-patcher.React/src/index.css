@@ -95,6 +95,22 @@ button {
   font-weight: 600;
 }
 
+/* Ссылка в обычной системе: на главной она ведёт в issues на github, и выглядеть
+   кнопкой нужно по-настоящему. Подчёркивания у ссылки нет, пробелов по краям нет. */
+.btn--gold {
+  border-color: var(--gold);
+  background: linear-gradient(180deg, #8a7028 0%, #5d4d1a 100%);
+  color: var(--gold-bright);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn--gold:hover:not(:disabled) {
+  border-color: var(--gold-bright);
+  background: linear-gradient(180deg, #a6872f 0%, #6f5c1f 100%);
+}
+
 .btn--primary:hover:not(:disabled) {
   border-color: var(--gold);
   background: linear-gradient(180deg, #8a7028 0%, #5d4d1a 100%);

@@ -79,6 +79,34 @@
   margin-top: 14px;
 }
 
+/* Отсек повторов: на всю ширину сетки, потому что блоки идут друг за другом
+   вертикально, а не в колонки. */
+.duplicates {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.duplicates__unit + .duplicates__unit {
+  margin-top: 16px;
+}
+
+.duplicates__unit-name {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.duplicates__unit-name code {
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
 @media (max-width: 1500px) {
   .standard {
     grid-template-columns: minmax(0, 1fr) auto;

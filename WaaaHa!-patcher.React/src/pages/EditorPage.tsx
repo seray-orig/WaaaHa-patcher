@@ -19,6 +19,7 @@ import {
   PANEL_COMMANDS,
   PANEL_SLOTS,
   UNIT_LAYOUTS,
+  aliasNamesOf,
   buildingsOf,
   commandOf,
   isInternalButton,
@@ -27,7 +28,9 @@ import {
   rosterOf,
   splitByDescribed,
   troopsOf,
+  type FactionRoster,
   type RosterSection,
+  type UnitLayout,
 } from '../gameData/layouts'
 import { shortLabel } from '../hotkeys/keyboard'
 import { builtInNameKey } from '../hotkeys/builtInSets'
@@ -545,8 +548,114 @@ function StandardLayout({
           {...gridProps}
         />
       </div>
+
+      <DuplicateSection roster={roster} indexed={indexed} {...gridProps} />
     </div>
   )
+}
+
+/**
+ * Отсек «Дубликаты»: у кого из юнитов и построек одна команда стоит дважды.
+ *
+ * В игре такая кнопка сработает один раз, а вторая останется висеть мёртвой:
+ * игрок про неё не знает, потому что на панели она ничем не отличается от
+ * рабочей. Причина обычно одна — два значка на одну команду, то есть псевдоним
+ * из COMMAND_ALIASES, хотя повторяется и одно и то же имя дважды.
+ *
+ * Показывается только в сетке и только по текущей расе: чужую расу игрок сюда не
+ * открывает, а пересчитывать чужие повторы незачем.
+ */
+function DuplicateSection({
+  roster,
+  indexed,
+  capturingId,
+  readOnly,
+  original,
+  onCapture,
+}: {
+  roster: FactionRoster
+  indexed: IndexedHotkeys
+  capturingId: string | null
+  readOnly: boolean
+  original: Record<string, string>
+  onCapture: (id: string | null) => void
+}) {
+  const { t } = useLocale()
+
+  const rows = [...troopsOf(roster), ...buildingsOf(roster)]
+    .map((unit) => ({ unit, cells: duplicatesIn(UNIT_LAYOUTS[unit], indexed) }))
+    .filter((row) => row.cells.length > 0)
+
+  if (rows.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="duplicates">
+      <div className="dependency-group__title">{t('editor.duplicates')}</div>
+
+      {rows.map((row) => (
+        <div key={row.unit} className="duplicates__unit">
+          <div className="duplicates__unit-name">
+            <span>{shortLabel(row.unit)}</span>
+            <code>{row.unit}</code>
+          </div>
+
+          <div className="hotkey-grid">
+            {row.cells.map(({ entry, name }) => (
+              <HotkeyTile
+                key={name}
+                entry={entry}
+                isCapturing={capturingId === entry.id}
+                isChanged={original[entry.id] !== entry.value}
+                isDisabled={readOnly}
+                onActivate={() => onCapture(entry.id)}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Команды, встречающиеся в панелях одного юнита больше одного раза.
+ *
+ * Считаются по команде, а не по имени: два значка на одну команду — это как раз
+ * повтор, и смотреть на имена было бы неверно.
+ */
+function duplicatesIn(
+  layout: UnitLayout | undefined,
+  indexed: IndexedHotkeys,
+): LaidOutCommand[] {
+  if (layout === undefined) {
+    return []
+  }
+
+  const byCommand = new Map<string, LaidOutCommand[]>()
+
+  for (const panel of [layout.command, layout.second, layout.improvements]) {
+    for (const name of panel ?? []) {
+      if (!name || isInternalButton(name)) {
+        continue
+      }
+
+      const entry = entryFor(name, indexed)
+
+      if (entry === undefined) {
+        continue
+      }
+
+      const command = commandOf(name)
+      const cells = byCommand.get(command) ?? []
+
+      cells.push({ entry, name })
+      byCommand.set(command, cells)
+    }
+  }
+
+  return [...byCommand.values()].flatMap((cells) => (cells.length > 1 ? cells : []))
 }
 
 /**
@@ -626,7 +735,7 @@ function CategoryLayout({
   } else if (filter === 'all') {
     // Каскад: описал хоть что-то в раскладке — хоткей оказался здесь. Отдельных
     // правил по умолчанию нет, «Все» и «Остальное» просто делят файл надвое.
-    entries = splitByDescribed(indexed.all).described.map(asLaidOut)
+    entries = withAliases(splitByDescribed(indexed.all).described, indexed)
   } else if (filter === 'faction') {
     entries = unique(rosterEntries(roster), indexed)
   } else {
@@ -724,6 +833,23 @@ interface LaidOutCommand {
 /** Хоткей, взятый из самого файла: имя у него и есть идентификатор. */
 function asLaidOut(entry: HotkeyEntry): LaidOutCommand {
   return { entry, name: entry.id }
+}
+
+/**
+ * Подкладывает к командам их вторые значки из COMMAND_ALIASES.
+ *
+ * Список команд приходит с сервера, где одна команда — одна строка, поэтому
+ * псевдонимы в него не попадают. В фильтре «Все» они нужны: иначе вторая
+ * картинка, ради которой псевдоним и заводили, нигде не показывается.
+ */
+function withAliases(
+  entries: HotkeyEntry[],
+  indexed: IndexedHotkeys,
+): LaidOutCommand[] {
+  return entries.flatMap((entry) => [
+    asLaidOut(entry),
+    ...pick(aliasNamesOf(entry.id), indexed),
+  ])
 }
 
 /** Переводит перечисленные вручную идентификаторы в хоткеи файла: нужен и значок. */
@@ -997,7 +1123,7 @@ function filterLabel(
     filter === 'command'
       ? pick(PANEL_COMMANDS, indexed).length
       : filter === 'all'
-        ? described.length
+        ? withAliases(described, indexed).length
         : filter === 'other'
           ? other.length
           : filter === 'faction'

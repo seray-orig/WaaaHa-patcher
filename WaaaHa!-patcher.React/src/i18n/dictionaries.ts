@@ -23,6 +23,7 @@ export const ru = {
   'common.confirm': 'Подтвердить',
   'common.none': 'Нет',
   'common.all': 'Все',
+  'common.reportIssue': 'Нашёл ошибку / вопрос?',
 
   'profiles.title': 'Выберите профиль',
   'profiles.subtitle':
@@ -125,6 +126,7 @@ export const ru = {
   'editor.commandPanel2': 'Панель команд 2',
   'editor.internalPanel': 'Панель команд',
   'editor.improvements': 'Улучшения',
+  'editor.duplicates': 'Дубликаты',
   'editor.troops': 'Войска',
   'editor.structures': 'Строения',
   'tab.infantry': 'Пехота',
@@ -181,6 +183,7 @@ export const en: Dictionary = {
   'common.confirm': 'Confirm',
   'common.none': 'None',
   'common.all': 'All',
+  'common.reportIssue': 'Found a bug / have a question?',
 
   'profiles.title': 'Choose a profile',
   'profiles.subtitle':
@@ -283,6 +286,7 @@ export const en: Dictionary = {
   'editor.commandPanel2': 'Command panel 2',
   'editor.internalPanel': 'Command panel',
   'editor.improvements': 'Improvements',
+  'editor.duplicates': 'Duplicates',
   'editor.troops': 'Troops',
   'editor.structures': 'Structures',
   'tab.infantry': 'Infantry',
@@ -335,6 +339,7 @@ export const ko: Dictionary = {
   'common.confirm': '확인',
   'common.none': '없음',
   'common.all': '전체',
+  'common.reportIssue': '버그를 발견했거나 궁금한 점이 있나요?',
 
   'profiles.title': '프로필 선택',
   'profiles.subtitle':
@@ -437,6 +442,7 @@ export const ko: Dictionary = {
   'editor.commandPanel2': '커맨드 패널 2',
   'editor.internalPanel': '커맨드 패널',
   'editor.improvements': '업그레이드',
+  'editor.duplicates': '중복',
   'editor.troops': '병력',
   'editor.structures': '건물',
   'tab.infantry': '보병',
