@@ -606,39 +606,41 @@ function DuplicateSection({
     <div className="duplicates">
       <div className="dependency-group__title">{t('editor.duplicates')}</div>
 
-      {blocks.map((block) => (
-        <div key={block.unit} className="duplicates__unit">
-          <div className="duplicates__unit-name">
-            <span>{shortLabel(block.unit)}</span>
-            <code>{block.unit}</code>
-          </div>
+      <div className="duplicates__list">
+        {blocks.map((block) => (
+          <div key={block.unit} className="duplicates__unit">
+            <div className="duplicates__unit-name">
+              <span>{shortLabel(block.unit)}</span>
+              <code>{block.unit}</code>
+            </div>
 
-          <div className="duplicates__rows">
-            {block.rows.map((row) => (
-              <div key={row.id} className="duplicates__row">
-                <span className="duplicates__key">{row.key}</span>
+            <div className="duplicates__rows">
+              {block.rows.map((row) => (
+                <div key={row.id} className="duplicates__row">
+                  <span className="duplicates__key">{row.key}</span>
 
-                <div className="hotkey-grid">
-                  {row.cells.map(({ entry, name }) => (
-                    <HotkeyTile
-                      key={name}
-                      entry={entry}
-                      isCapturing={capturingId === entry.id}
-                      isChanged={original[entry.id] !== entry.value}
-                      isDisabled={readOnly}
-                      onActivate={() => onCapture(entry.id)}
-                    />
-                  ))}
+                  <div className="hotkey-grid">
+                    {row.cells.map(({ entry, name }) => (
+                      <HotkeyTile
+                        key={name}
+                        entry={entry}
+                        isCapturing={capturingId === entry.id}
+                        isChanged={original[entry.id] !== entry.value}
+                        isDisabled={readOnly}
+                        onActivate={() => onCapture(entry.id)}
+                      />
+                    ))}
+                  </div>
+
+                  <span className="duplicates__panels">
+                    {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
+                  </span>
                 </div>
-
-                <span className="duplicates__panels">
-                  {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   )
 }
@@ -931,11 +933,11 @@ function asLaidOut(entry: HotkeyEntry): LaidOutCommand {
  * псевдонимы в него не попадают. В фильтре «Все» они нужны: иначе вторая
  * картинка, ради которой псевдоним и заводили, нигде не показывается.
  *
- * Псевдоним пропускается, если имя есть в файле и само по себе. marine_lascannon_2
- * прописан и в раскладке, и в COMMAND_ALIASES, хотя в игре это самостоятельная
- * привязка со своей картинкой — добавлять её вторым значком значило бы показать
- * плитку дважды, и с двумя одинаковыми ключами React при переключении фильтров
- * оставил бы на месте старую плитку и добавил новую.
+ * Псевдоним пропускается, если это имя и так уже есть в списке своим хоткеем.
+ * marine_lascannon_2 прописан и в раскладке, и в COMMAND_ALIASES — а хоткей в
+ * файле у него самостоятельный. Без проверки он попал бы в список дважды, под
+ * одним React-ключом, и движок не смог бы их различить: при переключении
+ * фильтров старая плитка оставалась бы на месте, а новая добавлялась сверху.
  */
 function withAliases(
   entries: HotkeyEntry[],
@@ -974,7 +976,7 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand
 
   return ids
     .filter((id) => {
-      const command = resolveCommand(id, indexed)
+      const command = commandOf(id)
 
       if (seen.has(command)) {
         return false
@@ -993,18 +995,6 @@ function unique(ids: readonly string[], indexed: IndexedHotkeys): LaidOutCommand
 }
 
 /**
- * Настоящая команда за именем из раскладки.
- *
- * COMMAND_ALIASES отвечает за вторую картинку у команды: значок свой, а хоткей
- * общий с оригиналом. Но если в файле есть привязка и под таким именем тоже,
- * псевдонимом она быть не может — иначе редактор показал бы и показывал чужую
- * клавишу и записывал бы не туда. Своё имя всегда выигрывает.
- */
-function resolveCommand(id: string, indexed: IndexedHotkeys): string {
-  return indexed.byId.has(id) ? id : commandOf(id)
-}
-
-/**
  * Хоткей, стоящий за именем из раскладки.
  *
  * У псевдонима из COMMAND_ALIASES команда общая с оригиналом, а значок свой:
@@ -1012,7 +1002,7 @@ function resolveCommand(id: string, indexed: IndexedHotkeys): string {
  * команда остаётся — по ней показывается клавиша и по ней же клик её запишет.
  */
 function entryFor(id: string, indexed: IndexedHotkeys): HotkeyEntry | undefined {
-  const command = resolveCommand(id, indexed)
+  const command = commandOf(id)
   const entry = indexed.byId.get(command)
 
   if (entry === undefined) {

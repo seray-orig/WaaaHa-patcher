@@ -88,12 +88,15 @@
   border-top: 1px solid var(--border);
 }
 
-/* Между юнитами и повторами. Разделитель общий: по нему заметно, где кончается
-   один блок и начинается другой, — иначе соседние строки сливаются в одну. */
-.duplicates__unit + .duplicates__unit {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
+/* Блоки разных юнитов стоят в ряд, а не друг под другом: между соседями
+   остаётся пустое место размером ровно с клетку, и перенос случается сам,
+   когда в строку больше не влезает. */
+.duplicates__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  column-gap: calc(var(--tile-size) + var(--tile-gap) * 2);
+  row-gap: 16px;
 }
 
 .duplicates__unit-name {
