@@ -58,7 +58,7 @@ export function ProfilesPage({ game, onSelect }: ProfilesPageProps) {
         <LanguageSwitcher />
 
         <a
-          className="btn btn--gold"
+          className="btn btn--report"
           href="https://github.com/seray-orig/WaaaHa-patcher/issues"
           target="_blank"
           rel="noreferrer"

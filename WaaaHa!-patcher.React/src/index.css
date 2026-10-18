@@ -96,19 +96,21 @@ button {
 }
 
 /* Ссылка в обычной системе: на главной она ведёт в issues на github, и выглядеть
-   кнопкой нужно по-настоящему. Подчёркивания у ссылки нет, пробелов по краям нет. */
-.btn--gold {
-  border-color: var(--gold);
-  background: linear-gradient(180deg, #8a7028 0%, #5d4d1a 100%);
-  color: var(--gold-bright);
+   кнопкой нужно по-настоящему. Красная, чтобы её не спутать с действием, которое
+   что-то меняет: из приложения игрок только жалуется. Подчёркивания у ссылки нет. */
+.btn--report {
+  border-color: var(--danger);
+  background: linear-gradient(180deg, #7c3128 0%, #5a231c 100%);
+  color: #ef9a8c;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.btn--gold:hover:not(:disabled) {
-  border-color: var(--gold-bright);
-  background: linear-gradient(180deg, #a6872f 0%, #6f5c1f 100%);
+.btn--report:hover:not(:disabled) {
+  border-color: #d4574a;
+  background: linear-gradient(180deg, #94382d 0%, #6d2a22 100%);
+  color: #f7b9ad;
 }
 
 .btn--primary:hover:not(:disabled) {
