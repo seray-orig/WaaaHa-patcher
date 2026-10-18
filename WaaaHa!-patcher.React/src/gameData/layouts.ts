@@ -25,6 +25,17 @@ import type { FactionKey } from './factions'
  *       WeaponUpgrade: ['marine_flamer'],
  *     },
  *   },
+ * 
+ * Ключ	Фракция
+*   marine	Космодесант
+*   chaos	Хаос
+*   ork	Орки
+*   eldar	Эльдары
+*   tau	Тау
+*   necron	Некроны
+*   guard	Имперская гвардия
+*   dark_eldar	Тёмные эльдары
+*   sisters	Сестры битвы
  *
  * Отдельных списков «Войска» и «Строения» нет, и писать их не нужно: левая
  * колонка сетки берёт «Войска» из Infantry с Vehicle, а «Строения» из Building.
@@ -210,6 +221,8 @@ export const PANEL_COMMANDS: readonly string[] = [
   
   'cancel_overwatch',
   'toggle_overwatch',
+  PANEL_ROW_BREAK,
+  'camera_panleft', 'camera_panright', 'camera_panup', 'camera_pandown', 'camera_rotate', 'camera_defaultcam',
 ]
 
 /** Состав рас. */
@@ -251,9 +264,46 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
       Addon: [
         'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_missile_launcher_turret', 'marine_listening_post_1', 'marine_listening_post_2',
         'marine_heavy_armor_deployment'
-      ],
+      ]
      },
    },
+
+   sisters: {
+    sections: {
+      Infantry: [
+        'sisters_servitor', 'sisters_missionary', 'sisters_battle_sister', 'sisters_canoness', 'sisters_seraphim', 'sisters_celestian', 'sisters_confessor',
+        'sisters_assassin', 'sisters_repentia', 'sisters_ascension_angel', 'sisters_living_saint'
+      ],
+      Vehicle: [
+        'sisters_rhino', 'sisters_immolator_tank', 'sisters_lightning', 'sisters_exorcist_tank', 'sisters_penitent_engine'
+      ],
+      Building: [
+        'sisters_hq', 'sisters_infantry', 'sisters_listening_post', 'sisters_generator', 'sisters_sanctuary', 'sisters_holy_reliquary', 'sisters_thermo_generator',
+        'sisters_vehicle_building', 'sisters_turret_flamer', 'sisters_mines', 'sisters_shrine'
+      ],
+      Ability: [
+        'sisters_laud_hailer', 'sisters_lay_hands', 'sisters_emperors_touch', 'sisters_divine_retribution', 'sisters_divine_light',
+        'sisters_ascension', 'sisters_phosphor_grenades', 'sisters_krak_grenades', 'jump', 'sisters_angelic_visage', 'sisters_witch_hammer',
+        'sisters_divine_pronouncement', 'sisters_righteous_fervor', 'sisters_ardent_flame'
+      ],
+      Research: [
+        'sisters_research_emperors_touch', 'sisters_research_divine_retribution', 'sisters_research_phosphor_grenades', 'sisters_research_krak_grenades',
+        'sisters_upgrade_requisition_1', 'sisters_upgrade_requisition_2', 'sisters_upgrade_power_1', 'sisters_upgrade_power_2',
+        'sisters_research_max_weapons', 'sisters_research_zealot_charge', 'sisters_research_blessed_ammunition',
+        'sisters_research_health', 'sisters_research_health_2', 'sisters_research_ranged_damage', 'sisters_research_ranged_damage_2',
+        'sisters_research_leader_melee_1', 'sisters_research_leader_melee_2', 'sisters_research_leader_range', 'sisters_research_laud_hailer',
+        'sisters_research_vehicle_armor', 'sisters_vehicle_cap', 'sisters_research_conflagration', 'sisters_research_holy_promethium',
+        'sisters_research_commander_health_1', 'sisters_research_commander_health_2', 'sisters_research_divine_pronouncement', 'sisters_research_ascension',
+        'sisters_research_martyrs_gift', 'sisters_research_faithful_morale', 'sisters_upgrade_heart_of_worship',
+      ],
+      WeaponUpgrade: [
+        'sisters_flamer', 'sisters_heavy_bolter', 'sisters_meltagun', 'sisters_multi_melta'
+      ],
+      Addon: [
+        'addon_sisters_hq_1', 'addon_sisters_hq_2', 'addon_sisters_turret', 'addon_sisters_list_post_1', 'addon_sisters_list_post_2', 'addon_sisters_holy_icon'
+      ]
+    }
+   }
 }
 
 /** Панели юнитов и строений.
@@ -267,6 +317,163 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
   },
 */
 export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
+
+  sisters_servitor: {
+    command: [
+      'move', 'stop', '', '',
+      'build', 'repair', '', '',
+      'sisters_dismantle'
+    ],
+    second: [
+      'sisters_hq', 'sisters_infantry', 'sisters_listening_post', 'sisters_generator',
+      'sisters_sanctuary', 'sisters_vehicle_building', 'sisters_holy_reliquary', 'sisters_thermo_generator',
+      'sisters_shrine', 'sisters_mines', 'sisters_turret_flamer', 'escape'
+    ],
+    improvements: ['']
+  },
+
+  sisters_missionary: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'sisters_lay_hands', 'sisters_emperors_touch', 'sisters_divine_retribution'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  sisters_battle_sister: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'sisters_phosphor_grenades', '@panel_yellow', '@panel_gun',
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'sisters_veteran_superior',
+      'sisters_flamer', 'sisters_heavy_bolter',
+    ]
+  },
+
+  sisters_canoness: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'sisters_ascension', '', '@panel_yellow', '@panel_melee',
+      'sisters_divine_light'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  sisters_seraphim: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'sisters_krak_grenades', '@panel_yellow', '@panel_gun',
+      'sisters_angelic_visage', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['reinforce', 'sisters_veteran_superior_seraphim']
+  },
+
+  sisters_celestian: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'sisters_krak_grenades', '@panel_yellow', '@panel_gun',
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', '',
+      'sisters_veteran_superior_celestian', 'sisters_celestian_imagifer',
+      'sisters_meltagun', 'sisters_multi_melta'
+    ]
+  },
+
+  sisters_confessor: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'sisters_witch_hammer'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'sisters_divine_pronouncement', 'sisters_witch_hammer'
+    ],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  sisters_assassin: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_repentia: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'sisters_righteous_fervor', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['reinforce', 'sisters_repentia_mistress']
+  },
+
+  sisters_hq: {
+    command: [
+      'sisters_servitor', 'sisters_missionary', '', 'sisters_confessor',
+      'sisters_research_emperors_touch', 'sisters_research_divine_retribution', '', '',
+      'addon_sisters_hq_1', '', '', 'sisters_laud_hailer'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'addon_sisters_hq_2'
+    ],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  sisters_infantry: {
+    command: [
+      'sisters_canoness', 'sisters_battle_sister', 'sisters_seraphim', 'sisters_celestian',
+      'sisters_assassin', 'sisters_repentia', '', '',
+      'sisters_squad_cap', 'sisters_research_phosphor_grenades', 'sisters_research_krak_grenades', 'sisters_laud_hailer'
+    ],
+    second: [''],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  sisters_listening_post: {
+    command: [
+      'addon_sisters_list_post_1', 'addon_sisters_list_post_2', '', '',
+      'sisters_upgrade_requisition_1', '', '', '',
+      'addon_sisters_holy_icon'
+    ],
+    second: [
+      '', '', '', '',
+      'sisters_upgrade_requisition_2'
+    ],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
   marine_servitor: {
     command: ['move', 'stop', '', '', 'build', 'repair'],
     second: [
@@ -519,12 +726,12 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
 
   marine_listening_post: {
     command: [
-      'marine_listening_post_1', '', '', '',
+      'marine_listening_post_1', 'marine_listening_post_2', '', '',
       'marine_requisition_research_1', '', '', '',
       'marine_skull_probe'
     ],
     second: [
-      '', 'marine_listening_post_2', '', '',
+      '', '', '', '',
       'marine_requisition_research_2'
     ],
     improvements: [
@@ -663,7 +870,10 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   detach: 'attach',
   marine_dreadnought_assault_cannon: 'marine_assault_cannon',
   marine_lascannon_2: 'marine_lascannon_1',
-  marine_dreadnought_lascannon_twin: 'marine_lascannon_twin'
+  marine_dreadnought_lascannon_twin: 'marine_lascannon_twin',
+  sisters_research_health_2: 'sisters_research_health',
+  sisters_research_ranged_damage_2: 'sisters_research_ranged_damage',
+  sisters_repentia_mistress: 'leader',
 }
 
 /** Настоящая команда за именем из раскладки: само имя либо то, на что оно указывает. */
