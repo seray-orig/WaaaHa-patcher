@@ -308,15 +308,17 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
      sections: {
        Infantry: [
          'chaos_heretic', 'chaos_cultist', 'chaos_marines', 'chaos_raptors',
-         'chaos_horrors', 'chaos_possessed', 'chaos_obliterator', 'chaos_lord',
-         'chaos_sorcerer', 'chaos_daemon_prince', 'chaos_bloodthirster'
+         'chaos_khorne_berserker', 'chaos_horrors', 'chaos_possessed',
+         'chaos_obliterator', 'chaos_lord', 'chaos_sorcerer',
+         'chaos_daemon_prince', 'chaos_bloodthirster'
        ],
        Vehicle: [
          'chaos_rhino', 'chaos_defiler', 'chaos_predator', 'chaos_hell_talon'
        ],
        Building: [
-         'chaos_hq', 'chaos_listening_post', 'chaos_generator', 'chaos_temple',
-         'chaos_armoury', 'chaos_sacrificial_circle', 'chaos_machine_pit',
+         'chaos_hq', 'chaos_listening_post', 'chaos_generator',
+         'chaos_thermo_generator', 'chaos_temple', 'chaos_armoury',
+         'chaos_sacrificial_circle', 'chaos_machine_pit', 'chaos_greater_circle',
          'chaos_bolter_turret', 'chaos_mine_field'
        ]
      }
@@ -330,13 +332,119 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'necron_nightbringer', 'necron_deceiver'
        ],
        Vehicle: [
-         'necron_tomb_spyder', 'necron_destroyer', 'necron_heavy_destroyer',
-         'necron_lord_destroyer'
+         'necron_tomb_spyder', 'necron_attack_scarab', 'necron_destroyer',
+         'necron_heavy_destroyer', 'necron_lord_destroyer',
+         'necron_restored_monolith'
        ],
        Building: [
-         'necron_turret', 'necron_plasma_generator', 'necron_thermo_generator',
-         'necron_summoning_core', 'necron_forbidden_archive',
-         'necron_greater_summoning_core', 'necron_energy_core'
+         'necron_monolith', 'necron_turret', 'necron_plasma_generator',
+         'necron_thermo_generator', 'necron_summoning_core',
+         'necron_forbidden_archive', 'necron_greater_summoning_core',
+         'necron_energy_core'
+       ]
+     }
+   },
+
+   eldar: {
+     sections: {
+       Infantry: [
+         'eldar_bonesinger', 'eldar_guardians', 'eldar_rangers',
+         'eldar_banshee', 'eldar_dark_reapers', 'eldar_fire_dragon',
+         'eldar_warp_spiders', 'eldar_harlequin', 'eldar_farseer',
+         'eldar_warlock_seer', 'eldar_avatar'
+       ],
+       Vehicle: [
+         'eldar_falcon_grav_tank', 'eldar_vyper', 'eldar_wraithlord',
+         'eldar_nightwing', 'eldar_grav_platform_laser',
+         'eldar_grav_platform_brightlance', 'eldar_fire_prism'
+       ],
+       Building: [
+         'eldar_hq', 'eldar_listening_post', 'eldar_generator',
+         'eldar_advanced_generator', 'eldar_webway_gate', 'eldar_aspect_portal',
+         'eldar_soul_shrine', 'eldar_support_portal', 'eldar_support_platform',
+         'eldar_mine_field'
+       ]
+     }
+   },
+
+   ork: {
+     sections: {
+       Infantry: [
+         'ork_grots', 'ork_slugga_boyz', 'ork_shoota_boyz', 'ork_stormboyz',
+         'ork_tankbustas', 'ork_nobs', 'ork_flash_gitz', 'ork_armored_nob',
+         'ork_bad_dok', 'ork_mek_boy', 'ork_warboss'
+       ],
+       Vehicle: [
+         'ork_trukk', 'ork_wartrak', 'ork_killa_kan', 'ork_fighta_bomma',
+         'ork_looted_tank', 'ork_squiggoth'
+       ],
+       Building: [
+         'ork_hq', 'ork_listening_post', 'ork_generator', 'ork_big_generator',
+         'ork_waagh_banner', 'ork_boy_hut', 'ork_pile_o_guns', 'ork_mek_shop',
+         'ork_mine_field'
+       ]
+     }
+   },
+
+   guard: {
+     sections: {
+       Infantry: [
+         'guard_enginseer', 'guard_guardsmen', 'guard_heavy_weapon',
+         'guard_kasrkin', 'guard_ogryn', 'guard_command_squad',
+         'guard_commissar', 'guard_psyker', 'guard_priest', 'guard_assassin'
+       ],
+       Vehicle: [
+         'guard_chimera', 'guard_sentinel', 'guard_hellhound', 'guard_basilisk',
+         'guard_marauder', 'guard_leman_russ', 'guard_baneblade'
+       ],
+       Building: [
+         'guard_hq', 'guard_listening_post', 'guard_generator',
+         'guard_thermo_generator', 'guard_infantry', 'guard_tactica',
+         'guard_mechanized_command', 'guard_mars_command',
+         'guard_bolter_turret', 'guard_mine_field'
+       ]
+     }
+   },
+
+   tau: {
+     sections: {
+       Infantry: [
+         'tau_builder', 'tau_stealth_warrior', 'tau_vespid_auxiliary',
+         'tau_fire_warrior', 'tau_kroot_warrior', 'tau_kroot_shaper',
+         'tau_pathfinder', 'tau_broadside_battlesuit', 'tau_crisis_suit',
+         'tau_kroot_hound', 'tau_commander', 'tau_ethereal',
+         'tau_fire_warrior_shasui'
+       ],
+       Vehicle: [
+         'tau_devilfish_carrier', 'tau_skyray', 'tau_drone_squad',
+         'tau_drone_harbinger', 'tau_barracuda', 'tau_hammerhead',
+         'tau_krootox', 'tau_greater_knarloc'
+       ],
+       Building: [
+         'tau_hq', 'tau_listening_post', 'tau_plasma_generator',
+         'tau_thermo_generator', 'tau_barracks', 'tau_shrine_of_purpose',
+         'tau_kroot_nest', 'tau_shrine_of_kauyon', 'tau_shrine_of_montka',
+         'tau_research_building'
+       ]
+     }
+   },
+
+   dark_eldar: {
+     sections: {
+       Infantry: [
+         'dark_eldar_slave', 'dark_eldar_mandrake', 'dark_eldar_warrior',
+         'dark_eldar_hellion', 'dark_eldar_scourge', 'dark_eldar_wych',
+         'dark_eldar_warp_beast', 'dark_eldar_archon', 'dark_eldar_haemonculus'
+       ],
+       Vehicle: [
+         'dark_eldar_reaver', 'dark_eldar_raider', 'dark_eldar_talos',
+         'dark_eldar_raven', 'dark_eldar_ravager', 'dark_eldar_dais'
+       ],
+       Building: [
+         'dark_eldar_hq', 'dark_eldar_crucible', 'dark_eldar_generator',
+         'dark_eldar_thermo_generator', 'dark_eldar_hall_of_blood',
+         'dark_eldar_haemonculus_laboratory', 'dark_eldar_dark_foundry',
+         'dark_eldar_wych_cult_arena', 'dark_eldar_soul_cage'
        ]
      }
    }
@@ -1057,7 +1165,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   chaos_lord: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
-      'chaos_daemon_prince', '', '@panel_yellow', '@panel_melee',
+      'chaos_daemon_prince_possess', '', '@panel_yellow', '@panel_melee',
       'chaos_daemon_strength', 'chaos_tainted_auspex'
     ],
     second: [''],
@@ -1247,7 +1355,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
 
   chaos_generator: {
     command: ['chaos_power_research_1'],
-    second: [''],
+    second: ['chaos_power_research_2'],
     improvements: ['']
   },
 
@@ -1617,7 +1725,7 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   sisters_research_ranged_damage_2: 'sisters_research_ranged_damage',
   sisters_repentia_mistress: 'leader',
   sisters_multi_melta_immolator: 'sisters_multi_melta',
-  chaos_daemon_prince: 'possess',
+  chaos_daemon_prince_possess: 'possess',
   fear: 'necron_nightmare_shroud',
   chaos_lascannon_2: 'chaos_lascannon_1',
   necron_summon: 'jump',
