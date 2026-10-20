@@ -302,6 +302,43 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'addon_sisters_hq_1', 'addon_sisters_hq_2', 'addon_sisters_turret', 'addon_sisters_list_post_1', 'addon_sisters_list_post_2', 'addon_sisters_holy_icon'
       ]
     }
+   },
+
+   chaos: {
+     sections: {
+       Infantry: [
+         'chaos_heretic', 'chaos_cultist', 'chaos_marines', 'chaos_raptors',
+         'chaos_horrors', 'chaos_possessed', 'chaos_obliterator', 'chaos_lord',
+         'chaos_sorcerer', 'chaos_daemon_prince', 'chaos_bloodthirster'
+       ],
+       Vehicle: [
+         'chaos_rhino', 'chaos_defiler', 'chaos_predator', 'chaos_hell_talon'
+       ],
+       Building: [
+         'chaos_hq', 'chaos_listening_post', 'chaos_generator', 'chaos_temple',
+         'chaos_armoury', 'chaos_sacrificial_circle', 'chaos_machine_pit',
+         'chaos_bolter_turret', 'chaos_mine_field'
+       ]
+     }
+   },
+
+   necron: {
+     sections: {
+       Infantry: [
+         'necron_builder_scarab', 'necron_warrior', 'necron_wraith',
+         'necron_flayed_one', 'necron_immortal', 'necron_pariah', 'necron_lord',
+         'necron_nightbringer', 'necron_deceiver'
+       ],
+       Vehicle: [
+         'necron_tomb_spyder', 'necron_destroyer', 'necron_heavy_destroyer',
+         'necron_lord_destroyer'
+       ],
+       Building: [
+         'necron_turret', 'necron_plasma_generator', 'necron_thermo_generator',
+         'necron_summoning_core', 'necron_forbidden_archive',
+         'necron_greater_summoning_core', 'necron_energy_core'
+       ]
+     }
    }
 }
 
