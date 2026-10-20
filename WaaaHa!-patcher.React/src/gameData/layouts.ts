@@ -247,11 +247,11 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'marine_battlecry', 'marine_orbital_bombardment', 'marine_machine_spirit'
       ],
       Research: [
+        'marine_requisition_research_1', 'marine_requisition_research_2', 'marine_power_research_1', 'marine_power_research_2',
         'marine_squad_cap_research', 'marine_vehicle_cap_research', 'marine_sniper_rifle_research', 'marine_health_research_1', 'marine_health_research_2',
         'marine_accuracy_research_1', 'marine_accuracy_research_2', 'marine_power_swords_research', 'marine_sergeant_melee_research_2',
         'marine_scout_infiltration_research', 'marine_smoke_launcher_research', 'marine_skull_probe_infiltration_research', 'marine_melta_bomb_research',
-        'marine_furious_charge_research', 'marine_frag_grenade_research',
-        'marine_sergeant_ranged_research', 'marine_power_research_1', 'marine_power_research_2', 'marine_requisition_research_1', 'marine_requisition_research_2',
+        'marine_furious_charge_research', 'marine_frag_grenade_research', 'marine_sergeant_ranged_research',
         'marine_commander_health_research_1', 'marine_commander_health_research_2', 'marine_librarian_research_1', 'marine_librarian_research_2',
         'marine_librarian_research_2_w40k', 'marine_force_commander_research_1', 'marine_force_commander_research_2', 'marine_personalteleporter_research'
       ],
@@ -286,12 +286,12 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'sisters_divine_pronouncement', 'sisters_righteous_fervor', 'sisters_ardent_flame'
       ],
       Research: [
-        'sisters_research_emperors_touch', 'sisters_research_divine_retribution', 'sisters_research_phosphor_grenades', 'sisters_research_krak_grenades',
         'sisters_upgrade_requisition_1', 'sisters_upgrade_requisition_2', 'sisters_upgrade_power_1', 'sisters_upgrade_power_2',
-        'sisters_research_max_weapons', 'sisters_research_zealot_charge', 'sisters_research_blessed_ammunition',
+        'sisters_squad_cap', 'sisters_vehicle_cap', 'sisters_research_emperors_touch', 'sisters_research_divine_retribution', 'sisters_research_phosphor_grenades',
+        'sisters_research_krak_grenades', 'sisters_research_max_weapons', 'sisters_research_zealot_charge', 'sisters_research_blessed_ammunition',
         'sisters_research_health', 'sisters_research_health_2', 'sisters_research_ranged_damage', 'sisters_research_ranged_damage_2',
         'sisters_research_leader_melee_1', 'sisters_research_leader_melee_2', 'sisters_research_leader_range', 'sisters_research_laud_hailer',
-        'sisters_research_vehicle_armor', 'sisters_vehicle_cap', 'sisters_research_conflagration', 'sisters_research_holy_promethium',
+        'sisters_research_vehicle_armor', 'sisters_research_conflagration', 'sisters_research_holy_promethium',
         'sisters_research_commander_health_1', 'sisters_research_commander_health_2', 'sisters_research_divine_pronouncement', 'sisters_research_ascension',
         'sisters_research_martyrs_gift', 'sisters_research_faithful_morale', 'sisters_upgrade_heart_of_worship',
       ],
@@ -438,6 +438,57 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_yellow', '',
       'sisters_ardent_flame', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_rhino: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'unload', '@panel_yellow', '',
+      '', '', '', 'sisters_laud_hailer'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_immolator_tank: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow', '',
+      'sisters_conflagration'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'sisters_multi_melta_immolator'
+    ]
+  },
+
+  sisters_lightning: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_exorcist_tank: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow', '',
+      'sisters_hk_missiles'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  sisters_penitent_engine: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
     ],
     second: [''],
     improvements: ['']
@@ -913,6 +964,569 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     ]
   },
 
+  chaos_heretic: {
+    command: [
+      'move', 'stop', '', '',
+      'build', 'repair', '', '',
+      'chaos_force_labor'
+    ],
+    second: [
+      'chaos_hq', 'chaos_temple', 'chaos_listening_post', 'chaos_generator',
+      'chaos_armoury', 'chaos_machine_pit', 'chaos_sacrificial_circle', 'chaos_thermo_generator',
+      'chaos_bolter_turret', 'chaos_mine_field', 'chaos_greater_circle', 'escape'
+    ],
+    improvements: ['']
+  },
+
+  chaos_cultist: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'possess', 'attackground', '@panel_yellow', '@panel_melee',
+      '', '', 'chaos_furious_rage'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'chaos_aspiring_champion',
+      'chaos_grenade_launcher', 'chaos_plasma_gun'
+    ]
+  },
+
+  chaos_marines: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'possess', '', '@panel_yellow', '@panel_gun',
+      '', '', 'chaos_furious_rage', 'chaos_frag_grenades'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'chaos_aspiring_champion',
+      'chaos_heavy_bolter', 'chaos_plasma_gun'
+    ]
+  },
+
+  chaos_raptors: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'possess', '', '@panel_yellow', '@panel_melee',
+      'chaos_speed_fiends', '', 'chaos_furious_rage', 'jump'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'chaos_aspiring_champion_raptors',
+      'chaos_flamer'
+    ]
+  },
+
+  chaos_lord: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'chaos_daemon_prince', '', '@panel_yellow', '@panel_melee',
+      'chaos_daemon_strength', 'chaos_tainted_auspex'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  chaos_sorcerer: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'possess', '', '@panel_yellow', '@panel_melee',
+      'chaos_doom_bolt', 'chaos_chains', 'chaos_corruption', 'teleport'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  chaos_khorne_berserker: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'fear'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  chaos_horrors: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  chaos_possessed: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  chaos_obliterator: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun',
+      '', '', '', 'teleport'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  chaos_daemon_prince: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_red', '',
+      'chaos_daemon_roar', 'chaos_tainted_auspex', ''
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      '', 'chaos_daemon_strength', 'chaos_tainted_auspex'
+    ],
+    improvements: ['']
+  },
+
+  chaos_bloodthirster: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '',
+      '', '', '', 'jump'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_rhino: {
+    command: [
+      'move', 'stop', '', '',
+      '', 'unload', '', '',
+      'chaos_smoke_launchers'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_defiler: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'attackground', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_hell_talon: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow', '',
+      'chaos_biotoxin'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_predator: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow',
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'chaos_lascannon_twin', 'chaos_lascannon_1',
+      'chaos_lascannon_2'
+    ]
+  },
+
+  chaos_hq: {
+    command: [
+      'chaos_heretic', 'chaos_cultist', '', 'chaos_sorcerer',
+      'chaos_squad_cap_research', 'chaos_vehicle_cap_research', '', '',
+      'chaos_hq_addon_1'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'chaos_hq_addon_2'
+    ],
+    improvements: [
+      'rally', '@panel_yellow'
+    ]
+  },
+
+  chaos_temple: {
+    command: [
+      'chaos_marines', 'chaos_raptors', '', 'chaos_khorne_berserker',
+      'chaos_lord', '', '', '',
+      'chaos_frag_grenade_research', 'chaos_raptor_speed_research', '', 'chaos_cultist_sight_research'
+    ],
+    second: [''],
+    improvements: [
+      'rally', '@panel_yellow'
+    ]
+  },
+
+  chaos_armoury: {
+    command: [
+      'chaos_furious_charge_research', '', '', 'chaos_purge_the_weak',
+      'chaos_max_weapons_research', '', '', 'chaos_rage_research',
+      'chaos_champion_melee_research_1', 'chaos_champion_ranged_research', 'chaos_infiltration_research', 'chaos_marine_infiltration_research'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'chaos_champion_melee_research_2'
+    ],
+    improvements: ['']
+  },
+
+  chaos_listening_post: {
+    command: [
+      'chaos_listening_post_1', 'chaos_listening_post_2', '', '',
+      'chaos_requisition_research_1'
+    ],
+    second: [
+      '', '', '', '',
+      'chaos_requisition_research_2'
+    ],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  chaos_generator: {
+    command: ['chaos_power_research_1'],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_machine_pit: {
+    command: [
+      'chaos_rhino', 'chaos_defiler', 'chaos_predator', 'chaos_hell_talon',
+      '', '', '', '',
+      'chaos_projectiles', 'chaos_smoke_launcher_research'
+    ],
+    second: [''],
+    improvements: ['rally', '@panel_yellow']
+  },
+
+  chaos_sacrificial_circle: {
+    command: [
+      'chaos_horrors', 'chaos_possessed', '', '',
+      'chaos_possessed_daemon_fire_research', '', '', '',
+      'chaos_commander_health_research_1', 'chaos_lord_research_1', 'chaos_sorcerer_research_1'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'chaos_commander_health_research_2', 'chaos_lord_research_2', 'chaos_sorcerer_research_2'
+    ],
+    improvements: [
+      'rally', '@panel_yellow',
+      'deepstrike'
+    ]
+  },
+
+  chaos_greater_circle: {
+    command: [
+      'chaos_obliterator', 'chaos_bloodthirster_research', 'chaos_daemon_prince_research', '',
+      'chaos_personalteleporters'
+    ],
+    second: [''],
+    improvements: [
+      '', '@panel_yellow',
+      'deepstrike'
+    ]
+  },
+
+  chaos_mine_field: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  chaos_bolter_turret: {
+    command: ['chaos_missile_launcher_turret'],
+    second: [''],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  necron_builder_scarab: {
+    command: [
+      'move', 'stop', '', '',
+      'build', 'repair'
+    ],
+    second: [
+      'necron_monolith', 'necron_listening_post', 'necron_plasma_generator', 'necron_thermo_generator',
+      'necron_summoning_core', 'necron_forbidden_archive', 'necron_greater_summoning_core', 'necron_energy_core',
+      'necron_turret', '', '', 'escape'
+    ],
+    improvements: ['reinforce']
+  },
+
+  necron_warrior: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun',
+      '', '', '', 'necron_summon'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  necron_wraith: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '',
+      'necron_phase_shifter'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_flayed_one: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '',
+      '', '', '', 'necron_summon'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  necron_immortal: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun',
+      '', '', '', 'necron_summon'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  necron_pariah: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  necron_lord: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'necron_possess_nightbringer', 'necron_possess_deceiver', '@panel_yellow', '@panel_melee',
+      'necron_phase_shifter', 'necron_solar_pulse', 'necron_lightning_field', 'teleport'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'necron_chronometron', 'necron_mass_resurrection', 'necron_nightmare_shroud'
+    ],
+    improvements: [
+      'necron_phase_shifter_research', 'necron_lightning_field_research',
+      'necron_solar_pulse_research', 'necron_phalactery_research',
+      'necron_nightmare_shroud_research', 'necron_resurrection_orb_research',
+      'necron_chronometron_research', 'necron_veil_of_darkness_research'
+    ]
+  },
+
+  necron_nightbringer: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_deceiver: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow', '',
+      'necron_grand_illusion', 'necron_deceive', '', 'teleport'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_monolith: {
+    command: [
+      'necron_builder_scarab', 'necron_warrior', 'necron_wraith', 'necron_lord',
+      'necron_immortal', 'necron_flayed_one', 'necron_pariah', 'necron_tomb_spyder',
+      'addon_necron_hq_1', 'necron_destroyer', 'necron_heavy_destroyer', 'necron_lord_destroyer'
+    ],
+    second: [
+      '', '', '', '',
+      '', '', '', '',
+      'addon_necron_hq_2', 'necron_restored_monolith'
+    ],
+    improvements: [
+      'rally', '@panel_yellow',
+      'deepstrike'
+    ]
+  },
+
+  necron_listening_post: {
+    command: ['addon_necron_list_post_1'],
+    second: [
+      '', 'addon_necron_list_post_2',
+      'necron_doom'
+    ],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  necron_plasma_generator: {
+    command: ['necron_power_research_1'],
+    second: ['necron_power_research_2'],
+    improvements: ['']
+  },
+
+  necron_thermo_generator: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_summoning_core: {
+    command: [
+      'necron_warrior_disruption_field_research', 'necron_wraith_flight_research', '', '',
+      'necron_warrior_disruption_field_research_2', '', '', '',
+      'necron_warrior_disruption_field_research_3'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_forbidden_archive: {
+    command: [
+      'necron_chronometron_research', 'necron_phase_shifter_research', 'necron_lightning_field_research', 'necron_solar_pulse_research',
+      'necron_phalactery_research', 'necron_resurrection_orb_research', 'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_greater_summoning_core: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_energy_core: {
+    command: ['necron_ctan_research'],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_turret: {
+    command: ['addon_necron_turret'],
+    second: [''],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  necron_tomb_spyder: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'necron_attack_scarab', 'necron_harvest_1', '@panel_yellow', '@panel_melee',
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'necron_tomb_spyder_particle_projector'
+    ]
+  },
+
+  necron_attack_scarab: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  necron_destroyer: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_heavy_destroyer: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_lord_destroyer: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'necron_possess_enemy', '', '@panel_yellow', '@panel_gun',
+      'necron_stasis_field'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  necron_restored_monolith: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      'build', '', '@panel_yellow', '',
+      '', '', '', 'teleport'
+    ],
+    second: [
+      'necron_builder_scarab', 'necron_warrior', 'necron_wraith', 'necron_lord',
+      'necron_immortal', 'necron_flayed_one', 'necron_pariah', 'necron_tomb_spyder',
+      'escape', 'necron_destroyer', 'necron_heavy_destroyer', 'necron_lord_destroyer'
+    ],
+    improvements: [
+      '', '',
+      'deepstrike'
+    ]
+  },
+
 }
 
 export function rosterOf(faction: FactionKey | null): FactionRoster {
@@ -955,12 +1569,26 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   escape2: 'escape',
   teleport: 'jump',
   detach: 'attach',
+  necron_possess_enemy: 'possess_enemy',
+  chaos_force_labor_2: 'chaos_force_labor',
+  chaos_aspiring_champion_raptors: 'chaos_aspiring_champion',
   marine_dreadnought_assault_cannon: 'marine_assault_cannon',
   marine_lascannon_2: 'marine_lascannon_1',
   marine_dreadnought_lascannon_twin: 'marine_lascannon_twin',
   sisters_research_health_2: 'sisters_research_health',
   sisters_research_ranged_damage_2: 'sisters_research_ranged_damage',
   sisters_repentia_mistress: 'leader',
+  sisters_multi_melta_immolator: 'sisters_multi_melta',
+  chaos_daemon_prince: 'possess',
+  fear: 'necron_nightmare_shroud',
+  chaos_lascannon_2: 'chaos_lascannon_1',
+  necron_summon: 'jump',
+  necron_lightning_field: 'lightning_field',
+  necron_warrior_disruption_field_research_2: 'necron_warrior_disruption_field_research',
+  necron_warrior_disruption_field_research_3: 'necron_warrior_disruption_field_research',
+  necron_attack_scarab: 'direct_spawn',
+  necron_harvest_1: 'harvest',
+  necron_harvest_2: 'harvest',
 }
 
 /**
@@ -983,7 +1611,7 @@ export function commandOf(id: string): string {
 
 /** Команда ли это имя, а не разрыв ряда и не внутренняя кнопка. */
 export function isCommandName(id: string): boolean {
-  return id !== PANEL_ROW_BREAK && !isInternalButton(id)
+  return id !== PANEL_ROW_BREAK && !isInternalButton(id) && !isManualButton(id)
 }
 
 /** Разбивает список панели команд на ряды: разделитель начинает новый ряд. */
@@ -1033,6 +1661,31 @@ export const INTERNAL_BUTTONS: Readonly<Record<string, InternalButton>> = {
 /** Внутренняя кнопка, а не команда: её нельзя ни показать, ни записать в файл. */
 export function isInternalButton(id: string): boolean {
   return id in INTERNAL_BUTTONS
+}
+
+/**
+ * Кнопки без команды и без хоткея: просто картинка и надпись по центру.
+ *
+ * В игре на такие кнопки нужно нажимать мышкой — настоящей клавиши за ними нет,
+ * и в файл они не попадают. Редактор показывает приглушённую плитку со значком и
+ * подписью, как у внутренних кнопок, а надпись объясняет, что это ручное нажатие.
+ *
+ * Ключ — имя, под которым кнопка пишется в раскладке.
+ * Значение — картинка из hotkey-images и ключ локализации с надписью.
+ *
+ *   MANUAL_BUTTONS: Readonly<Record<string, ManualButton>> = {
+ *     'marine_serve': { icon: 'stance_hold', label: 'editor.manualClick' },
+ *   }
+ */
+export interface ManualButton {
+  icon: string
+  label: TranslationKey
+}
+
+export const MANUAL_BUTTONS: Readonly<Record<string, ManualButton>> = {}
+
+export function isManualButton(id: string): boolean {
+  return id in MANUAL_BUTTONS
 }
 
 /**

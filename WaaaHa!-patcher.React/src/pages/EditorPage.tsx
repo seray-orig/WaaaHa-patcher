@@ -23,6 +23,7 @@ import {
   buildingsOf,
   commandOf,
   isInternalButton,
+  isManualButton,
   panelCommandRows,
   rosterEntries,
   rosterOf,
@@ -1099,6 +1100,10 @@ function slots(
       }
 
       if (isInternalButton(name)) {
+        return { hint: true, name }
+      }
+
+      if (isManualButton(name)) {
         return { hint: true, name }
       }
 
