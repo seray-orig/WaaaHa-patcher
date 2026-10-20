@@ -1465,6 +1465,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       'necron_attack_scarab', 'necron_harvest_1', '@panel_yellow', '@panel_melee',
+      'spyder_warrior', 'spyder_flayed', 'spyder_immortal'
     ],
     second: [''],
     improvements: [
@@ -1513,7 +1514,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   necron_restored_monolith: {
     command: [
       'move', 'stop', 'attackmove', '',
-      'build', '', '@panel_yellow', '',
+      'fakebuild', '', '@panel_yellow', '',
       '', '', '', 'teleport'
     ],
     second: [
@@ -1682,7 +1683,12 @@ export interface ManualButton {
   label: TranslationKey
 }
 
-export const MANUAL_BUTTONS: Readonly<Record<string, ManualButton>> = {}
+export const MANUAL_BUTTONS: Readonly<Record<string, ManualButton>> = {
+  fakebuild: { icon: 'build', label: 'editor.manualClick' },
+  spyder_warrior: { icon: 'necron_warrior', label: 'editor.manualClick' },
+  spyder_flayed: { icon: 'necron_flayed_one', label: 'editor.manualClick' },
+  spyder_immortal: { icon: 'necron_immortal', label: 'editor.manualClick' },
+}
 
 export function isManualButton(id: string): boolean {
   return id in MANUAL_BUTTONS
