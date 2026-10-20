@@ -320,6 +320,29 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'chaos_thermo_generator', 'chaos_temple', 'chaos_armoury',
          'chaos_sacrificial_circle', 'chaos_machine_pit', 'chaos_greater_circle',
          'chaos_bolter_turret', 'chaos_mine_field'
+       ],
+       Ability: [
+         'chaos_force_labor', 'chaos_corruption', 'chaos_chains', 'chaos_doom_bolt',
+         'chaos_frag_grenades', 'chaos_speed_fiends', 'chaos_tainted_auspex',
+         'chaos_daemon_strength', 'chaos_daemon_roar', 'chaos_biotoxin'
+       ],
+       Research: [
+         'chaos_squad_cap_research', 'chaos_vehicle_cap_research',
+         'chaos_frag_grenade_research', 'chaos_raptor_speed_research',
+         'chaos_cultist_sight_research', 'chaos_furious_charge_research',
+         'chaos_purge_the_weak', 'chaos_infiltration_research',
+         'chaos_marine_infiltration_research', 'chaos_smoke_launcher_research',
+         'chaos_possessed_daemon_fire_research', 'chaos_commander_health_research_1',
+         'chaos_commander_health_research_2', 'chaos_bloodthirster_research',
+         'chaos_daemon_prince_research', 'chaos_personalteleporters'
+       ],
+       WeaponUpgrade: [
+         'chaos_heavy_bolter', 'chaos_plasma_gun', 'chaos_lascannon_1',
+         'chaos_lascannon_twin'
+       ],
+       Addon: [
+         'addon_chaos_hq_upgrade', 'addon_chaos_listening_post_1',
+         'addon_chaos_listening_post_2', 'addon_chaos_listening_post_dark_lance'
        ]
      }
    },
@@ -341,6 +364,30 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'necron_thermo_generator', 'necron_summoning_core',
          'necron_forbidden_archive', 'necron_greater_summoning_core',
          'necron_energy_core'
+       ],
+       Ability: [
+         'necron_wraith_flight_research', 'necron_phase_shifter_research',
+         'necron_lightning_field_research', 'necron_solar_pulse_research',
+         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
+         'necron_chronometron_research', 'necron_phase_shifter',
+         'necron_mass_resurrection', 'necron_solar_pulse', 'necron_chronometron',
+         'necron_wraith_defense', 'necron_flayed_fear'
+       ],
+       Research: [
+         'necron_disruption_field_research', 'necron_superior_disruption_field_research',
+         'necron_enhanced_disruption_field_research', 'necron_wraith_flight_research',
+         'necron_chronometron_research', 'necron_phase_shifter_research',
+         'necron_lightning_field_research', 'necron_solar_pulse_research',
+         'necron_phalactery_research', 'necron_resurrection_orb_research',
+         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
+         'necron_research_essence_of_c_tan_gods'
+       ],
+       WeaponUpgrade: [
+         'necron_gauss_cannon', 'necron_tomb_spyder_particle_projector'
+       ],
+       Addon: [
+         'addon_necron_hq_1', 'addon_necron_hq_2', 'addon_necron_list_post_1',
+         'addon_necron_list_post_2', 'addon_necron_turret'
        ]
      }
    },
@@ -363,6 +410,35 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'eldar_advanced_generator', 'eldar_webway_gate', 'eldar_aspect_portal',
          'eldar_soul_shrine', 'eldar_support_portal', 'eldar_support_platform',
          'eldar_mine_field'
+       ],
+       Ability: [
+         'eldar_soulstone', 'eldar_wraithtomb', 'teleport', 'eldar_harlequin_kiss',
+         'eldar_entanglement', 'eldar_fleetoffoot', 'eldar_plasma_grenades',
+         'eldar_haywire_bombs', 'eldar_eldritch_storm', 'eldar_guide',
+         'eldar_mind_war', 'eldar_psychic_storm', 'jump', 'eldar_shroud_ability'
+       ],
+       Research: [
+         'eldar_mysticism', 'eldar_fleet_of_foot_research',
+         'eldar_mobilize_for_war_research', 'eldar_imbue_wraithtomb',
+         'eldar_plasma_grenade_research', 'eldar_ranger_infiltration_research',
+         'eldar_warp_spider_equipment', 'eldar_research_infantryaccuracy_1',
+         'eldar_research_infantryaccuracy_2', 'eldar_health_research',
+         'eldar_researchinfantryhealth_1', 'eldar_researchinfantryhealth_2',
+         'eldar_shroud_ability_research', 'eldar_webway_gate_healing_research',
+         'eldar_webway_gate_relocation_research', 'eldar_tier2_research',
+         'eldar_nightwing_regen_research', 'eldar_annihilate_the_enemy',
+         'eldar_call_of_war_research', 'eldar_vehicle_holo_field_research'
+       ],
+       WeaponUpgrade: [
+         'eldar_shuriken_cannon', 'eldar_scatter_laser', 'eldar_bright_lance',
+         'eldar_starcannon'
+       ],
+       Addon: [
+         'eldar_support_platform_addon', 'eldar_banshee_aspect_stone',
+         'eldar_fire_dragon_aspect_stone', 'eldar_dark_reaper_aspect_stone',
+         'eldar_warp_spider_aspect_stone', 'eldar_fire_prism_aspect_stone',
+         'eldar_vyper_aspect_stone', 'eldar_wraithlord_aspect_stone',
+         'eldar_dcannon'
        ]
      }
    },
@@ -382,6 +458,35 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'ork_hq', 'ork_listening_post', 'ork_generator', 'ork_big_generator',
          'ork_waagh_banner', 'ork_boy_hut', 'ork_pile_o_guns', 'ork_mek_shop',
          'ork_mine_field'
+       ],
+       Ability: [
+         'ork_teleport', 'ork_power_of_waagh', 'ork_power_surge',
+         'ork_stikk_bombs', 'ork_turbo_boost', 'ork_tankbusta_bombs',
+         'ork_super_stikk_bomb', 'ork_tank_zzzaaapppa', 'ork_fightin_juice',
+         'ork_burna_bomb'
+       ],
+       Research: [
+         'ork_gretchin_infiltration_research', 'ork_tankbusta_infiltration_research',
+         'ork_kustim_gadjitz_research', 'ork_escalate_engagement_research',
+         'ork_full_scale_war_research', 'ork_plasma_battery_storage_research',
+         'ork_strengthen_power_grid_research', 'ork_more_dakka_research',
+         'ork_even_more_dakka_research', 'ork_blastier_research',
+         'ork_more_burny_research', 'ork_even_more_burny_research',
+         'ork_big_shooty_boss_weapons_research', 'ork_even_more_choppy_research',
+         'ork_more_choppy_research', 'ork_eavy_boy_armor_research',
+         'ork_super_eavy_boy_armor_research', 'ork_tougher_bosses_research',
+         'ork_even_tougher_bosses_research', 'ork_more_sluggas',
+         'ork_stormboy_speed_boost_research', 'ork_extra_vehicle_armor',
+         'ork_vehicle_speed_boost_research'
+       ],
+       WeaponUpgrade: [
+         'ork_big_shoota', 'ork_rokkit_launcha', 'ork_rokkit_launcha_twin',
+         'ork_mega_blasta', 'ork_pile_o_guns', 'ork_power_klaw',
+         'ork_bomb_chucka', 'ork_gun_wagon', 'ork_zzzap_gun'
+       ],
+       Addon: [
+         'addon_ork_hq_upgrade', 'addon_ork_listening_post_1',
+         'addon_ork_listening_post_2', 'addon_ork_waagh_banner_addon'
        ]
      }
    },
@@ -402,6 +507,36 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'guard_thermo_generator', 'guard_infantry', 'guard_tactica',
          'guard_mechanized_command', 'guard_mars_command',
          'guard_bolter_turret', 'guard_mine_field'
+       ],
+       Ability: [
+         'guard_execute', 'guard_curse_of_the_machine_spirits',
+         'guard_strip_soul', 'guard_lightning_arc', 'guard_fanaticism',
+         'guard_assassination_scope', 'guard_fragmentation_grenade',
+         'guard_strafing_run', 'guard_let_it_burn', 'guard_earthshaker_round',
+         'guard_bombing_run_smoke_canisters', 'guard_bombing_run_krak_bombs',
+         'guard_bombing_run_incendiary_bombs'
+       ],
+       Research: [
+         'guard_ordo_exterminatus_research', 'guard_escalate_engagement_research',
+         'guard_plasma_battery_storage_research',
+         'guard_improved_power_grid_research', 'guard_death_before_dishonor',
+         'guard_battle_armor', 'guard_dauntless_valor', 'guard_uncommon_valor',
+         'guard_satellite_targeting_resolution', 'guard_will_of_the_emperor',
+         'guard_weapon_specialization', 'guard_genetic_enhancement',
+         'guard_kasrkin_armor', 'guard_powered_bayonets', 'guard_infiltration',
+         'guard_full_scale_war'
+       ],
+       WeaponUpgrade: [
+         'guard_autocannon', 'guard_lasgun', 'guard_multi_laser',
+         'guard_heavy_bolter', 'guard_missile_launcher', 'guard_multi_melta',
+         'guard_plasma_gun', 'guard_grenade_launcher', 'guard_melta_bombs'
+       ],
+       Addon: [
+         'addon_guard_hq_1', 'addon_guard_hq_2',
+         'addon_guard_listening_post_1', 'addon_guard_listening_post_2',
+         'addon_guard_basilisk_depot', 'addon_guard_hellhound_depot',
+         'addon_guard_leman_russ_depot', 'addon_guard_marauder_depot',
+         'addon_guard_sentinel_depot', 'addon_guard_missile_turret_upgrade'
        ]
      }
    },
@@ -425,6 +560,29 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'tau_thermo_generator', 'tau_barracks', 'tau_shrine_of_purpose',
          'tau_kroot_nest', 'tau_shrine_of_kauyon', 'tau_shrine_of_montka',
          'tau_research_building'
+       ],
+       Ability: [
+         'tau_target_lock', 'tau_air_caste_strike', 'tau_destabilization',
+         'tau_sonic_pulse', 'tau_jump', 'tau_missile_barrage', 'tau_mark_squad',
+         'tau_snare_trap', 'tau_target_acquired'
+       ],
+       Research: [
+         'tau_jetpacks', 'tau_stealth_burst_cannon_enhancements',
+         'tau_target_lock_research', 'tau_advanced_pulse_rifle',
+         'tau_improved_metallurgy', 'tau_targeting_optics',
+         'tau_missile_barrage_research', 'tau_feral_leap',
+         'tau_teachings_of_montka', 'tau_teachings_of_kauyon',
+         'tau_plasma_battery_storage_research',
+         'tau_strengthen_power_grid_research'
+       ],
+       WeaponUpgrade: [
+         'tau_pulse_rifle', 'tau_burst_cannon', 'tau_fusion_blaster',
+         'tau_missile_pod', 'tau_ion_cannon', 'tau_railgun',
+         'tau_smart_missile_system'
+       ],
+       Addon: [
+         'addon_tau_hq_1', 'addon_tau_hq_2',
+         'addon_tau_listening_post_1', 'addon_tau_listening_post_2'
        ]
      }
    },
@@ -445,6 +603,31 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'dark_eldar_thermo_generator', 'dark_eldar_hall_of_blood',
          'dark_eldar_haemonculus_laboratory', 'dark_eldar_dark_foundry',
          'dark_eldar_wych_cult_arena', 'dark_eldar_soul_cage'
+       ],
+       Ability: [
+         'dark_eldar_corrosion', 'dark_eldar_piercing_vision',
+         'dark_eldar_rekindle_rage', 'dark_eldar_rend_soul',
+         'dark_eldar_screams_of_the_damned', 'dark_eldar_soulstorm',
+         'dark_eldar_crucible', 'dark_eldar_animus_vitae', 'dark_eldar_soul_shock',
+         'dark_eldar_stinger', 'dark_eldar_torture_amp', 'dark_eldar_combat_drugs',
+         'dark_eldar_short_circuit', 'dark_eldar_wildfire', 'dark_eldar_horrorfex',
+         'dark_eldar_dais'
+       ],
+       Research: [
+         'dark_eldar_research_infiltration_mandrake',
+         'dark_eldar_research_reaver_targeting',
+         'dark_eldar_research_wildfire', 'dark_eldar_research_poisoned_blades',
+         'dark_eldar_research_stinger', 'dark_eldar_research_soul_destruction',
+         'dark_eldar_research_crucible', 'dark_eldar_research_daemonic_touch'
+       ],
+       WeaponUpgrade: [
+         'dark_eldar_splinter_rifle', 'dark_eldar_dark_lance',
+         'dark_eldar_shredder', 'dark_eldar_heat_lance'
+       ],
+       Addon: [
+         'addon_dark_eldar_hq_upgrade', 'addon_dark_eldar_list_post_1',
+         'addon_dark_eldar_list_post_2', 'addon_dark_eldar_list_post_dark_lance',
+         'addon_dark_eldar_slave_graveyard'
        ]
      }
    }
@@ -1230,7 +1413,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: ['reinforce']
   },
 
-  chaos_daemon_prince: {
+  possess: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_red', '',
@@ -1490,15 +1673,10 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
       '', '', '', '',
       'necron_chronometron', 'necron_mass_resurrection', 'necron_nightmare_shroud'
     ],
-    improvements: [
-      'necron_phase_shifter_research', 'necron_lightning_field_research',
-      'necron_solar_pulse_research', 'necron_phalactery_research',
-      'necron_nightmare_shroud_research', 'necron_resurrection_orb_research',
-      'necron_chronometron_research', 'necron_veil_of_darkness_research'
-    ]
+    improvements: ['']
   },
 
-  necron_nightbringer: {
+  necron_possess_nightbringer: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_yellow', '@panel_melee'
@@ -1726,6 +1904,7 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   sisters_repentia_mistress: 'leader',
   sisters_multi_melta_immolator: 'sisters_multi_melta',
   chaos_daemon_prince_possess: 'possess',
+  chaos_bloodthirster: 'possess',
   fear: 'necron_nightmare_shroud',
   chaos_lascannon_2: 'chaos_lascannon_1',
   necron_summon: 'jump',
@@ -1735,6 +1914,7 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   necron_attack_scarab: 'direct_spawn',
   necron_harvest_1: 'harvest',
   necron_harvest_2: 'harvest',
+  necron_nightbringer: 'necron_possess_nightbringer',
 }
 
 /**
