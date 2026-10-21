@@ -1417,7 +1417,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_red', '',
-      'chaos_daemon_roar', 'chaos_tainted_auspex', 'chaos_daemon_prince'
+      'chaos_daemon_roar', 'chaos_tainted_auspex', 'chaos_daemon_prince_possess'
     ],
     second: [
       '', '', '', '',
@@ -1925,7 +1925,7 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
  * есть как отдельные записи, раз попали в раскладку.
  */
 export const COMMAND_LINKS: Readonly<Record<string, string>> = {
-  chaos_daemon_prince: 'possess',
+  chaos_daemon_prince_possess: 'possess',
   chaos_bloodthirster: 'possess',
 }
 
@@ -1952,9 +1952,9 @@ export function commandOf(id: string): string {
   return COMMAND_LINKS[id] ?? COMMAND_ALIASES[id] ?? id
 }
 
-/** Команда ли это имя, а не разрыв ряда и не внутренняя кнопка. */
+/** Команда ли это имя, а не разрыв ряда, не внутренняя кнопка и не связанная кнопка. */
 export function isCommandName(id: string): boolean {
-  return id !== PANEL_ROW_BREAK && !isInternalButton(id) && !isManualButton(id)
+  return id !== PANEL_ROW_BREAK && !isInternalButton(id) && !isManualButton(id) && !isCommandLink(id)
 }
 
 /** Разбивает список панели команд на ряды: разделитель начинает новый ряд. */

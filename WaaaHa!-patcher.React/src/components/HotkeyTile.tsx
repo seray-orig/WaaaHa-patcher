@@ -21,6 +21,8 @@ interface HotkeyTileProps {
   /** Подсветка выбранного юнита — по ней панели справа знают, кого показывать. */
   isActive?: boolean
   onActivate: () => void
+  /** Имя для отображения (подпись и title). Если не задано — берётся из entry.id. */
+  displayName?: string
 }
 
 /**
@@ -37,12 +39,13 @@ export function HotkeyTile({
   isDisabled,
   isActive = false,
   onActivate,
+  displayName,
 }: HotkeyTileProps) {
   const { t } = useLocale()
 
   const label = formatChord(entry.value)
   const cleared = entry.value === ''
-  const caption = shortLabel(entry.id)
+  const caption = shortLabel(displayName ?? entry.id)
 
   const classes = [
     'hotkey-tile',
@@ -65,7 +68,7 @@ export function HotkeyTile({
       className={classes}
       onClick={handleClick}
       disabled={isDisabled}
-      title={`${caption} (${entry.id})\n${label || t('common.notAssigned')}`}
+      title={`${caption} (${displayName ?? entry.id})\n${label || t('common.notAssigned')}`}
     >
       {/* Иконка не зависит от наличия хоткея: сняли клавишу — команда никуда не
           делась, и картинка должна остаться на месте. */}

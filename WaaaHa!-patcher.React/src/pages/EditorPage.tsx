@@ -22,6 +22,7 @@ import {
   aliasNamesOf,
   buildingsOf,
   commandOf,
+  isCommandLink,
   isInternalButton,
   isManualButton,
   panelCommandRows,
@@ -629,6 +630,7 @@ function DuplicateSection({
                         isChanged={original[entry.id] !== entry.value}
                         isDisabled={readOnly}
                         onActivate={() => onCapture(entry.id)}
+                        displayName={isCommandLink(name) ? name : undefined}
                       />
                     ))}
                   </div>
@@ -899,6 +901,7 @@ function PanelCommandGrid({
               isChanged={original[entry.id] !== entry.value}
               isDisabled={readOnly}
               onActivate={() => onCapture(entry.id)}
+              displayName={isCommandLink(name) ? name : undefined}
             />
           ))}
         </Fragment>
@@ -1065,6 +1068,7 @@ function SlotPanel({
               isChanged={original[cell.entry.id] !== cell.entry.value}
               isDisabled={readOnly}
               onActivate={() => onCapture(cell.entry.id)}
+              displayName={isCommandLink(cell.name) ? cell.name : undefined}
             />
           )
         })}
@@ -1152,8 +1156,9 @@ function TileGrid({
           // Выбрать юнита можно и у файла игры: посмотреть его панели игрок вправе,
           // а вот писать в чужой файл — нет.
           isDisabled={false}
-          isActive={activeId === entry.id}
-          onActivate={() => onPick(entry.id)}
+          isActive={activeId === name}
+          onActivate={() => onPick(name)}
+          displayName={isCommandLink(name) ? name : undefined}
         />
       ))}
     </div>
@@ -1190,6 +1195,7 @@ function EntryGrid({
           isChanged={original[entry.id] !== entry.value}
           isDisabled={readOnly}
           onActivate={() => onCapture(entry.id)}
+          displayName={isCommandLink(name) ? name : undefined}
         />
       ))}
     </div>
