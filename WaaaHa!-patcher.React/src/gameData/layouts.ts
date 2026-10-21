@@ -1417,7 +1417,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_red', '',
-      'chaos_daemon_roar', 'chaos_tainted_auspex', 'chaos_daemon_prince'
+      'chaos_daemon_roar', 'chaos_tainted_auspex'
     ],
     second: [
       '', '', '', '',
@@ -1431,7 +1431,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_yellow', '',
-      '', '', '', 'chaos_bloodthirster'
+      '', '', '', 'jump'
     ],
     second: [''],
     improvements: ['']
@@ -1925,8 +1925,8 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
  * есть как отдельные записи, раз попали в раскладку.
  */
 export const COMMAND_LINKS: Readonly<Record<string, string>> = {
-  chaos_daemon_prince: 'possess',
-  chaos_bloodthirster: 'possess',
+  necron_nightbringer: 'necron_possess_nightbringer',
+  necron_attack_scarab: 'direct_spawn',
 }
 
 /** Связанная кнопка ли это: отдельная позиция с чужой клавишей. */
