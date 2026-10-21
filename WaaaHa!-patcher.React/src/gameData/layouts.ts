@@ -1903,8 +1903,6 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   sisters_research_ranged_damage_2: 'sisters_research_ranged_damage',
   sisters_repentia_mistress: 'leader',
   sisters_multi_melta_immolator: 'sisters_multi_melta',
-  chaos_daemon_prince_possess: 'possess',
-  chaos_bloodthirster: 'possess',
   fear: 'necron_nightmare_shroud',
   chaos_lascannon_2: 'chaos_lascannon_1',
   necron_summon: 'jump',
@@ -1915,6 +1913,27 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   necron_harvest_1: 'harvest',
   necron_harvest_2: 'harvest',
   necron_nightbringer: 'necron_possess_nightbringer',
+}
+
+/**
+ * Связанные кнопки: отдельные позиции в раскладке, но общий хоткей.
+ *
+ * В игре у разных кнопок может быть общая клавиша (например, `possess` у
+ * различныхюнитов). Каждая кнопка занимает свою позицию в панели и показывает
+ * свою картинку, но при нажатии используется клавиша родительской команды.
+ *
+ * Ключ — имя кнопки в раскладке, значение — команда, чей хоткей используется.
+ * Такие кнопки не добавляются как вторые картинки в фильтре «Все» — они и так
+ * есть как отдельные записи, раз попали в раскладку.
+ */
+export const COMMAND_LINKS: Readonly<Record<string, string>> = {
+  chaos_daemon_prince_possess: 'possess',
+  chaos_bloodthirster: 'possess',
+}
+
+/** Связанная кнопка ли это: отдельная позиция с чужой клавишей. */
+export function isCommandLink(id: string): boolean {
+  return id in COMMAND_LINKS
 }
 
 /**
@@ -1932,7 +1951,7 @@ export function aliasNamesOf(command: string): readonly string[] {
 
 /** Настоящая команда за именем из раскладки: само имя либо то, на что оно указывает. */
 export function commandOf(id: string): string {
-  return COMMAND_ALIASES[id] ?? id
+  return COMMAND_LINKS[id] ?? COMMAND_ALIASES[id] ?? id
 }
 
 /** Команда ли это имя, а не разрыв ряда и не внутренняя кнопка. */
