@@ -21,8 +21,10 @@ interface HotkeyTileProps {
   /** Подсветка выбранного юнита — по ней панели справа знают, кого показывать. */
   isActive?: boolean
   onActivate: () => void
-  /** Имя для отображения (подпись и title). Если не задано — берётся из entry.id. */
+  /** Имя для отображения (подпись на плитке). Если не задано — берётся из entry.id. */
   displayName?: string
+  /** Имя целевой команды для tooltip (для COMMAND_LINKS — реальный хоткей). */
+  linkedTo?: string
 }
 
 /**
@@ -40,6 +42,7 @@ export function HotkeyTile({
   isActive = false,
   onActivate,
   displayName,
+  linkedTo,
 }: HotkeyTileProps) {
   const { t } = useLocale()
 
@@ -62,13 +65,16 @@ export function HotkeyTile({
     onActivate()
   }
 
+  // Для tooltip: если есть linkedTo — показываем реальную цель хоткея
+  const tooltipTarget = linkedTo ?? displayName ?? entry.id
+
   return (
     <button
       type="button"
       className={classes}
       onClick={handleClick}
       disabled={isDisabled}
-      title={`${caption} (${displayName ?? entry.id})\n${label || t('common.notAssigned')}`}
+      title={`${caption} (${tooltipTarget})\n${label || t('common.notAssigned')}`}
     >
       {/* Иконка не зависит от наличия хоткея: сняли клавишу — команда никуда не
           делась, и картинка должна остаться на месте. */}

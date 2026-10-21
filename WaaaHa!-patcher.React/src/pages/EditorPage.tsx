@@ -621,19 +621,21 @@ function DuplicateSection({
                 <div key={row.id} className="duplicates__row">
                   <span className="duplicates__key">{row.key}</span>
 
-                  <div className="hotkey-grid">
-                    {row.cells.map(({ entry, name }) => (
-                      <HotkeyTile
-                        key={name}
-                        entry={entry}
-                        isCapturing={capturingId === entry.id}
-                        isChanged={original[entry.id] !== entry.value}
-                        isDisabled={readOnly}
-                        onActivate={() => onCapture(entry.id)}
-                        displayName={isCommandLink(name) ? name : undefined}
-                      />
-                    ))}
-                  </div>
+                  return (
+    <div className="hotkey-grid">
+      {row.cells.map(({ entry, name }) => (
+        <HotkeyTile
+          key={name}
+          entry={entry}
+          isCapturing={capturingId === entry.id}
+          isChanged={original[entry.id] !== entry.value}
+          isDisabled={readOnly}
+          onActivate={() => onCapture(entry.id)}
+          displayName={isCommandLink(name) ? name : undefined}
+          linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
+        />
+      ))}
+    </div>
 
                   <span className="duplicates__panels">
                     {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
@@ -902,6 +904,7 @@ function PanelCommandGrid({
               isDisabled={readOnly}
               onActivate={() => onCapture(entry.id)}
               displayName={isCommandLink(name) ? name : undefined}
+              linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
             />
           ))}
         </Fragment>
@@ -1069,6 +1072,7 @@ function SlotPanel({
               isDisabled={readOnly}
               onActivate={() => onCapture(cell.entry.id)}
               displayName={isCommandLink(cell.name) ? cell.name : undefined}
+              linkedTo={isCommandLink(cell.name) ? commandOf(cell.name) : undefined}
             />
           )
         })}
@@ -1159,6 +1163,7 @@ function TileGrid({
           isActive={activeId === name}
           onActivate={() => onPick(name)}
           displayName={isCommandLink(name) ? name : undefined}
+          linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
         />
       ))}
     </div>
@@ -1196,6 +1201,7 @@ function EntryGrid({
           isDisabled={readOnly}
           onActivate={() => onCapture(entry.id)}
           displayName={isCommandLink(name) ? name : undefined}
+          linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
         />
       ))}
     </div>
