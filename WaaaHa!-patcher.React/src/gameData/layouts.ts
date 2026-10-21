@@ -360,7 +360,7 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
          'necron_restored_monolith'
        ],
        Building: [
-         'necron_monolith', 'necron_turret', 'necron_plasma_generator',
+         'necron_monolith', 'necron_listening_post', 'necron_turret', 'necron_plasma_generator',
          'necron_thermo_generator', 'necron_summoning_core',
          'necron_forbidden_archive', 'necron_greater_summoning_core',
          'necron_energy_core'
@@ -848,12 +848,12 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
 
   sisters_listening_post: {
     command: [
-      'addon_sisters_list_post_1', 'addon_sisters_list_post_2', '', '',
+      'addon_sisters_list_post_1', '', '', '',
       'sisters_upgrade_requisition_1', '', '', '',
       'addon_sisters_holy_icon'
     ],
     second: [
-      '', '', '', '',
+      '', 'addon_sisters_list_post_2', '', '',
       'sisters_upgrade_requisition_2'
     ],
     improvements: [
@@ -1192,12 +1192,12 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
 
   marine_listening_post: {
     command: [
-      'marine_listening_post_1', 'marine_listening_post_2', '', '',
+      'marine_listening_post_1', '', '', '',
       'marine_requisition_research_1', '', '', '',
       'marine_skull_probe'
     ],
     second: [
-      '', '', '', '',
+      '', 'marine_listening_post_2', '', '',
       'marine_requisition_research_2'
     ],
     improvements: [
@@ -1523,11 +1523,11 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
 
   chaos_listening_post: {
     command: [
-      'chaos_listening_post_1', 'chaos_listening_post_2', '', '',
+      'chaos_listening_post_1', '', '', '',
       'chaos_requisition_research_1'
     ],
     second: [
-      '', '', '', '',
+      '', 'chaos_listening_post_2', '', '',
       'chaos_requisition_research_2'
     ],
     improvements: [
@@ -1715,7 +1715,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   necron_listening_post: {
     command: ['addon_necron_list_post_1'],
     second: [
-      '', 'addon_necron_list_post_2',
+      '', 'addon_necron_list_post_2', '', '',
       'necron_doom'
     ],
     improvements: [
@@ -1925,6 +1925,8 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
  * есть как отдельные записи, раз попали в раскладку.
  */
 export const COMMAND_LINKS: Readonly<Record<string, string>> = {
+  chaos_daemon_prince: 'possess',
+  chaos_bloodthirster: 'possess',
   necron_nightbringer: 'necron_possess_nightbringer',
   necron_attack_scarab: 'direct_spawn',
 }
