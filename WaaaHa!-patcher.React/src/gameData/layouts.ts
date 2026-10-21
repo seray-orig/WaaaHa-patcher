@@ -1348,7 +1348,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
   chaos_lord: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
-      'chaos_daemon_prince_possess', '', '@panel_yellow', '@panel_melee',
+      'chaos_daemon_prince', '', '@panel_yellow', '@panel_melee',
       'chaos_daemon_strength', 'chaos_tainted_auspex'
     ],
     second: [''],
@@ -1413,11 +1413,11 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: ['reinforce']
   },
 
-  possess: {
+  chaos_daemon_prince: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_red', '',
-      'chaos_daemon_roar', 'chaos_tainted_auspex', ''
+      'chaos_daemon_roar', 'chaos_tainted_auspex', 'chaos_daemon_prince'
     ],
     second: [
       '', '', '', '',
@@ -1431,7 +1431,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_yellow', '',
-      '', '', '', 'jump'
+      '', '', '', 'chaos_bloodthirster'
     ],
     second: [''],
     improvements: ['']
@@ -1676,7 +1676,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: ['']
   },
 
-  necron_possess_nightbringer: {
+  necron_nightbringer: {
     command: [
       'move', 'stop', 'attackmove', 'attackmelee',
       '', '', '@panel_yellow', '@panel_melee'
@@ -1909,10 +1909,8 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   necron_lightning_field: 'lightning_field',
   necron_warrior_disruption_field_research_2: 'necron_warrior_disruption_field_research',
   necron_warrior_disruption_field_research_3: 'necron_warrior_disruption_field_research',
-  necron_attack_scarab: 'direct_spawn',
   necron_harvest_1: 'harvest',
   necron_harvest_2: 'harvest',
-  necron_nightbringer: 'necron_possess_nightbringer',
 }
 
 /**
@@ -1927,7 +1925,7 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
  * есть как отдельные записи, раз попали в раскладку.
  */
 export const COMMAND_LINKS: Readonly<Record<string, string>> = {
-  chaos_daemon_prince_possess: 'possess',
+  chaos_daemon_prince: 'possess',
   chaos_bloodthirster: 'possess',
 }
 
