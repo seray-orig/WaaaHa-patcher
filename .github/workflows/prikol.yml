@@ -68,22 +68,26 @@ jobs:
     # его внутри одного файла нельзя, сборка откажется (NETSDK1176): упаковка внутри
     # файла поддерживается только для самодостаточной публикации. Поэтому сжатый
     # артефакт здесь — zip ниже, как и раньше.
-    - name: Публикация API (со вшитым .NET)
+    # Основная версия — самодостаточная, в один сжатый бинарник. Работает у кого угодно.
+    - name: Публикация API (со вшитым .NET, один бинарник)
       run: |
         RAW_VER="${GITHUB_REF_NAME#v}"
         CLEAN_VER="${RAW_VER#dev}"
-        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version="$CLEAN_VER" -p:SelfContained=true -p:EnableCompressionInSingleFile=true
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64 -p:Version="$CLEAN_VER" -p:SelfContained=true -p:PublishSingleFile=true -p:EnableCompressionInSingleFile=true
 
-    - name: Публикация API (без вшитого .NET)
+    # Лёгкая версия — без вшитого .NET (нужен .NET 10 на машине). Один файл здесь
+    # сделать нельзя (NETSDK1176): упаковка в single file поддерживается только для
+    # самодостаточной публикации, поэтому PublishSingleFile отключён явно.
+    - name: Публикация API (без вшитого .NET, lite)
       run: |
         RAW_VER="${GITHUB_REF_NAME#v}"
         CLEAN_VER="${RAW_VER#dev}"
-        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64-fd -p:Version="$CLEAN_VER" -p:SelfContained=false -p:EnableCompressionInSingleFile=false
+        dotnet publish 'WaaaHa!-patcher.API/WaaaHa!-patcher.API.csproj' -c Release -r win-x64 -o ./publish-x64-fd -p:Version="$CLEAN_VER" -p:SelfContained=false -p:PublishSingleFile=false -p:EnableCompressionInSingleFile=false
 
     - name: Упаковка API в архив
       run: |
         7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64.zip' ./publish-x64/*
-        7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64-fd.zip' ./publish-x64-fd/*
+        7z a -tzip -mx=9 'WaaaHa!-Patcher_win-x64-Lite.zip' ./publish-x64-fd/*
 
     - name: Сохраняем артефакт x64
       uses: actions/upload-artifact@v4
@@ -117,7 +121,7 @@ jobs:
         merge-multiple: true
 
     - name: Генерация SHA256
-      run: sha256sum 'WaaaHa!-Patcher_win-x64.zip' 'WaaaHa!-Patcher_win-x64-fd.zip' > checksums.txt
+      run: sha256sum 'WaaaHa!-Patcher_win-x64.zip' 'WaaaHa!-Patcher_win-x64-Lite.zip' > checksums.txt
 
     - name: Проверка типа релиза (dev или stable)
       id: check_version
