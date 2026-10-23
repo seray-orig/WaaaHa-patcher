@@ -620,23 +620,20 @@ function DuplicateSection({
               {block.rows.map((row) => (
                 <div key={row.id} className="duplicates__row">
                   <span className="duplicates__key">{row.key}</span>
-
-                  return (
-    <div className="hotkey-grid">
-      {row.cells.map(({ entry, name }) => (
-        <HotkeyTile
-          key={name}
-          entry={entry}
-          isCapturing={capturingId === entry.id}
-          isChanged={original[entry.id] !== entry.value}
-          isDisabled={readOnly}
-          onActivate={() => onCapture(entry.id)}
-          displayName={isCommandLink(name) ? name : undefined}
-          linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
-        />
-      ))}
-    </div>
-
+                  <div className="hotkey-grid">
+                    {row.cells.map(({ entry, name }) => (
+                      <HotkeyTile
+                        key={name}
+                        entry={entry}
+                        isCapturing={capturingId === entry.id}
+                        isChanged={original[entry.id] !== entry.value}
+                        isDisabled={readOnly}
+                        onActivate={() => onCapture(entry.id)}
+                        displayName={isCommandLink(name) ? name : undefined}
+                        linkedTo={isCommandLink(name) ? commandOf(name) : undefined}
+                      />
+                    ))}
+                  </div>
                   <span className="duplicates__panels">
                     {[...row.panels].map((panel) => panelName(panel)).join(' · ')}
                   </span>
