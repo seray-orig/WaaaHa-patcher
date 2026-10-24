@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { composeChord, keyFromCode, keyFromMouseButton, readKey } from '../hotkeys/keyboard'
+import { composeChord, keyFromCode, readKey } from '../hotkeys/keyboard'
 import type { KeyCatalog } from '../api/types'
 
 export interface KeyCaptureOptions {
@@ -127,31 +127,18 @@ export function useKeyCapture(activeId: string | null, options: KeyCaptureOption
       optionsRef.current.onChord(key)
     }
 
+    // Кнопки мыши из захвата убраны: клик прерывает подбор хоткея и не меняет его.
     function handleMouseDown(event: globalThis.MouseEvent) {
-      const key = keyFromMouseButton(event.button)
-
-      if (key === '') {
-        return
-      }
-
       event.preventDefault()
       event.stopPropagation()
 
-      if (settled || !allowed().has(key)) {
+      if (settled) {
         return
       }
 
       settled = true
-      heldModifier = null
 
-      optionsRef.current.onChord(
-        composeChord({
-          key,
-          ctrl: event.ctrlKey,
-          shift: event.shiftKey,
-          alt: event.altKey,
-        }),
-      )
+      optionsRef.current.onCancel()
     }
 
     function swallow(event: Event) {
