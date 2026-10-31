@@ -242,203 +242,68 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
         'marine_bolter_turret', 'marine_mine_field', 'marine_orbital_relay'
       ],
       Ability: [
-        'marine_sabotage', 'marine_frag_grenades', 'jump', 'teleport', 'marine_rally', 'marine_melta_bombs', 'marine_demoralize',
-        'marine_smite', 'marine_weaken_resolve', 'marine_inquisition', 'marine_smoke_launchers', 'marine_word_of_emperer',
+        'marine_sabotage', 'marine_frag_grenades', 'jump', 'teleport', 'unload', 'marine_rally', 'marine_melta_bombs', 'marine_demoralize',
+        'marine_smite', 'marine_weaken_resolve', 'marine_word_of_emperer', 'marine_inquisition', 'marine_smoke_launchers',
         'marine_battlecry', 'marine_orbital_bombardment', 'marine_machine_spirit'
       ],
       Research: [
         'marine_requisition_research_1', 'marine_requisition_research_2', 'marine_power_research_1', 'marine_power_research_2',
         'marine_squad_cap_research', 'marine_vehicle_cap_research', 'marine_sniper_rifle_research', 'marine_health_research_1', 'marine_health_research_2',
-        'marine_accuracy_research_1', 'marine_accuracy_research_2', 'marine_power_swords_research', 'marine_sergeant_melee_research_2',
-        'marine_scout_infiltration_research', 'marine_smoke_launcher_research', 'marine_skull_probe_infiltration_research', 'marine_melta_bomb_research',
-        'marine_furious_charge_research', 'marine_frag_grenade_research', 'marine_sergeant_ranged_research',
-        'marine_commander_health_research_1', 'marine_commander_health_research_2', 'marine_librarian_research_1', 'marine_librarian_research_2',
-        'marine_librarian_research_2_w40k', 'marine_force_commander_research_1', 'marine_force_commander_research_2', 'marine_personalteleporter_research'
+        'marine_accuracy_research_1', 'marine_accuracy_research_2', 'marine_max_weapons_research', 'marine_power_swords_research', 'marine_sergeant_melee_research_2',
+        'marine_sergeant_ranged_research', 'marine_scout_infiltration_research', 'marine_smoke_launcher_research', 'marine_skull_probe_infiltration_research',
+        'marine_melta_bomb_research', 'marine_furious_charge_research', 'marine_frag_grenade_research', 'marine_commander_health_research_1',
+        'marine_commander_health_research_2', 'marine_librarian_research_1', 'marine_librarian_research_2', 'marine_force_commander_research_1',
+        'marine_force_commander_research_2', 'marine_personalteleporter_research', 'marine_heavy_armor_deployment'
       ],
       WeaponUpgrade: [
-        'marine_flamer', 'marine_heavy_bolter', 'marine_sniper_rifle', 'marine_plasma_gun', 'marine_missile_launcher',
-        'marine_heavy_flamer', 'marine_assault_cannon', 'marine_dreadnought_assault_cannon', 'marine_dreadnought_lascannon_twin',
-        'marine_missile_frag', 'marine_missile_krak', 'marine_lascannon_1', 'marine_lascannon_2', 'marine_lascannon_twin'
+        'marine_flamer', 'marine_sniper_rifle', 'marine_heavy_bolter', 'marine_plasma_gun', 'marine_missile_launcher',
+        'marine_missile_frag', 'marine_missile_krak', 'marine_dreadnought_assault_cannon', 'marine_dreadnought_lascannon_twin',
+        'marine_heavy_flamer', 'marine_assault_cannon', 'marine_lascannon_1', 'marine_lascannon_2', 'marine_lascannon_twin'
       ],
       Addon: [
-        'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_missile_launcher_turret', 'marine_listening_post_1', 'marine_listening_post_2',
-        'marine_heavy_armor_deployment'
+        'marine_hq_addon_1', 'marine_hq_addon_2', 'marine_missile_launcher_turret', 'marine_listening_post_1', 'marine_listening_post_2'
       ]
      },
-   },
-
-   sisters: {
-    sections: {
-      Infantry: [
-        'sisters_servitor', 'sisters_missionary', 'sisters_battle_sister', 'sisters_canoness', 'sisters_seraphim', 'sisters_celestian', 'sisters_confessor',
-        'sisters_assassin', 'sisters_repentia', 'sisters_ascension_angel', 'sisters_living_saint'
-      ],
-      Vehicle: [
-        'sisters_rhino', 'sisters_immolator_tank', 'sisters_lightning', 'sisters_exorcist_tank', 'sisters_penitent_engine'
-      ],
-      Building: [
-        'sisters_hq', 'sisters_infantry', 'sisters_listening_post', 'sisters_generator', 'sisters_sanctuary', 'sisters_holy_reliquary', 'sisters_thermo_generator',
-        'sisters_vehicle_building', 'sisters_turret_flamer', 'sisters_mines', 'sisters_shrine'
-      ],
-      Ability: [
-        'sisters_laud_hailer', 'sisters_lay_hands', 'sisters_emperors_touch', 'sisters_divine_retribution', 'sisters_divine_light',
-        'sisters_ascension', 'sisters_phosphor_grenades', 'sisters_krak_grenades', 'jump', 'sisters_angelic_visage', 'sisters_witch_hammer',
-        'sisters_divine_pronouncement', 'sisters_righteous_fervor', 'sisters_ardent_flame'
-      ],
-      Research: [
-        'sisters_upgrade_requisition_1', 'sisters_upgrade_requisition_2', 'sisters_upgrade_power_1', 'sisters_upgrade_power_2',
-        'sisters_squad_cap', 'sisters_vehicle_cap', 'sisters_research_emperors_touch', 'sisters_research_divine_retribution', 'sisters_research_phosphor_grenades',
-        'sisters_research_krak_grenades', 'sisters_research_max_weapons', 'sisters_research_zealot_charge', 'sisters_research_blessed_ammunition',
-        'sisters_research_health', 'sisters_research_health_2', 'sisters_research_ranged_damage', 'sisters_research_ranged_damage_2',
-        'sisters_research_leader_melee_1', 'sisters_research_leader_melee_2', 'sisters_research_leader_range', 'sisters_research_laud_hailer',
-        'sisters_research_vehicle_armor', 'sisters_research_conflagration', 'sisters_research_holy_promethium',
-        'sisters_research_commander_health_1', 'sisters_research_commander_health_2', 'sisters_research_divine_pronouncement', 'sisters_research_ascension',
-        'sisters_research_martyrs_gift', 'sisters_research_faithful_morale', 'sisters_upgrade_heart_of_worship',
-      ],
-      WeaponUpgrade: [
-        'sisters_flamer', 'sisters_heavy_bolter', 'sisters_meltagun', 'sisters_multi_melta'
-      ],
-      Addon: [
-        'addon_sisters_hq_1', 'addon_sisters_hq_2', 'addon_sisters_turret', 'addon_sisters_list_post_1', 'addon_sisters_list_post_2', 'addon_sisters_holy_icon'
-      ]
-    }
    },
 
    chaos: {
      sections: {
        Infantry: [
-         'chaos_heretic', 'chaos_cultist', 'chaos_marines', 'chaos_raptors',
-         'chaos_khorne_berserker', 'chaos_horrors', 'chaos_possessed',
-         'chaos_obliterator', 'chaos_lord', 'chaos_sorcerer',
-         'chaos_daemon_prince', 'chaos_bloodthirster'
+        'chaos_heretic', 'chaos_cultist', 'chaos_marines', 'chaos_raptors', 'chaos_lord',
+        'chaos_sorcerer', 'chaos_khorne_berserker', 'chaos_horrors',
+        'chaos_possessed', 'chaos_obliterator','chaos_daemon_prince', 'chaos_bloodthirster'
        ],
        Vehicle: [
-         'chaos_rhino', 'chaos_defiler', 'chaos_predator', 'chaos_hell_talon'
+        'chaos_rhino', 'chaos_defiler', 'chaos_predator', 'chaos_hell_talon'
        ],
        Building: [
-         'chaos_hq', 'chaos_listening_post', 'chaos_generator',
-         'chaos_thermo_generator', 'chaos_temple', 'chaos_armoury',
-         'chaos_sacrificial_circle', 'chaos_machine_pit', 'chaos_greater_circle',
-         'chaos_bolter_turret', 'chaos_mine_field'
+        'chaos_hq', 'chaos_temple', 'chaos_listening_post', 'chaos_generator', 'chaos_armoury',
+        'chaos_machine_pit', 'chaos_sacrificial_circle', 'chaos_thermo_generator',
+        'chaos_bolter_turret', 'chaos_mine_field', 'chaos_greater_circle'
        ],
        Ability: [
-         'chaos_force_labor', 'chaos_corruption', 'chaos_chains', 'chaos_doom_bolt',
-         'chaos_frag_grenades', 'chaos_speed_fiends', 'chaos_tainted_auspex',
-         'chaos_daemon_strength', 'chaos_daemon_roar', 'chaos_biotoxin'
+        'chaos_force_labor', 'chaos_frag_grenades', 'chaos_tainted_auspex', 'chaos_furious_rage',
+        'chaos_speed_fiends', 'jump', 'teleport', 'unload', 'chaos_doom_bolt', 'chaos_chains', 'chaos_corruption', 'chaos_smoke_launchers',
+        'fear', 'chaos_biotoxin', 'chaos_daemon_strength', 'chaos_daemon_roar', 'chaos_daemon_prince', 'possess'
        ],
        Research: [
-         'chaos_squad_cap_research', 'chaos_vehicle_cap_research',
-         'chaos_frag_grenade_research', 'chaos_raptor_speed_research',
-         'chaos_cultist_sight_research', 'chaos_furious_charge_research',
-         'chaos_purge_the_weak', 'chaos_infiltration_research',
-         'chaos_marine_infiltration_research', 'chaos_smoke_launcher_research',
-         'chaos_possessed_daemon_fire_research', 'chaos_commander_health_research_1',
-         'chaos_commander_health_research_2', 'chaos_bloodthirster_research',
-         'chaos_daemon_prince_research', 'chaos_personalteleporters'
+        'chaos_requisition_research_1', 'chaos_requisition_research_2', 'chaos_power_research_1', 'chaos_power_research_2',
+        'chaos_squad_cap_research', 'chaos_vehicle_cap_research',
+        'chaos_frag_grenade_research', 'chaos_raptor_speed_research',
+        'chaos_cultist_sight_research', 'chaos_max_weapons_research', 'chaos_champion_melee_research_1', 'chaos_champion_melee_research_2', 'chaos_champion_ranged_research',
+        'chaos_furious_charge_research', 'chaos_purge_the_weak', 'chaos_infiltration_research',
+        'chaos_marine_infiltration_research', 'chaos_rage_research', 'chaos_smoke_launcher_research',
+        'chaos_possessed_daemon_fire_research', 'chaos_commander_health_research_1',
+        'chaos_commander_health_research_2', 'chaos_lord_research_1', 'chaos_lord_research_2', 'chaos_sorcerer_research_1', 'chaos_sorcerer_research_2', 'chaos_bloodthirster_research',
+        'chaos_daemon_prince_research', 'chaos_personalteleporters', 'chaos_projectiles'
        ],
        WeaponUpgrade: [
-         'chaos_heavy_bolter', 'chaos_plasma_gun', 'chaos_lascannon_1',
-         'chaos_lascannon_twin'
+        'chaos_grenade_launcher', 'chaos_flamer', 'chaos_heavy_bolter', 'chaos_plasma_gun',
+        'chaos_lascannon_1', 'chaos_lascannon_twin'
        ],
        Addon: [
-         'addon_chaos_hq_upgrade', 'addon_chaos_listening_post_1',
-         'addon_chaos_listening_post_2', 'addon_chaos_listening_post_dark_lance'
-       ]
-     }
-   },
-
-   necron: {
-     sections: {
-       Infantry: [
-         'necron_builder_scarab', 'necron_warrior', 'necron_wraith',
-         'necron_flayed_one', 'necron_immortal', 'necron_pariah', 'necron_lord',
-         'necron_nightbringer', 'necron_deceiver'
-       ],
-       Vehicle: [
-         'necron_tomb_spyder', 'necron_attack_scarab', 'necron_destroyer',
-         'necron_heavy_destroyer', 'necron_lord_destroyer',
-         'necron_restored_monolith'
-       ],
-       Building: [
-         'necron_monolith', 'necron_listening_post', 'necron_turret', 'necron_plasma_generator',
-         'necron_thermo_generator', 'necron_summoning_core',
-         'necron_forbidden_archive', 'necron_greater_summoning_core',
-         'necron_energy_core'
-       ],
-       Ability: [
-         'necron_wraith_flight_research', 'necron_phase_shifter_research',
-         'necron_lightning_field_research', 'necron_solar_pulse_research',
-         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
-         'necron_chronometron_research', 'necron_phase_shifter',
-         'necron_mass_resurrection', 'necron_solar_pulse', 'necron_chronometron',
-         'necron_wraith_defense', 'necron_flayed_fear'
-       ],
-       Research: [
-         'necron_disruption_field_research', 'necron_superior_disruption_field_research',
-         'necron_enhanced_disruption_field_research', 'necron_wraith_flight_research',
-         'necron_chronometron_research', 'necron_phase_shifter_research',
-         'necron_lightning_field_research', 'necron_solar_pulse_research',
-         'necron_phalactery_research', 'necron_resurrection_orb_research',
-         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
-         'necron_research_essence_of_c_tan_gods'
-       ],
-       WeaponUpgrade: [
-         'necron_gauss_cannon', 'necron_tomb_spyder_particle_projector'
-       ],
-       Addon: [
-         'addon_necron_hq_1', 'addon_necron_hq_2', 'addon_necron_list_post_1',
-         'addon_necron_list_post_2', 'addon_necron_turret'
-       ]
-     }
-   },
-
-   eldar: {
-     sections: {
-       Infantry: [
-         'eldar_bonesinger', 'eldar_guardians', 'eldar_rangers',
-         'eldar_banshee', 'eldar_dark_reapers', 'eldar_fire_dragon',
-         'eldar_warp_spiders', 'eldar_harlequin', 'eldar_farseer',
-         'eldar_warlock_seer', 'eldar_avatar'
-       ],
-       Vehicle: [
-         'eldar_falcon_grav_tank', 'eldar_vyper', 'eldar_wraithlord',
-         'eldar_nightwing', 'eldar_grav_platform_laser',
-         'eldar_grav_platform_brightlance', 'eldar_fire_prism'
-       ],
-       Building: [
-         'eldar_hq', 'eldar_listening_post', 'eldar_generator',
-         'eldar_advanced_generator', 'eldar_webway_gate', 'eldar_aspect_portal',
-         'eldar_soul_shrine', 'eldar_support_portal', 'eldar_support_platform',
-         'eldar_mine_field'
-       ],
-       Ability: [
-         'eldar_soulstone', 'eldar_wraithtomb', 'teleport', 'eldar_harlequin_kiss',
-         'eldar_entanglement', 'eldar_fleetoffoot', 'eldar_plasma_grenades',
-         'eldar_haywire_bombs', 'eldar_eldritch_storm', 'eldar_guide',
-         'eldar_mind_war', 'eldar_psychic_storm', 'jump', 'eldar_shroud_ability'
-       ],
-       Research: [
-         'eldar_mysticism', 'eldar_fleet_of_foot_research',
-         'eldar_mobilize_for_war_research', 'eldar_imbue_wraithtomb',
-         'eldar_plasma_grenade_research', 'eldar_ranger_infiltration_research',
-         'eldar_warp_spider_equipment', 'eldar_research_infantryaccuracy_1',
-         'eldar_research_infantryaccuracy_2', 'eldar_health_research',
-         'eldar_researchinfantryhealth_1', 'eldar_researchinfantryhealth_2',
-         'eldar_shroud_ability_research', 'eldar_webway_gate_healing_research',
-         'eldar_webway_gate_relocation_research', 'eldar_tier2_research',
-         'eldar_nightwing_regen_research', 'eldar_annihilate_the_enemy',
-         'eldar_call_of_war_research', 'eldar_vehicle_holo_field_research'
-       ],
-       WeaponUpgrade: [
-         'eldar_shuriken_cannon', 'eldar_scatter_laser', 'eldar_bright_lance',
-         'eldar_starcannon'
-       ],
-       Addon: [
-         'eldar_support_platform_addon', 'eldar_banshee_aspect_stone',
-         'eldar_fire_dragon_aspect_stone', 'eldar_dark_reaper_aspect_stone',
-         'eldar_warp_spider_aspect_stone', 'eldar_fire_prism_aspect_stone',
-         'eldar_vyper_aspect_stone', 'eldar_wraithlord_aspect_stone',
-         'eldar_dcannon'
+        'chaos_hq_addon_1', 'chaos_hq_addon_2', 'chaos_listening_post_1',
+        'chaos_listening_post_2', 'chaos_missile_launcher_turret'
        ]
      }
    },
@@ -446,18 +311,18 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
    ork: {
      sections: {
        Infantry: [
-         'ork_grots', 'ork_slugga_boyz', 'ork_shoota_boyz', 'ork_stormboyz',
-         'ork_tankbustas', 'ork_nobs', 'ork_flash_gitz', 'ork_armored_nob',
-         'ork_bad_dok', 'ork_mek_boy', 'ork_warboss'
+         'ork_grots', 'ork_slugga_boyz', 'ork_shoota_boyz', 'ork_mek_boy',
+         'ork_stormboyz', 'ork_tankbustas', 'ork_nobs', 'ork_armored_nob',
+         'ork_flash_gitz', 'ork_bad_dok', 'ork_warboss', 'ork_squiggoth'
        ],
        Vehicle: [
          'ork_trukk', 'ork_wartrak', 'ork_killa_kan', 'ork_fighta_bomma',
-         'ork_looted_tank', 'ork_squiggoth'
+         'ork_looted_tank'
        ],
        Building: [
-         'ork_hq', 'ork_listening_post', 'ork_generator', 'ork_big_generator',
-         'ork_waagh_banner', 'ork_boy_hut', 'ork_pile_o_guns', 'ork_mek_shop',
-         'ork_mine_field'
+        'ork_hq', 'ork_boy_hut', 'ork_listening_post', 'ork_generator',
+        'ork_waagh_banner', 'ork_pile_o_guns', 'ork_mek_shop', 'ork_big_generator',
+        'ork_mine_field'
        ],
        Ability: [
          'ork_teleport', 'ork_power_of_waagh', 'ork_power_surge',
@@ -491,146 +356,88 @@ export const FACTION_ROSTERS: Readonly<Partial<Record<FactionKey, FactionRoster>
      }
    },
 
-   guard: {
+   necron: {
      sections: {
        Infantry: [
-         'guard_enginseer', 'guard_guardsmen', 'guard_heavy_weapon',
-         'guard_kasrkin', 'guard_ogryn', 'guard_command_squad',
-         'guard_commissar', 'guard_psyker', 'guard_priest', 'guard_assassin'
+         'necron_builder_scarab', 'necron_warrior', 'necron_wraith',
+         'necron_flayed_one', 'necron_immortal', 'necron_pariah', 'necron_lord',
+         'necron_nightbringer', 'necron_deceiver'
        ],
        Vehicle: [
-         'guard_chimera', 'guard_sentinel', 'guard_hellhound', 'guard_basilisk',
-         'guard_marauder', 'guard_leman_russ', 'guard_baneblade'
+         'necron_tomb_spyder', 'necron_attack_scarab', 'necron_destroyer',
+         'necron_heavy_destroyer', 'necron_lord_destroyer',
+         'necron_restored_monolith'
        ],
        Building: [
-         'guard_hq', 'guard_listening_post', 'guard_generator',
-         'guard_thermo_generator', 'guard_infantry', 'guard_tactica',
-         'guard_mechanized_command', 'guard_mars_command',
-         'guard_bolter_turret', 'guard_mine_field'
+         'necron_monolith', 'necron_plasma_generator', 'necron_listening_post', 'necron_summoning_core',
+         'necron_forbidden_archive', 'necron_thermo_generator',
+         'necron_greater_summoning_core', 'necron_turret', 'necron_energy_core'
        ],
        Ability: [
-         'guard_execute', 'guard_curse_of_the_machine_spirits',
-         'guard_strip_soul', 'guard_lightning_arc', 'guard_fanaticism',
-         'guard_assassination_scope', 'guard_fragmentation_grenade',
-         'guard_strafing_run', 'guard_let_it_burn', 'guard_earthshaker_round',
-         'guard_bombing_run_smoke_canisters', 'guard_bombing_run_krak_bombs',
-         'guard_bombing_run_incendiary_bombs'
+         'necron_wraith_flight_research', 'necron_phase_shifter_research',
+         'necron_lightning_field_research', 'necron_solar_pulse_research',
+         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
+         'necron_chronometron_research', 'necron_phase_shifter',
+         'necron_mass_resurrection', 'necron_solar_pulse', 'necron_chronometron',
+         'necron_wraith_defense', 'necron_flayed_fear'
        ],
        Research: [
-         'guard_ordo_exterminatus_research', 'guard_escalate_engagement_research',
-         'guard_plasma_battery_storage_research',
-         'guard_improved_power_grid_research', 'guard_death_before_dishonor',
-         'guard_battle_armor', 'guard_dauntless_valor', 'guard_uncommon_valor',
-         'guard_satellite_targeting_resolution', 'guard_will_of_the_emperor',
-         'guard_weapon_specialization', 'guard_genetic_enhancement',
-         'guard_kasrkin_armor', 'guard_powered_bayonets', 'guard_infiltration',
-         'guard_full_scale_war'
+         'necron_disruption_field_research', 'necron_superior_disruption_field_research',
+         'necron_enhanced_disruption_field_research', 'necron_wraith_flight_research',
+         'necron_chronometron_research', 'necron_phase_shifter_research',
+         'necron_lightning_field_research', 'necron_solar_pulse_research',
+         'necron_phalactery_research', 'necron_resurrection_orb_research',
+         'necron_veil_of_darkness_research', 'necron_nightmare_shroud_research',
+         'necron_research_essence_of_c_tan_gods'
        ],
        WeaponUpgrade: [
-         'guard_autocannon', 'guard_lasgun', 'guard_multi_laser',
-         'guard_heavy_bolter', 'guard_missile_launcher', 'guard_multi_melta',
-         'guard_plasma_gun', 'guard_grenade_launcher', 'guard_melta_bombs'
+         'necron_gauss_cannon', 'necron_tomb_spyder_particle_projector'
        ],
        Addon: [
-         'addon_guard_hq_1', 'addon_guard_hq_2',
-         'addon_guard_listening_post_1', 'addon_guard_listening_post_2',
-         'addon_guard_basilisk_depot', 'addon_guard_hellhound_depot',
-         'addon_guard_leman_russ_depot', 'addon_guard_marauder_depot',
-         'addon_guard_sentinel_depot', 'addon_guard_missile_turret_upgrade'
+         'addon_necron_hq_1', 'addon_necron_hq_2', 'addon_necron_list_post_1',
+         'addon_necron_list_post_2', 'addon_necron_turret'
        ]
      }
    },
 
-   tau: {
-     sections: {
-       Infantry: [
-         'tau_builder', 'tau_stealth_warrior', 'tau_vespid_auxiliary',
-         'tau_fire_warrior', 'tau_kroot_warrior', 'tau_kroot_shaper',
-         'tau_pathfinder', 'tau_broadside_battlesuit', 'tau_crisis_suit',
-         'tau_kroot_hound', 'tau_commander', 'tau_ethereal',
-         'tau_fire_warrior_shasui'
-       ],
-       Vehicle: [
-         'tau_devilfish_carrier', 'tau_skyray', 'tau_drone_squad',
-         'tau_drone_harbinger', 'tau_barracuda', 'tau_hammerhead',
-         'tau_krootox', 'tau_greater_knarloc'
-       ],
-       Building: [
-         'tau_hq', 'tau_listening_post', 'tau_plasma_generator',
-         'tau_thermo_generator', 'tau_barracks', 'tau_shrine_of_purpose',
-         'tau_kroot_nest', 'tau_shrine_of_kauyon', 'tau_shrine_of_montka',
-         'tau_research_building'
-       ],
-       Ability: [
-         'tau_target_lock', 'tau_air_caste_strike', 'tau_destabilization',
-         'tau_sonic_pulse', 'tau_jump', 'tau_missile_barrage', 'tau_mark_squad',
-         'tau_snare_trap', 'tau_target_acquired'
-       ],
-       Research: [
-         'tau_jetpacks', 'tau_stealth_burst_cannon_enhancements',
-         'tau_target_lock_research', 'tau_advanced_pulse_rifle',
-         'tau_improved_metallurgy', 'tau_targeting_optics',
-         'tau_missile_barrage_research', 'tau_feral_leap',
-         'tau_teachings_of_montka', 'tau_teachings_of_kauyon',
-         'tau_plasma_battery_storage_research',
-         'tau_strengthen_power_grid_research'
-       ],
-       WeaponUpgrade: [
-         'tau_pulse_rifle', 'tau_burst_cannon', 'tau_fusion_blaster',
-         'tau_missile_pod', 'tau_ion_cannon', 'tau_railgun',
-         'tau_smart_missile_system'
-       ],
-       Addon: [
-         'addon_tau_hq_1', 'addon_tau_hq_2',
-         'addon_tau_listening_post_1', 'addon_tau_listening_post_2'
-       ]
-     }
+   sisters: {
+    sections: {
+      Infantry: [
+        'sisters_servitor', 'sisters_missionary', 'sisters_battle_sister', 'sisters_canoness', 'sisters_seraphim', 'sisters_celestian', 'sisters_confessor',
+        'sisters_assassin', 'sisters_repentia', 'sisters_ascension_angel', 'sisters_living_saint'
+      ],
+      Vehicle: [
+        'sisters_rhino', 'sisters_immolator_tank', 'sisters_lightning', 'sisters_exorcist_tank', 'sisters_penitent_engine'
+      ],
+      Building: [
+        'sisters_hq', 'sisters_infantry', 'sisters_listening_post', 'sisters_generator',
+        'sisters_sanctuary', 'sisters_vehicle_building', 'sisters_holy_reliquary',
+        'sisters_thermo_generator', 'sisters_turret_flamer', 'sisters_mines', 'sisters_shrine'
+      ],
+      Ability: [
+        'sisters_laud_hailer', 'sisters_lay_hands', 'sisters_emperors_touch', 'sisters_divine_retribution', 'sisters_divine_light',
+        'sisters_ascension', 'sisters_phosphor_grenades', 'sisters_krak_grenades', 'jump', 'sisters_angelic_visage', 'sisters_witch_hammer',
+        'sisters_divine_pronouncement', 'sisters_righteous_fervor', 'sisters_ardent_flame'
+      ],
+      Research: [
+        'sisters_upgrade_requisition_1', 'sisters_upgrade_requisition_2', 'sisters_upgrade_power_1', 'sisters_upgrade_power_2',
+        'sisters_squad_cap', 'sisters_vehicle_cap', 'sisters_research_emperors_touch', 'sisters_research_divine_retribution', 'sisters_research_phosphor_grenades',
+        'sisters_research_krak_grenades', 'sisters_research_max_weapons', 'sisters_research_zealot_charge', 'sisters_research_blessed_ammunition',
+        'sisters_research_health', 'sisters_research_health_2', 'sisters_research_ranged_damage', 'sisters_research_ranged_damage_2',
+        'sisters_research_leader_melee_1', 'sisters_research_leader_melee_2', 'sisters_research_leader_range', 'sisters_research_laud_hailer',
+        'sisters_research_vehicle_armor', 'sisters_research_conflagration', 'sisters_research_holy_promethium',
+        'sisters_research_commander_health_1', 'sisters_research_commander_health_2', 'sisters_research_divine_pronouncement', 'sisters_research_ascension',
+        'sisters_research_martyrs_gift', 'sisters_research_faithful_morale', 'sisters_upgrade_heart_of_worship',
+      ],
+      WeaponUpgrade: [
+        'sisters_flamer', 'sisters_heavy_bolter', 'sisters_meltagun', 'sisters_multi_melta'
+      ],
+      Addon: [
+        'addon_sisters_hq_1', 'addon_sisters_hq_2', 'addon_sisters_turret', 'addon_sisters_list_post_1', 'addon_sisters_list_post_2', 'addon_sisters_holy_icon'
+      ]
+    }
    },
 
-   dark_eldar: {
-     sections: {
-       Infantry: [
-         'dark_eldar_slave', 'dark_eldar_mandrake', 'dark_eldar_warrior',
-         'dark_eldar_hellion', 'dark_eldar_scourge', 'dark_eldar_wych',
-         'dark_eldar_warp_beast', 'dark_eldar_archon', 'dark_eldar_haemonculus'
-       ],
-       Vehicle: [
-         'dark_eldar_reaver', 'dark_eldar_raider', 'dark_eldar_talos',
-         'dark_eldar_raven', 'dark_eldar_ravager', 'dark_eldar_dais'
-       ],
-       Building: [
-         'dark_eldar_hq', 'dark_eldar_crucible', 'dark_eldar_generator',
-         'dark_eldar_thermo_generator', 'dark_eldar_hall_of_blood',
-         'dark_eldar_haemonculus_laboratory', 'dark_eldar_dark_foundry',
-         'dark_eldar_wych_cult_arena', 'dark_eldar_soul_cage'
-       ],
-       Ability: [
-         'dark_eldar_corrosion', 'dark_eldar_piercing_vision',
-         'dark_eldar_rekindle_rage', 'dark_eldar_rend_soul',
-         'dark_eldar_screams_of_the_damned', 'dark_eldar_soulstorm',
-         'dark_eldar_crucible', 'dark_eldar_animus_vitae', 'dark_eldar_soul_shock',
-         'dark_eldar_stinger', 'dark_eldar_torture_amp', 'dark_eldar_combat_drugs',
-         'dark_eldar_short_circuit', 'dark_eldar_wildfire', 'dark_eldar_horrorfex',
-         'dark_eldar_dais'
-       ],
-       Research: [
-         'dark_eldar_research_infiltration_mandrake',
-         'dark_eldar_research_reaver_targeting',
-         'dark_eldar_research_wildfire', 'dark_eldar_research_poisoned_blades',
-         'dark_eldar_research_stinger', 'dark_eldar_research_soul_destruction',
-         'dark_eldar_research_crucible', 'dark_eldar_research_daemonic_touch'
-       ],
-       WeaponUpgrade: [
-         'dark_eldar_splinter_rifle', 'dark_eldar_dark_lance',
-         'dark_eldar_shredder', 'dark_eldar_heat_lance'
-       ],
-       Addon: [
-         'addon_dark_eldar_hq_upgrade', 'addon_dark_eldar_list_post_1',
-         'addon_dark_eldar_list_post_2', 'addon_dark_eldar_list_post_dark_lance',
-         'addon_dark_eldar_slave_graveyard'
-       ]
-     }
-   }
 }
 
 /** Панели юнитов и строений.
@@ -1475,7 +1282,7 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     improvements: [
       '', '',
       'chaos_lascannon_twin', 'chaos_lascannon_1',
-      'chaos_lascannon_2'
+      'chaos_lascannon_1'
     ]
   },
 
@@ -1851,6 +1658,309 @@ export const UNIT_LAYOUTS: Readonly<Record<string, UnitLayout>> = {
     ]
   },
 
+  ork_grots: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      'build', 'repair', '@panel_yellow', '@panel_melee'
+    ],
+    second: [
+      'ork_hq', 'ork_boy_hut', 'ork_listening_post', 'ork_generator',
+      'ork_waagh_banner', 'ork_pile_o_guns', 'ork_mek_shop', 'ork_big_generator',
+      'ork_mine_field', '', '', 'escape'
+    ],
+    improvements: ['reinforce']
+  },
+
+  ork_slugga_boyz: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'ork_nob_leader',
+      'ork_burna'
+    ]
+  },
+
+  ork_shoota_boyz: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'ork_nob_leader',
+      'ork_big_shoota'
+    ]
+  },
+
+  ork_mek_boy: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'repair', '@panel_yellow', '@panel_melee',
+      'ork_tank_zzappa', '', '', 'teleport'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  ork_stormboyz: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'ork_turbo_boost', 'ork_stikkbombs', '', 'jump'
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'ork_nob_leader'
+    ]
+  },
+
+  ork_nobs: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+    ],
+    second: [''],
+    improvements: [
+      'reinforce', 'ork_nob_leader',
+      'ork_power_klaw'
+    ]
+  },
+
+  ork_tankbustas: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun',
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  ork_armored_nob: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'ork_power_surge'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  ork_flash_gitz: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_gun'
+    ],
+    second: [''],
+    improvements: ['reinforce']
+  },
+
+  ork_bad_dok: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'portable_nuke', 'ork_fightin_juice'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  ork_warboss: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee',
+      'ork_power_of_waagh'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      '', '',
+      '', '',
+      'attach'
+    ]
+  },
+
+  ork_squiggoth: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', 'unload', '@panel_yellow', '@panel_melee',
+      '', '', '', 'rampage'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  ork_trukk: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'unload', '@panel_yellow', '',
+      'ork_turbo_boost'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  ork_wartrak: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', '', '@panel_yellow', '',
+      'ork_turbo_boost'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'ork_bomb_chucka'
+    ]
+  },
+
+  ork_killa_kan: {
+    command: [
+      'move', 'stop', 'attackmove', 'attackmelee',
+      '', '', '@panel_yellow', '@panel_melee'
+    ],
+    second: [''],
+    improvements: [
+      '', '',
+      'ork_rokkit_launcha'
+    ]
+  },
+
+  ork_fighta_bomma: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  ork_looted_tank: {
+    command: [
+      'move', 'stop', 'attackmove', '',
+      '', 'attackground', '@panel_yellow'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  ork_hq: {
+    command: [
+      'ork_slugga_boyz', 'ork_grots', 'ork_bad_dok', 'ork_warboss',
+      'ork_research_grot_infiltration', 'ork_tankbusta_infiltration_research', '', 'ork_armored_nob',
+      'ork_hq_addon'
+    ],
+    second: [''],
+    improvements: [
+      'rally', '@panel_yellow',
+      'unload', 'attack'
+    ]
+  },
+
+  ork_boy_hut: {
+    command: [
+      'ork_slugga_boyz', 'ork_shoota_boyz', 'ork_stormboyz', 'ork_nobs',
+      'ork_mek_boy', 'ork_flash_gitz', '', 'ork_tankbustas',
+      'ork_kustom_force_field_research'
+    ],
+    second: [''],
+    improvements: [
+      'rally', '@panel_yellow',
+      'unload', 'attack'
+    ]
+  },
+
+  ork_listening_post: {
+    command: [
+      'ork_listening_post_1', '', '', '',
+      'ork_requisition_research_1'
+    ],
+    second: [
+      '', 'ork_listening_post_2', '', '',
+      'ork_requisition_research_2'
+    ],
+    improvements: [
+      'rally', '',
+      'unload', 'attack'
+    ]
+  },
+
+  ork_generator: {
+    command: ['ork_power_research_1'],
+    second: ['ork_power_research_2'],
+    improvements: ['']
+  },
+
+  ork_waagh_banner: {
+    command: ['ork_waagh_banner_gunz_1'],
+    second: ['ork_waagh_banner_gunz_2'],
+    improvements: [
+      '', '',
+      '', 'attack'
+    ]
+  },
+
+  ork_pile_o_guns: {
+    command: [
+      'ork_moredakka_research_1', 'ork_big_shoota_research', 'ork_burna_research', 'ork_warboss_ranged_research',
+      'ork_morechoppy_research_1', '', '', '',
+      'ork_eavy_armor_boyz_research', 'ork_tougherbosses_research_1', 'ork_research_more_sluggas', 'ork_speed_boost_stormboyz_research'
+    ],
+    second: [
+      'ork_moredakka_research_2', '', 'ork_burna_research_2', '',
+      'ork_morechoppy_research_2', '', '', '',
+      'ork_eavy_armor_boyz_research_2', 'ork_tougherbosses_research_2'
+    ],
+    improvements: [
+      'rally', '',
+      'unload', 'attack'
+    ]
+  },
+
+  ork_mek_shop: {
+    command: [
+      'ork_trukk', 'ork_wartrak', 'ork_killa_kan', 'ork_fighta_bomma',
+      'ork_looted_tank', 'ork_squiggoth', '', '',
+      'ork_extra_armour_research', 'ork_speed_boost_research'
+    ],
+    second: [''],
+    improvements: [
+      'rally', '@panel_yellow',
+      'unload', 'attack'
+    ]
+  },
+
+  ork_big_generator: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
+  ork_mine_field: {
+    command: [
+      '', '', '', '',
+      '', '', '', '',
+      '', '', '', 'scuttle'
+    ],
+    second: [''],
+    improvements: ['']
+  },
+
 }
 
 export function rosterOf(faction: FactionKey | null): FactionRoster {
@@ -1904,13 +2014,16 @@ export const COMMAND_ALIASES: Readonly<Record<string, string>> = {
   sisters_repentia_mistress: 'leader',
   sisters_multi_melta_immolator: 'sisters_multi_melta',
   fear: 'necron_nightmare_shroud',
-  chaos_lascannon_2: 'chaos_lascannon_1',
   necron_summon: 'jump',
   necron_lightning_field: 'lightning_field',
   necron_warrior_disruption_field_research_2: 'necron_warrior_disruption_field_research',
   necron_warrior_disruption_field_research_3: 'necron_warrior_disruption_field_research',
   necron_harvest_1: 'harvest',
   necron_harvest_2: 'harvest',
+  ork_nob_leader: 'leader',
+  portable_nuke: 'tau_snare_trap',
+  ork_eavy_armor_boyz_research_2: 'ork_eavy_armor_boyz_research',
+  ork_burna_research_2: 'ork_burna_research'
 }
 
 /**
