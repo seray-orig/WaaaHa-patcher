@@ -1,5 +1,9 @@
 # WaaaHa! Patcher
 
+<p align="left">
+  <a href="https://github.com/seray-orig/WaaaHa-patcher/releases/latest"><img src="https://img.shields.io/github/downloads/seray-orig/WaaaHa-patcher/total.svg" alt="Downloads"></a>
+</p>
+
 Утилита для создания и правки горячих клавиш Dawn of War: Definitive Edition.
 Локальное приложение: сервер на ASP.NET Core поднимает веб-интерфейс и сам
 открывает его в браузере. Никакой авторизации и никаких данных наружу.
